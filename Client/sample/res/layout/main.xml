@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/linearLayout">
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="Login"
+                android:id="@+id/loginButton" />
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="Clear Saved User"
+                android:id="@+id/clearSavedUserButton"
+                />
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cached User:"
+            android:id="@+id/cachedUserTV"
+            android:layout_below="@+id/urlTV"
+            android:layout_alignParentLeft="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logged In: "
+            android:id="@+id/loggedInUserTV"
+            android:layout_below="@+id/cachedUserTV"
+            android:layout_alignParentLeft="true"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Users"
+            android:id="@+id/getUsersButton"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="URL: "
+            android:id="@+id/urlTV"
+            android:layout_below="@+id/linearLayout"
+            android:layout_alignParentLeft="true"/>
+
+    <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/usersLV"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/getUsersButton"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Push"
+            android:id="@+id/spkButton"
+            android:layout_alignTop="@+id/getUsersButton"
+            android:layout_toRightOf="@+id/getUsersButton"/>
+
+
+</RelativeLayout>
+
