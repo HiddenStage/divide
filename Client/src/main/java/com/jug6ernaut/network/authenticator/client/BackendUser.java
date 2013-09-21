@@ -1,6 +1,7 @@
 package com.jug6ernaut.network.authenticator.client;
 
 import com.jug6ernaut.android.logging.Logger;
+import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;

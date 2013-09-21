@@ -1,5 +1,8 @@
 package com.jug6ernaut.network.authenticator.client;
 
+import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.authenticator.client.data.DataManager;
+import com.jug6ernaut.network.authenticator.client.push.PushManager;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
 import java.util.Arrays;

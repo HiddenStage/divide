@@ -2,6 +2,9 @@ package com.jug6ernaut.network.authenticator.client;
 
 import android.app.Application;
 import com.jug6ernaut.android.logging.Logger;
+import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.authenticator.client.data.DataManager;
+import com.jug6ernaut.network.authenticator.client.push.PushManager;
 import com.jug6ernaut.network.authenticator.client.security.PRNGFixes;
 import retrofit.client.OkClient;
 
@@ -18,8 +21,10 @@ public class Backend {
     private AuthManager authManager;
     private DataManager dataManager;
     private PushManager pushManager;
-    private OkClient client = new OkClient();
-    private Application app;
+    protected OkClient client = new OkClient();
+    public Application app;
+    public String serverUrl;
+    public boolean register4Push;
 
     public static final String SENDER_ID = "171321841613";
 
@@ -27,12 +32,14 @@ public class Backend {
         PRNGFixes.apply();
     }
 
-    private Backend(final Application context, final String serverUrl,boolean register4Push) {
-        authManager = AuthManager.init(context, serverUrl, client);
-        dataManager = DataManager.init(context, serverUrl, client);
-        pushManager = PushManager.init(context, serverUrl, client);
-        app = context;
-        if(register4Push)pushManager.setLoginListener(authManager);
+    private Backend(final Application application, final String serverUrl,boolean register4Push) {
+        this.app = application;
+        this.serverUrl = serverUrl;
+        this.register4Push = register4Push;
+
+        authManager = new AuthManager(this);
+        dataManager = new DataManager(this);
+        pushManager = new PushManager(this);
     }
 
     public static void init(final Application context, final String serverUrl,boolean register4Push) {
@@ -45,15 +52,15 @@ public class Backend {
         return backend;
     }
 
-    protected AuthManager getAuthManager() {
+    public AuthManager getAuthManager() {
         return authManager;
     }
 
-    protected DataManager getDataManager() {
+    public DataManager getDataManager() {
         return dataManager;
     }
 
-    protected PushManager getPushManager() {
+    public PushManager getPushManager() {
         return pushManager;
     }
 

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.Callback;
-import com.jug6ernaut.network.authenticator.client.AuthManager;
 
 import java.util.Arrays;
 import java.util.List;

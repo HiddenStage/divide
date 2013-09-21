@@ -38,7 +38,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="com.jug6ernaut.network.authenticator.client.PushManager$PushReceiver" />
+        <service android:name="com.jug6ernaut.network.authenticator.client.push.PushManager$PushReceiver" />
 
     </application>
 

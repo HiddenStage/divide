@@ -12,11 +12,10 @@ import android.widget.Toast;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.DataServices;
 import com.jug6ernaut.network.authenticator.client.R;
-import com.jug6ernaut.network.authenticator.client.AuthManager;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 
-import static com.jug6ernaut.network.authenticator.client.AuthManager.ACCOUNT_TYPE;
-import static com.jug6ernaut.network.authenticator.client.AuthManager.AUTHTOKEN_TYPE_FULL_ACCESS;
+import static com.jug6ernaut.network.authenticator.client.auth.AuthManager.ACCOUNT_TYPE;
+import static com.jug6ernaut.network.authenticator.client.auth.AuthManager.AUTHTOKEN_TYPE_FULL_ACCESS;
 
 /**
  * The AuthUtils activity.

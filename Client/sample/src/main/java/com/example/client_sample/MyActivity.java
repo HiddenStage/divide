@@ -21,7 +21,7 @@ import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.BackendObject;
 import com.jug6ernaut.network.authenticator.client.BackendUser;
 import com.jug6ernaut.network.authenticator.client.DataServices;
-import com.jug6ernaut.network.authenticator.client.AuthManager;
+import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.auth.AuthUtils;
 import com.jug6ernaut.network.authenticator.client.auth.SignInActivity;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
@@ -70,7 +70,7 @@ public class MyActivity extends Activity {
         Views.inject(this);
 
 //        as = AccountStorage.get(this);
-        au = AuthUtils.get(this,AuthManager.ACCOUNT_TYPE);
+        au = AuthUtils.get(this, AuthManager.ACCOUNT_TYPE);
         app = (MyApplication) this.getApplication();
 
         urlTV.setText("URL: " + app.getUrl());
@@ -98,7 +98,7 @@ public class MyActivity extends Activity {
     @OnClick(R.id.loginButton)
     public void login(){
         Intent intent = new Intent(MyActivity.this, SignInActivity.class);
-        intent.putExtra(SignInActivity.ARG_ACCOUNT_TYPE,AuthManager.ACCOUNT_TYPE);
+        intent.putExtra(SignInActivity.ARG_ACCOUNT_TYPE, AuthManager.ACCOUNT_TYPE);
         MyActivity.this.startActivity(intent);
     }
 
@@ -154,7 +154,7 @@ public class MyActivity extends Activity {
         SubMenu subMenu1 = menu.addSubMenu(MENU_LEVEL_1, 0, 0, "Menu");
 
         subMenu1.add(MENU_LEVEL_1, 0, MENU_SWITCH_URL, "Switch URL");
-        subMenu1.add(MENU_LEVEL_1, 0, MENU_SET_URL, "Set URL");
+        subMenu1.add(MENU_LEVEL_1, 0, MENU_SET_URL, "Set url/ip/hostname");
 
         MenuItem subMenu1Item = subMenu1.getItem();
         subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -200,7 +200,7 @@ public class MyActivity extends Activity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 logout();
                                 String url = et.getText().toString();
-                                app.initBackend(url);
+                                app.initBackend("http://" + url + ":8888/api");
                                 urlTV.setText("URL: " + url);
                             }
                         });

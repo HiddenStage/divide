@@ -9,11 +9,10 @@ import android.text.TextUtils;
 import android.widget.Toast;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.DataServices;
-import com.jug6ernaut.network.authenticator.client.AuthManager;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 
 import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
-import static com.jug6ernaut.network.authenticator.client.AuthManager.*;
+import static com.jug6ernaut.network.authenticator.client.auth.AuthManager.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -154,5 +153,4 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
         return null;
     }
-
 }
