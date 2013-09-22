@@ -30,7 +30,7 @@ public class ObjectifyDAO implements DAO {
     Logger logger = Logger.getLogger(String.valueOf(ObjectifyDAO.class));
 
 //    @Context
-//    EventNotifier eventNotifier;
+//    ListenerManager eventNotifier;
 
     @Override
     public <T extends Object> List<T> query(Query query) throws DAOException{

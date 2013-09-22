@@ -84,4 +84,12 @@ public class DataServices {
     public void setPushToken(String token){
         pushManager.register(token);
     }
+
+    public void addPushListener(PushManager.PushListener listener){
+        pushManager.addPushListener(listener);
+    }
+
+    public void removePushListener(PushManager.PushListener listener){
+        pushManager.removePushListener(listener);
+    }
 }

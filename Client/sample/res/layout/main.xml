@@ -62,14 +62,5 @@
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/getUsersButton"/>
 
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Push"
-            android:id="@+id/spkButton"
-            android:layout_alignTop="@+id/getUsersButton"
-            android:layout_toRightOf="@+id/getUsersButton"/>
-
-
 </RelativeLayout>
 

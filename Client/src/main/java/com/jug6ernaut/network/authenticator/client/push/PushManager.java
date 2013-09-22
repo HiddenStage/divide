@@ -11,6 +11,7 @@ import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.BackendUser;
 import com.jug6ernaut.network.authenticator.client.DataServices;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.shared.util.ListenerManager;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -28,6 +29,7 @@ public class PushManager extends AbstractWebManager<PushWebService> {
     private static Logger logger = Logger.getLogger(PushManager.class);
     private Backend backend;
     private static PushManager pushManager;
+    private ListenerManager<PushListener,String> notifier = new ListenerManager<PushListener,String>();
 
     public PushManager(Backend backend) {
         super(backend);
@@ -120,7 +122,10 @@ public class PushManager extends AbstractWebManager<PushWebService> {
             for (String key : keys){
                 logger.info(key + ": " + extras.get(key));
             }
+            String data = extras.getString("body");
 
+            if(data!=null && data.length()>0 && pushManager!=null)
+                pushManager.notifier.fire(data);
         }
 
         @Override
@@ -142,5 +147,15 @@ public class PushManager extends AbstractWebManager<PushWebService> {
                 pushManager.unregister(s);
         }
     }
+
+    public void addPushListener(PushListener listener){
+        notifier.addListener(listener);
+    }
+
+    public void removePushListener(PushListener listener){
+        notifier.removeListener(listener);
+    }
+
+    public static abstract class PushListener extends ListenerManager.Listener<String>{};
 
 }

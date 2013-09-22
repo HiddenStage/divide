@@ -142,7 +142,7 @@ public abstract class TransientObject {
     }
 
     public final static String getKey(String key){
-        return ((PROTECTED_KEYS.contains(key)?key:"~"+key));
+        return ((PROTECTED_KEYS.contains(key)?key:'_'+key));
     }
 
     @Override

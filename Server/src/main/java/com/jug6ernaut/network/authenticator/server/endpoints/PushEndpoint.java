@@ -43,7 +43,9 @@ public class PushEndpoint {
             Credentials credentials = session.getUser();
             String token = entity.getPlainText(Crypto.get().getPrivateKey());
             credentials.setPushMessagingKey(token);
+            logger.info("Before: " + getUserByEmail(dao,credentials.getEmailAddress()));
             dao.save(credentials);
+            logger.info("After: " + getUserByEmail(dao,credentials.getEmailAddress()));
         } catch (DAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);

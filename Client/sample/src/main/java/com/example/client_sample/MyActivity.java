@@ -50,8 +50,6 @@ public class MyActivity extends Activity {
     Button clear;
     @InjectView(R.id.getUsersButton)
     Button getUsers;
-    @InjectView(R.id.spkButton)
-    Button setPushToken;
 
     @InjectView(R.id.cachedUserTV)
     TextView savedUserTV;
@@ -126,15 +124,6 @@ public class MyActivity extends Activity {
             }
         });
 
-    }
-    @OnClick(R.id.spkButton)
-    public void setPushToken(){
-        new Thread(){
-            @Override
-            public void run(){
-                DataServices.get().setPushToken("someToken");
-            }
-        }.start();
     }
 
     private void setUser(BackendUser user){

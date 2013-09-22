@@ -1,16 +1,22 @@
 package com.jug6ernaut.network.authenticator.server;
 
 import com.jug6ernaut.network.authenticator.server.auth.SecurityFilter;
-import com.jug6ernaut.network.authenticator.server.dao.*;
+import com.jug6ernaut.network.authenticator.server.auth.UserContext;
+import com.jug6ernaut.network.authenticator.server.dao.CredentialBodyHandler;
+import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.authenticator.server.dao.GsonMessageBodyHandler;
+import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.authenticator.server.endpoints.AuthenticationEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.DataEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.PushEndpoint;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.internal.inject.Injections;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.SecurityContext;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +29,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
 
     private static final Logger logger = Logger.getLogger(AuthApplication.class.getSimpleName());
 
-    private static final EventNotifier EVENT_NOTIFIER = new EventNotifier();
+//    private static final ListenerManager EVENT_NOTIFIER = new ListenerManager();
 
     @Inject
     public AuthApplication(ServiceLocator serviceLocator){
@@ -36,7 +42,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
 //        reg(UserContext.class);
         reg(SecurityFilter.class);
         reg(Session.class);
-        reg(EventNotifier.class);
+//        reg(ListenerManager.class);
 
         DynamicConfiguration dc = Injections.getConfiguration(serviceLocator);
         bind(dc,getDAO());
@@ -46,9 +52,9 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
 
     public abstract Class<T> getDAO();
 
-    public void addEventNotifier(EventNotifier.Notifier<?> notifier){
-        EVENT_NOTIFIER.addNotifier(notifier);
-    }
+//    public void addEventNotifier(ListenerManager.Listener<?> listener){
+//        EVENT_NOTIFIER.addListener(listener);
+//    }
 
     private void reg(Class<?> clazz){
         //logger.info("Registering: " + clazz.getSimpleName());
@@ -65,26 +71,26 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         } catch (Exception e) {
             logger.severe("Failed to register DAO");
         }
+        try {
+            Injections.addBinding(
+                    Injections.newBinder(UserContext.class).to(SecurityContext.class).in(RequestScoped.class),
+                    dc);
+        } catch (Exception e) {
+            logger.severe("Failed to register UserContext");
+        }
+        try {
+            Injections.addBinding(
+                    Injections.newBinder(Session.class).to(Session.class),
+                    dc);
+        } catch (Exception e) {
+            logger.severe("Failed to register UserContext");
+        }
 //        try {
 //            Injections.addBinding(
-//                    Injections.newBinder(UserContext.class).to(SecurityContext.class).in(RequestScoped.class),
+//                    Injections.newBinder(EVENT_NOTIFIER).to(ListenerManager.class),
 //                    dc);
 //        } catch (Exception e) {
-//            logger.severe("Failed to register UserContext");
-//        }
-//        try {
-//            Injections.addBinding(
-//                    Injections.newBinder(Session.class).to(Session.class),
-//                    dc);
-//        } catch (Exception e) {
-//            logger.severe("Failed to register UserContext");
-//        }
-//        try {
-//            Injections.addBinding(
-//                    Injections.newBinder(EVENT_NOTIFIER).to(EventNotifier.class),
-//                    dc);
-//        } catch (Exception e) {
-//            logger.severe("Failed to register EventNotifier");
+//            logger.severe("Failed to register ListenerManager");
 //        }
 
         // commits changes
