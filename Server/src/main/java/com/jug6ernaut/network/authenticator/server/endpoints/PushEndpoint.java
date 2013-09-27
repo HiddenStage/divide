@@ -4,6 +4,7 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.shared.Constants;
 import com.jug6ernaut.network.shared.util.Crypto;
@@ -34,7 +35,7 @@ public class PushEndpoint {
     Logger logger = Logger.getLogger(PushEndpoint.class.getName());
 
     @Context
-    DAO dao;
+    DAOManager dao;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

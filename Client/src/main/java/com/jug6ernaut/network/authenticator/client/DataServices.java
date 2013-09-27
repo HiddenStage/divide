@@ -2,6 +2,7 @@ package com.jug6ernaut.network.authenticator.client;
 
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.data.DataManager;
+import com.jug6ernaut.network.authenticator.client.push.PushListener;
 import com.jug6ernaut.network.authenticator.client.push.PushManager;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
@@ -81,15 +82,12 @@ public class DataServices {
         return Arrays.asList(objects);
     }
 
-    public void setPushToken(String token){
-        pushManager.register(token);
-    }
-
-    public void addPushListener(PushManager.PushListener listener){
+    public void addPushListener(PushListener listener){
         pushManager.addPushListener(listener);
     }
 
-    public void removePushListener(PushManager.PushListener listener){
+    public void removePushListener(PushListener listener){
         pushManager.removePushListener(listener);
     }
+
 }

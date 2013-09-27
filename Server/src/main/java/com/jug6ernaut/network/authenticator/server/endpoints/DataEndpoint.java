@@ -1,6 +1,7 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.authenticator.server.utils.ResponseUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
@@ -28,7 +29,7 @@ public class DataEndpoint {
     private Logger logger = Logger.getLogger(DataEndpoint.class.getName());
 
     @Context
-    DAO dao;
+    DAOManager dao;
 
     @POST
     @Path("/get")

@@ -38,9 +38,10 @@
 package com.jug6ernaut.network.authenticator.server.auth;
 
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
-import com.jug6ernaut.network.authenticator.server.utils.ObjectUtils;
+import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
@@ -61,7 +62,7 @@ public class SecurityFilter implements ContainerRequestFilter {
     Logger log = Logger.getLogger(SecurityFilter.class.getName());
 
     @Context
-    DAO dao;
+    DAOManager dao;
 
     public SecurityFilter() {}
 

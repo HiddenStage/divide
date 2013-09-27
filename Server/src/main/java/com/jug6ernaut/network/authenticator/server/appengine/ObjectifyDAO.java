@@ -10,7 +10,6 @@ import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,15 +24,11 @@ import static com.jug6ernaut.network.authenticator.server.appengine.OfyService.o
  * Date: 8/5/13
  * Time: 4:50 PM
  */
-@Provider
 public class ObjectifyDAO implements DAO {
     Logger logger = Logger.getLogger(String.valueOf(ObjectifyDAO.class));
 
-//    @Context
-//    ListenerManager eventNotifier;
-
     @Override
-    public <T extends Object> List<T> query(Query query) throws DAOException{
+    public List<TransientObject> query(Query query) throws DAOException{
         logger.info("query: " + query);
         LoadType<?> filter = ofy().load().type(OfyObject.class);
         com.googlecode.objectify.cmd.Query<?> oFilter =
@@ -78,9 +73,7 @@ public class ObjectifyDAO implements DAO {
 
         logger.info("Returning: " + list);
 
-//        eventNotifier.fire("query",list);
-
-        return (List<T>) list;
+        return (List<TransientObject>) list;
     }
 
     @Override
@@ -102,8 +95,6 @@ public class ObjectifyDAO implements DAO {
         } catch (Exception e) {
             throw new DAOException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),e);
         }
-
-//        eventNotifier.fire("get",tos);
 
         return tos;
 
@@ -147,7 +138,6 @@ public class ObjectifyDAO implements DAO {
         } catch (Exception e) {
             throw new DAOException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),e);
         }
-//        eventNotifier.fire("save",objects);
     }
 
     @Override
@@ -161,7 +151,6 @@ public class ObjectifyDAO implements DAO {
         } catch (Exception e) {
             throw new DAOException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),e);
         }
-//        eventNotifier.fire("delete",objects);
     }
 
     @Override

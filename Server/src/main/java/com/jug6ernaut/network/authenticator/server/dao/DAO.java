@@ -13,11 +13,11 @@ import java.util.List;
  * Time: 4:39 PM
  */
 public interface DAO {
-    public <T extends Object> List<T> query(Query query) throws DAOException; // Object, returns different types
+    public List<TransientObject> query(Query query) throws DAOException; // Object, returns different types
     public Collection<TransientObject> get(TransientObject... keys) throws DAOException;
     public void save(TransientObject... objects) throws DAOException;
     public void delete(TransientObject... objects) throws DAOException;
-    public boolean exists(TransientObject... object);
+    public boolean exists(TransientObject... objects);
     public int count(String objectType);
 
     public static class DAOException extends Exception{

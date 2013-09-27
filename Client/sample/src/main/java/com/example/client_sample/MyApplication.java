@@ -8,8 +8,9 @@ import com.jug6ernaut.android.logging.ALogger;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.DataServices;
-import com.jug6ernaut.network.authenticator.client.push.PushManager;
-import com.jug6ernaut.network.shared.util.ObjectUtils;
+import com.jug6ernaut.network.authenticator.client.push.PushEvent;
+import com.jug6ernaut.network.authenticator.client.push.PushListener;
+import com.jug6ernaut.otto.Subscribe;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,7 +22,7 @@ public class MyApplication extends Application {
 
     private static Logger logger;
     private static final String remoteUrl = "http://authenticator-test.appspot.com/api";
-    private static final String localUrl = "http://williamwebb-mbp:8888/api";
+    private static final String localUrl = "http://williams-mbp:8888/api";
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static String url = (DEBUG ? localUrl : remoteUrl);
     private SharedPreferences prefs;
@@ -40,16 +41,7 @@ public class MyApplication extends Application {
         initBackend(url);
 
         DataServices.get().addPushListener(listener);
-//        new Handler().post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                if (NetUtils.ping(url,1000))
-//                    Backend.init(MyApplication.this, url);
-//                else
-//                    Backend.init(MyApplication.this, remoteUrl);
-//            }
-//        });
+
     }
 
     @Override
@@ -77,21 +69,25 @@ public class MyApplication extends Application {
         return url;
     }
 
-    private PushManager.PushListener listener = new PushManager.PushListener() {
+    private class Listener{
+
+        @Subscribe
+        public void onEvent(PushEvent event){
+            logger.info("L: " + event);
+        }
+    }
+
+    private PushListener listener = new PushListener() {
+
         @Override
-        public void onEvent(final String... object) {
+        public void onEvent(final PushEvent event) {
+            logger.debug("Push Message: " + event);
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    logger.debug("Push Message: " + ObjectUtils.v2c(object));
-                    Toast.makeText(MyApplication.this, "Push Message: " + ObjectUtils.v2c(object), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MyApplication.this, "Push Message: " + event, Toast.LENGTH_LONG).show();
                 }
             });
-        }
-
-        @Override
-        protected boolean condition(String... object) {
-            return true;
         }
     };
 }

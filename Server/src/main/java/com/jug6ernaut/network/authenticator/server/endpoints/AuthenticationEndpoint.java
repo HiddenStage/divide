@@ -2,9 +2,10 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
-import com.jug6ernaut.network.authenticator.server.utils.ObjectUtils;
 import com.jug6ernaut.network.shared.util.Crypto;
+import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
@@ -42,7 +43,7 @@ public final class AuthenticationEndpoint{
     Logger logger = Logger.getLogger(AuthenticationEndpoint.class.getName());
 
     @Context
-    DAO dao;
+    DAOManager dao;
 
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
 
