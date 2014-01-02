@@ -7,6 +7,7 @@ import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.Callback;
 
@@ -30,6 +31,7 @@ public class AuthUtils {
 
     private AccountManager mAccountManager;
     private String accountType;
+    private final Handler handler = new Handler();
 
     public static AuthUtils get(Context context,String accountType){
         AuthUtils utils;
@@ -52,9 +54,10 @@ public class AuthUtils {
     }
 
     public void removeAccount(String accountName){
+        logger.debug("removeAccount(" + accountName + ")");
         Account account = getAccount(accountName);
         if(account!=null)
-            mAccountManager.removeAccount(account,null,new Handler());
+            mAccountManager.removeAccount(account,null,handler);
     }
 
     public boolean isAuthenticated(String accountName) {
@@ -69,6 +72,7 @@ public class AuthUtils {
             return null;
         } else {
             for (Account a : accounts) {
+                logger.debug("Account: " + a.name);
                 if(a.name.equals(accountName)){
                     account = a;
                     break;
@@ -86,8 +90,9 @@ public class AuthUtils {
         mAccountManager.setPassword(account,password);
     }
 
-    public void getAuthToken(Account account,final Callback<String> callback){
-        mAccountManager.getAuthToken(account, AuthManager.AUTHTOKEN_TYPE_FULL_ACCESS,null,true,new AccountManagerCallback<Bundle>() {
+    public void getAuthToken(Account account, String authTokenType, final Callback<String> callback){
+
+        mAccountManager.getAuthToken(account, authTokenType,null,true,new AccountManagerCallback<Bundle>() {
             Bundle bnd;
             @Override
             public void run(AccountManagerFuture<Bundle> future) {
@@ -95,176 +100,30 @@ public class AuthUtils {
                     bnd = future.getResult();
                     logger.debug("Login Results: " + bnd.toString());
                     final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    callback.callback(authtoken);
+                    callback.onResult(authtoken);
                 } catch (Exception e) {
+                    callback.onError(e);
                     logger.error("Failed to get authToken",e);
                 }
             }
-        },new Handler());
+        },new Handler(Looper.getMainLooper()));
+    }
+
+    public String getPassword(Account account){
+        return mAccountManager.getPassword(account);
+    }
+
+    public String blockingGetAuthToken(Account account, String authTokenType) throws Exception{
+        try {
+            return mAccountManager.blockingGetAuthToken(account,authTokenType,true);
+        } catch (Exception e) {
+            throw new Exception("Failed to get auth_token from manager.",e);
+        }
     }
 
     public List<Account> getAccounts(){
         Account availableAccounts[] = mAccountManager.getAccountsByType(accountType);
         return Arrays.asList(availableAccounts);
     }
-
-//    public String getAuthToken(){
-//        return authToken;
-//    }
-
-//    public void addNewAccount(){
-//        addNewAccount(ACCOUNT_TYPE, AUTHTOKEN_TYPE_FULL_ACCESS);
-//    }
-//
-//    /**
-//     * Add new account to the account manager
-//     * @param accountType
-//     * @param authTokenType
-//     */
-//    private void addNewAccount(String accountType, String authTokenType) {
-//        final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, context, new AccountManagerCallback<Bundle>() {
-//            @Override
-//            public void run(AccountManagerFuture<Bundle> future) {
-//                try {
-//                    Bundle bnd = future.getResult();
-//                    showMessage("Account was created");
-//                    Log.d("udinic", "AddNewAccount Bundle is " + bnd);
-//
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    showMessage(e.getMessage());
-//                }
-//            }
-//        }, null);
-//    }
-//
-//    /**
-//     * Show all the accounts registered on the account manager. Request an auth token upon user select.
-//     * @param authTokenType
-//     */
-//    private void showAccountPicker(final String authTokenType, final boolean invalidate) {
-//
-//        final Account availableAccounts[] = mAccountManager.getAccountsByType(ACCOUNT_TYPE);
-//
-//        if (availableAccounts.length == 0) {
-//            Toast.makeText(activity, "No accounts", Toast.LENGTH_SHORT).show();
-//        } else {
-//            String name[] = new String[availableAccounts.length];
-//            for (int i = 0; i < availableAccounts.length; i++) {
-//                name[i] = availableAccounts[i].name;
-//            }
-//
-//            // Account picker
-//            new AlertDialog.Builder(activity).setTitle("Pick Account").setAdapter(new ArrayAdapter<String>(activity.getBaseContext(), android.R.layout.simple_list_item_1, name), new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    if(invalidate)
-//                        invalidateAuthToken(availableAccounts[which], authTokenType);
-//                    else
-//                        getExistingAccountAuthToken(availableAccounts[which], authTokenType);
-//                }
-//            }).show();
-//        }
-//    }
-//
-//    /**
-//     * Get the auth token for an existing account on the AccountManager
-//     * @param account
-//     * @param authTokenType
-//     */
-//    private void getExistingAccountAuthToken(Account account, String authTokenType) {
-//        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, activity, null, null);
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Bundle bnd = future.getResult();
-//
-//                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-//                    showMessage((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL");
-//                    Log.d("udinic", "GetToken Bundle is " + bnd);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    showMessage(e.getMessage());
-//                }
-//            }
-//        }).start();
-//    }
-//
-//    /**
-//     * Invalidates the auth token for the account
-//     * @param account
-//     * @param authTokenType
-//     */
-//    private void invalidateAuthToken(final Account account, String authTokenType) {
-//        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, activity, null,null);
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Bundle bnd = future.getResult();
-//
-//                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-//                    mAccountManager.invalidateAuthToken(account.type, authtoken);
-//                    showMessage(account.name + " invalidated");
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    showMessage(e.getMessage());
-//                }
-//            }
-//        }).start();
-//    }
-
-//    public void getTokenForAccountCreateIfNeeded(){
-//        getTokenForAccountCreateIfNeeded(ACCOUNT_TYPE, AUTHTOKEN_TYPE_FULL_ACCESS);
-//    }
-//
-//    /**
-//     * Get an auth token for the account.
-//     * If not exist - add it and then return its auth token.
-//     * If one exist - return its auth token.
-//     * If more than one exists - show a picker and return the select account's auth token.
-//     * @param accountType
-//     * @param authTokenType
-//     */
-//    private void getTokenForAccountCreateIfNeeded(String accountType, String authTokenType) {
-//        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(accountType, authTokenType, null, context, null, null,
-//                new AccountManagerCallback<Bundle>() {
-//                    @Override
-//                    public void run(AccountManagerFuture<Bundle> future) {
-//                        Bundle bnd = null;
-//                        try {
-//                            bnd = future.getResult();
-//                            final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-//                            showMessage(((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL"));
-//                            Log.d("udinic", "GetTokenForAccount Bundle is " + bnd);
-//
-//                            setAuthToken(authtoken);
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                            showMessage(e.getMessage());
-//                        }
-//                    }
-//                }
-//                , null);
-//    }
-
-//    private void showMessage(final String msg) {
-//        if (msg == null || msg.trim().equals(""))
-//            return;
-//
-//        activity.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(activity.getBaseContext(), msg, Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
-
-//    public void setAuthToken(String token){
-//        authToken = Base64.encode(token.getBytes());
-//    }
 
 }

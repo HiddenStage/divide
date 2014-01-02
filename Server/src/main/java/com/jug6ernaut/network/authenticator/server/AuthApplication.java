@@ -5,6 +5,7 @@ import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.*;
 import com.jug6ernaut.network.authenticator.server.endpoints.AuthenticationEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.DataEndpoint;
+import com.jug6ernaut.network.authenticator.server.endpoints.MetaEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.PushEndpoint;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -32,6 +33,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         reg(AuthenticationEndpoint.class);
         reg(DataEndpoint.class);
         reg(PushEndpoint.class);
+        reg(MetaEndpoint.class);
         reg(CredentialBodyHandler.class);  // insures passwords are not sent back
         reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
 //        reg(UserContext.class);

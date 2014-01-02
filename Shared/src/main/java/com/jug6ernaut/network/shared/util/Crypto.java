@@ -4,8 +4,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.util.Arrays;
 
 /**
@@ -16,28 +15,25 @@ import java.util.Arrays;
  */
 public class Crypto {
     private static Crypto crypto;
-    private static PublicKey publicKey;
-    private static PrivateKey privateKey;
+    private KeyPair keyPair;
 
-    public static Crypto get() throws NoSuchAlgorithmException {
+    public static KeyPair get() throws NoSuchAlgorithmException {
         if(crypto==null)crypto = new Crypto();
-        return crypto;
+        return crypto.keyPair;
     }
     private Crypto() throws NoSuchAlgorithmException {
 
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, new SecureRandom());
-        KeyPair keyPair = keyGen.generateKeyPair();
-        privateKey = keyPair.getPrivate();
-        publicKey = keyPair.getPublic();
+        keyPair = keyGen.generateKeyPair();
     }
 
     public PublicKey getPublicKey(){
-        return publicKey;
+        return keyPair.getPublic();
     }
 
     public PrivateKey getPrivateKey(){
-        return privateKey;
+        return keyPair.getPrivate();
     }
 
     public static byte[] sign(byte[] message, PrivateKey privateKey)
@@ -154,6 +150,25 @@ public class Crypto {
 
     public static PublicKey pubKeyFromBytes(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
+    }
+
+    public static PrivateKey priKeyFromBytes(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(bytes));
+    }
+
+    public static KeyPair createKeyPair(byte[] encodedPublicKey, byte[]  encodedPrivateKey) {
+        try {
+            KeyFactory generator = KeyFactory.getInstance("RSA");
+
+            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
+            PrivateKey privateKey = generator.generatePrivate(privateKeySpec);
+
+            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublicKey);
+            PublicKey publicKey = generator.generatePublic(publicKeySpec);
+            return new KeyPair(publicKey, privateKey);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to create KeyPair from provided encoded keys", e);
+        }
     }
 
     /**

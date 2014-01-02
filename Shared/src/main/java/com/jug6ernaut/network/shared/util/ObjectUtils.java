@@ -1,11 +1,11 @@
 package com.jug6ernaut.network.shared.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,18 +15,22 @@ import java.util.List;
  */
 public class ObjectUtils {
 
-    public static  <T> Collection<T> v2c(T... t){
-        List<T> ts = new ArrayList<T>(Arrays.asList(t));
-        return ts;
+    public static <T> Collection<T> v2c(T... t){
+        return Arrays.asList(t);
     }
 
     public static  <T> T[] c2v(Collection<T> t){
-        T[] ts = (T[]) t.toArray();
-        return ts;
+        Class c = t.iterator().next().getClass();
+        T[] tsa = (T[]) Array.newInstance(c, 0);
+        return t.toArray(tsa);
+    }
+
+    public static <T> T get1stOrNull(T... objects){
+        return (objects!=null && objects.length == 1)? (T) objects[0] : null;
     }
 
     public static <T> T get1stOrNull(Collection<T> objects){
-        return (objects!=null && objects.size() == 1)? (T) objects.toArray()[0] :null;
+        return (objects!=null && objects.size() == 1)? (T) objects.toArray()[0] : null;
     }
 
     public static Class<?> getType(Class<?> clazz){
@@ -47,4 +51,29 @@ public class ObjectUtils {
 //        Class<?> persistentClass = (Class<?>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
         return persistentClass;
     }
+
+    public static boolean isCollection(Object o){
+        return isCollection(o.getClass());
+    }
+
+    public static boolean isMap(Object o){
+        return isMap(o.getClass());
+    }
+
+    public static boolean isArray(Object o){
+        return isArray(o.getClass());
+    }
+
+    public static boolean isCollection(Class<?> o){
+        return Collection.class.isAssignableFrom(o);
+    }
+
+    public static boolean isMap(Class<?> o){
+        return Map.class.isAssignableFrom(o);
+    }
+
+    public static boolean isArray(Class<?> o){
+        return Object[].class.isAssignableFrom(o);
+    }
+
 }

@@ -6,11 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.Views;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.BackendObject;
-import com.jug6ernaut.network.shared.web.transitory.Credentials;
 
 import java.util.List;
 
@@ -20,14 +19,14 @@ import java.util.List;
  * Date: 9/6/13
  * Time: 3:42 PM
  */
-public class UserAdapter extends BaseAdapter {
+public class BackendObjectAdaper extends BaseAdapter {
 
-    Logger logger = Logger.getLogger(UserAdapter.class);
+    Logger logger = Logger.getLogger(BackendObjectAdaper.class);
 
     LayoutInflater inflater;
     List<BackendObject> users;
 
-    public UserAdapter(Context context, List<BackendObject> users){
+    public BackendObjectAdaper(Context context, List<BackendObject> users){
         this.inflater = LayoutInflater.from(context);
         this.users = users;
     }
@@ -38,7 +37,7 @@ public class UserAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int i) {
+    public BackendObject getItem(int i) {
         return users.get(i);
     }
 
@@ -60,8 +59,8 @@ public class UserAdapter extends BaseAdapter {
             convertView.setTag(holder);
         }
 
-        holder.name.setText("Username: " + user.get(String.class, Credentials.USERNAME_KEY));
-        holder.id.setText("UserId: " + user.getUserId());
+        holder.name.setText("Key: " + user.getObjectKey());
+        holder.id.setText("Owner: " + user.getOwnerId());
 
         return convertView;
     }
@@ -73,7 +72,7 @@ public class UserAdapter extends BaseAdapter {
         TextView id;
 
         public ViewHolder(View view) {
-            Views.inject(this, view);
+            ButterKnife.inject(this, view);
         }
     }
 }

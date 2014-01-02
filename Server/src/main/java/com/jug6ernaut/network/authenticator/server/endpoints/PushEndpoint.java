@@ -3,6 +3,7 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
+import com.jug6ernaut.network.authenticator.server.AuthApplication;
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
@@ -37,12 +38,20 @@ public class PushEndpoint {
     @Context
     DAOManager dao;
 
+    @Context
+    AuthApplication app;
+
+
+    /*
+    currently failing as the decryption key is probably different
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(@Context Session session,EncryptedEntity entity){
         try{
+            logger.info("App: " + app);
             Credentials credentials = session.getUser();
-            String token = entity.getPlainText(Crypto.get().getPrivateKey());
+            String token = entity.getPlainText(Crypto.get().getPrivate());
             credentials.setPushMessagingKey(token);
             logger.info("Before: " + getUserByEmail(dao,credentials.getEmailAddress()));
             dao.save(credentials);

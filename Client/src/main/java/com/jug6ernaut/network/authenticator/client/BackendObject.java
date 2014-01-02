@@ -1,5 +1,7 @@
 package com.jug6ernaut.network.authenticator.client;
 
+import com.jug6ernaut.network.shared.web.transitory.Credentials;
+import com.jug6ernaut.network.shared.web.transitory.FilePermissions;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 
 /**
@@ -14,26 +16,29 @@ public class BackendObject extends TransientObject {
     // implementation info from TransientObject. Possible fix, have two implementations of same
     // class, data struct just needs to match, not implementation. Lose type safety...Is it really needed?
     private static final String USER_DATA = TransientObject.USER_DATA;
-//    private static final String META_DATA = TransientObject.META_DATA;
-    private static final String OJBECT_TYPE_KEY = TransientObject.OJBECT_TYPE_KEY;
-    private static final String USER_ID_KEY = TransientObject.USER_ID_KEY;
-    BackendObject(String objectType) {
-        super(objectType);
-        //this.setUserId(Backend.get().getAuthManager().getUser().getUserId());
+    private static final MetaKey OJBECT_TYPE_KEY = TransientObject.OBJECT_TYPE_KEY;
+    private static final MetaKey USER_ID_KEY = TransientObject.OWNER_ID_KEY;
+
+    public BackendObject() {
+        this(BackendObject.class);
     }
 
-    public static BackendObject createNoType(){
-        BackendObject b = new BackendObject("");
-        return b;
+    protected <B extends BackendObject> BackendObject(Class<B> type) {
+        super(type);
+//        this.setUserId(Backend.get().getAuthManager().getUser().getUserId());
+        FilePermissions fp = new FilePermissions();
+        fp.setWritable(true, FilePermissions.Level.OWNER, FilePermissions.Level.GROUP, FilePermissions.Level.WORLD);
+        setFilePermissions(fp);
     }
 
-    public static BackendObject create(String objectType){
-        BackendObject b = new BackendObject(objectType);
-        return b;
+    @Override
+    protected final Credentials getLoggedInUser(){
+        return BackendUser.getUser();
     }
 
-    protected void setUserId(String userId){
-        this.setUserId(userId);
+    @Override
+    public void setOwnerId(Integer userId){
+        super.setOwnerId(userId);
     }
 
 }

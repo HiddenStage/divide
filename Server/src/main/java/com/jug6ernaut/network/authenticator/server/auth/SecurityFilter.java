@@ -41,6 +41,8 @@ import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
+import com.jug6ernaut.network.authenticator.server.endpoints.AuthenticationEndpoint;
+import com.jug6ernaut.network.shared.util.AuthTokenUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
@@ -53,6 +55,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static com.jug6ernaut.network.authenticator.server.utils.ResponseUtils.notAuthReponse;
@@ -64,6 +68,13 @@ public class SecurityFilter implements ContainerRequestFilter {
     @Context
     DAOManager dao;
 
+    private static final List<String> SAFE_PATHS = Arrays.asList(
+            "auth",
+            "/auth",
+            "",
+            "/"
+    );
+
     public SecurityFilter() {}
 
     @Override
@@ -71,15 +82,12 @@ public class SecurityFilter implements ContainerRequestFilter {
         log.info("Filter(): " + request.getUriInfo().getPath());
 
         String path = request.getUriInfo().getPath();
-        if (path.startsWith("auth") || path.startsWith("/auth")) {
+        if (path.startsWith("auth") || path.startsWith("/auth")
+        || path.equals("") || path.equals("/")
+        && !path.equals("/auth/user/data")) {
             log.info("Auth Skipped");
             return;
         }
-        if (path.startsWith("push/test") || path.startsWith("/push/test")) {
-            log.info("Push Test Skipped");
-            return;
-        }
-        //if(uriInfo.getPath().startsWith("data")) return;
 
         UserContext context = authenticate(request);
         if (context != null) {
@@ -102,18 +110,23 @@ public class SecurityFilter implements ContainerRequestFilter {
             return abort(request, "Only CUSTOM authentication is supported");
         }
         authentication = authentication.substring("CUSTOM ".length());
-//        String token = new String(Base64.decodeBase64(authentication));
         String token = new String(authentication);
 
-        if ((token == null)) {
+        if (token == null) {
             return abort(request, "Missing token");
+        }
+
+        // TODO verify
+        AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(AuthenticationEndpoint.key,token);
+        if(authToken.expirationDate < System.currentTimeMillis()){
+            return abort(request,"Auth Token Expired");
         }
 
         // Validate the extracted credentials
         synchronized (dao) {
-            Query q = new QueryBuilder().select(null).from(Credentials.TYPE).where(Credentials.AUTH_TOKEN_KEY, OPERAND.EQ, token).build();
+            Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY, OPERAND.EQ, token).build();
             try {
-                TransientObject creds = (TransientObject) ObjectUtils.get1stOrNull(dao.query(q));
+                TransientObject creds = ObjectUtils.get1stOrNull(dao.query(q));
                 if (creds != null) {
                     return new UserContext(request.getUriInfo(), new ServerCredentials(creds));
                 } else {
@@ -121,7 +134,7 @@ public class SecurityFilter implements ContainerRequestFilter {
                     return abort(request, "Invalid authentication token");
                 }
             } catch (DAO.DAOException e) {
-                log.severe("Authentication Failed("+e.getStatusCode()+":"+e.getEntity()+") " + e.getMessage());
+                log.severe("Authentication Failed("+e.getStatusCode()+") " + e.getMessage());
                 e.printStackTrace();
                 return abort(request, "Invalid authentication token");
             }
@@ -130,7 +143,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 
 
     private UserContext abort(ContainerRequestContext request, String message) {
-        log.info("Auth Failed: " + message);
+        log.warning("Auth Failed: " + message);
         request.abortWith(notAuthReponse(message));
         return null;
     }

@@ -5,6 +5,7 @@ import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.authenticator.server.utils.ResponseUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
+import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
@@ -35,8 +36,8 @@ public class DataEndpoint {
     @Path("/get")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(Collection<TransientObject> keys) {
-        try {
+    public Response get(Collection<String> keys) {
+        try { logger.info("get: " + keys);
             return Response
                     .ok()
                     .entity(dao.get(ObjectUtils.c2v(keys)))
@@ -51,7 +52,11 @@ public class DataEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response query(@Context Session session,Query query) {
-        try {
+        try { logger.info("query: " + query);
+            // not allowed to query credentials type
+            if(query.getFrom().equals(Credentials.class.getName())){
+                return Response.status(Response.Status.FORBIDDEN).entity("Query of Credentials is FORBIDDEN").build();
+            }
             return Response
                     .ok()
                     .entity(dao.query(query))
@@ -66,7 +71,7 @@ public class DataEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(Collection<TransientObject> objects) {
-        try {
+        try { logger.info("save: " + objects);
             dao.save(ObjectUtils.c2v(objects));
 
             return Response

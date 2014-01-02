@@ -1,143 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- Copyright (C) 2012 Square, Inc.
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.jug6ernaut.network.authenticator</groupId>
+  <groupId>com.jug6ernaut.network</groupId>
   <artifactId>parent</artifactId>
   <version>0.5</version>
   <packaging>pom</packaging>
 
-  <modules>
-    <module>Client</module>
-    <module>Server</module>
-    <module>Shared</module>
-    <module>Server/sample</module>
-    <module>Client/sample</module>
-  </modules>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <modules>
+                <module>Shared</module>
+                <module>Client</module>
+                <module>Server</module>
+
+                <module>Server/appengine-dao</module>
+                <module>Server/sample</module>
+                <module>Client/sample</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>Shared</module>
+                <module>Client</module>
+                <module>Server</module>
+                <module>Server/appengine-dao</module>
+            </modules>
+        </profile>
+    </profiles>
 
   <properties>
+    <app.version>0.5.0</app.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
 
     <!-- Compilation -->
-    <java.version>1.6</java.version>
+    <java.version>1.7</java.version>
 
     <!-- Dependencies -->
-    <android.version>4.1.1.4</android.version>
-    <android.platform>16</android.platform>
-    <gson.version>2.2.4</gson.version>
-    <okhttp.version>1.1.1</okhttp.version>
-
-    <!-- Converter Dependencies -->
-    <protobuf.version>2.5.0</protobuf.version>
-    <jackson.version>2.2.2</jackson.version>
+    <android.version>4.4_r1</android.version>
+    <android.platform>19</android.platform>
+    <android.sdk.path>/Users/williamwebb/Android/sdk</android.sdk.path>
 
     <!-- Test Dependencies -->
-    <junit.version>4.10</junit.version>
-    <fest.version>2.0M10</fest.version>
-    <mockito.version>1.9.5</mockito.version>
-    <guava.version>14.0.1</guava.version>
-    <android.sdk.path>Users/williamwebb/Android/sdk</android.sdk.path>
+    <robolectric.version>2.2</robolectric.version>
+    <junit.version>4.11</junit.version>
+
+    <appengine.target.version>1.8.8</appengine.target.version>
+    <appengine.app.version>1</appengine.app.version>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.google.android</groupId>
-        <artifactId>android</artifactId>
-        <version>${android.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.squareup.okhttp</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>${okhttp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>${gson.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
-        <version>${protobuf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-     </dependency>
-
-
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.easytesting</groupId>
-        <artifactId>fest-assert-core</artifactId>
-        <version>${fest.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>jarjar-maven-plugin</artifactId>
-          <version>1.7</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.0</version>
-          <configuration>
-            <source>${java.version}</source>
-            <target>${java.version}</target>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

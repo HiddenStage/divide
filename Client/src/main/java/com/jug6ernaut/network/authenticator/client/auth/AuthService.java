@@ -3,6 +3,7 @@ package com.jug6ernaut.network.authenticator.client.auth;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import com.jug6ernaut.network.authenticator.client.BackendAuthenticator;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +15,7 @@ public class AuthService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
 
-        AccountAuthenticator authenticator = new AccountAuthenticator(this);
+        BackendAuthenticator authenticator = new BackendAuthenticator(this);
         return authenticator.getIBinder();
     }
 }

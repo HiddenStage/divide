@@ -11,20 +11,8 @@ package com.jug6ernaut.network.authenticator.client.security;/*
 import android.os.Build;
 import android.os.Process;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.SecureRandom;
-import java.security.SecureRandomSpi;
-import java.security.Security;
+import java.io.*;
+import java.security.*;
 
 /**
  * Fixes for the output of the default PRNG having low entropy.

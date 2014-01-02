@@ -16,6 +16,9 @@
 
 package com.jug6ernaut.otto;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Enforces a thread confinement policy for methods on a particular event bus.
  *
@@ -39,12 +42,41 @@ public interface ThreadEnforcer {
   };
 
   /** A {@link com.jug6ernaut.otto.ThreadEnforcer} that confines {@link com.jug6ernaut.otto.Bus} methods to the main thread. */
-//  ThreadEnforcer MAIN = new ThreadEnforcer() {
-//    @Override public void enforce(Bus bus) {
-//      if (Looper.myLooper() != Looper.getMainLooper()) {
-//        throw new IllegalStateException("Event bus " + bus + " accessed from non-main thread " + Looper.myLooper());
-//      }
-//    }
-//  };
+  ThreadEnforcer ANDROID = new ThreadEnforcer() {
+      Object looper;
+      Method myLooper;
+      Method getMainLooper;
+      Class looperClass = null;
+      private Boolean onAndroid = null;
+
+    @Override public void enforce(Bus bus) {
+        if(onAndroid == null && onAndroid == false){
+            try{
+                looperClass = Class.forName("android.os.Looper");
+                myLooper = looperClass.getMethod("myLooper", null);
+                getMainLooper = looperClass.getMethod("getMainLooper",null);
+                onAndroid = true;
+            } catch (ClassNotFoundException e) {
+                onAndroid = false;
+            } catch (NoSuchMethodException e) {
+                onAndroid = false;
+            }
+        }
+
+        try {
+            if(getLooper(myLooper) != getLooper(getMainLooper)){
+                throw new IllegalStateException("Event bus " + bus + " accessed from non-main thread " + getLooper(myLooper));
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+      }
+    }
+
+    private Object getLooper(Method m) throws InvocationTargetException, IllegalAccessException {
+        return m.invoke(null,null);
+    }
+  };
 
 }

@@ -1,12 +1,16 @@
 package com.jug6ernaut.network.authenticator.client;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import com.jug6ernaut.android.logging.Logger;
+import com.jug6ernaut.network.authenticator.client.auth.AccountInformation;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.data.DataManager;
 import com.jug6ernaut.network.authenticator.client.push.PushManager;
 import com.jug6ernaut.network.authenticator.client.security.PRNGFixes;
-import retrofit.client.OkClient;
+import com.squareup.okhttp.OkHttpClient;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,30 +25,34 @@ public class Backend {
     private AuthManager authManager;
     private DataManager dataManager;
     private PushManager pushManager;
-    protected OkClient client = new OkClient();
+    protected OkHttpClient client = new OkHttpClient();
     public Application app;
     public String serverUrl;
-    public boolean register4Push;
-
-    public static final String SENDER_ID = "171321841613";
+    public AccountInformation accountInformation;
 
     static {
         PRNGFixes.apply();
     }
 
-    private Backend(final Application application, final String serverUrl,boolean register4Push) {
+    private Backend(final Application application, final String serverUrl, AccountInformation accountInformation) {
         this.app = application;
         this.serverUrl = serverUrl;
-        this.register4Push = register4Push;
+        this.accountInformation = accountInformation;
+//        checkManifest(application);
 
         authManager = new AuthManager(this);
         dataManager = new DataManager(this);
         pushManager = new PushManager(this);
     }
 
-    public static void init(final Application context, final String serverUrl,boolean register4Push) {
+    public void registerPush(String senderId){
+        pushManager.setEnablePush(true, senderId);
+    }
+
+    public static Backend init(final Application context, final String serverUrl, AccountInformation accountInformation) {
         logger.info("Connecting to: " + serverUrl);
-        backend = new Backend(context,serverUrl,register4Push);
+        backend = new Backend(context,serverUrl,accountInformation);
+        return backend;
     }
 
     protected static Backend get() {
@@ -66,5 +74,29 @@ public class Backend {
 
     private static void isInit(){
         if (backend == null) throw new RuntimeException(Backend.class.getSimpleName() + ".init() Must be called first!");
+    }
+
+    private static void checkManifest(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        String packageName = context.getPackageName();
+        String permissionName = "com.jug6ernaut.network.authenticator.client.auth.AuthService";
+        String metaDataName = "android.accounts.AccountAuthenticator";
+        // check permission
+        try {
+            packageManager.getPermissionInfo(permissionName,
+                    PackageManager.GET_SERVICES);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new IllegalStateException(
+                    "Application does not define permission " + permissionName);
+        }
+        // check receivers
+        PackageInfo receiversInfo;
+        try {
+            receiversInfo = packageManager.getPackageInfo(
+                    metaDataName, PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new IllegalStateException(
+                    "Could not get metadata for package " + packageName);
+        }
     }
 }

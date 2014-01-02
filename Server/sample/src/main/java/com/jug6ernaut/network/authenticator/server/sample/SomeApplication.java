@@ -2,9 +2,6 @@ package com.jug6ernaut.network.authenticator.server.sample;
 
 import com.jug6ernaut.network.authenticator.server.AuthApplication;
 import com.jug6ernaut.network.authenticator.server.appengine.ObjectifyDAO;
-import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
-import com.jug6ernaut.network.shared.event.EventManager;
-import com.jug6ernaut.network.shared.event.Subscriber;
 import org.glassfish.hk2.api.ServiceLocator;
 
 import javax.inject.Inject;
@@ -24,20 +21,20 @@ public class SomeApplication extends AuthApplication<ObjectifyDAO> {
     public SomeApplication(ServiceLocator serviceLocator) {
         super(serviceLocator);
 
-        EventManager.get().register(
-                new Subscriber<DAOManager.QUERY_EVENT>() {
-                    @Override
-                    public void onEvent(DAOManager.QUERY_EVENT event) {
-                        logger.info("Query Event: " + event);
-                    }
-                });
-        EventManager.get().register(
-                new Subscriber<DAOManager.SAVE_EVENT>() {
-                    @Override
-                    public void onEvent(DAOManager.SAVE_EVENT event) {
-                        logger.info("Send Event: " + event);
-                    }
-                });
+//        EventManager.get().register(
+//                new Subscriber<DAOManager.QUERY_EVENT>() {
+//                    @Override
+//                    public void onEvent(DAOManager.QUERY_EVENT event) {
+//                        logger.info("Query Event: " + event);
+//                    }
+//                });
+//        EventManager.get().register(
+//                new Subscriber<DAOManager.SAVE_EVENT>() {
+//                    @Override
+//                    public void onEvent(DAOManager.SAVE_EVENT event) {
+//                        logger.info("Send Event: " + event);
+//                    }
+//                });
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.jug6ernaut.network.authenticator.client.data;
 
 import com.jug6ernaut.network.authenticator.client.BackendObject;
-import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import retrofit.Callback;
+import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.POST;
 
@@ -18,18 +18,18 @@ import java.util.Collection;
 public interface DataWebService {
 
     @POST("/data/get")
-    public Collection<BackendObject> get(@Body Collection<BackendObject> keys);
+    public Response get(@Body Collection<String> keys);
     @POST("/data/get")
-    public void get(@Body Collection<TransientObject> keys, Callback<Collection<BackendObject>> callback);
+    public void get(@Body Collection<String> keys, Callback<Response> callback);
 
     @POST("/data/query")
-    public Collection<BackendObject> query(@Body Query query);
+    public Response query(@Body Query query);
     @POST("/data/query")
-    public void query(@Body Query query, Callback<Collection<BackendObject>> callback);
+    public void query(@Body Query query, Callback<Response> callback);
 
     @POST("/data/save")
-    public String save(@Body Collection<BackendObject> objects);
+    public <B extends BackendObject> String save(@Body Collection<B> objects);
     @POST("/data/save")
-    public void save(@Body Collection<BackendObject> objects, Callback<String> callback);
+    public <B extends BackendObject> void save(@Body Collection<B> objects, Callback<String> callback);
 
 }

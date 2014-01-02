@@ -18,7 +18,7 @@
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:text="Clear Saved User"
+                android:text="Logout"
                 android:id="@+id/clearSavedUserButton"
                 />
     </LinearLayout>
@@ -42,8 +42,8 @@
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Get Users"
-            android:id="@+id/getUsersButton"
+            android:text="Get"
+            android:id="@+id/getObjects"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"/>
 
@@ -60,7 +60,15 @@
             android:layout_height="wrap_content"
             android:id="@+id/usersLV"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/getUsersButton"/>
+            android:layout_below="@+id/getObjects"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            android:id="@+id/addObject"
+            android:layout_alignTop="@+id/getObjects"
+            android:layout_toRightOf="@+id/getObjects"/>
 
 </RelativeLayout>
 

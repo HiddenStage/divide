@@ -6,6 +6,7 @@ import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
+import java.security.KeyPair;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public final class DAOManager implements DAO {
     }
 
     @Override
-    public Collection<TransientObject> get(TransientObject... keys) throws DAOException {
+    public Collection<TransientObject> get(String... keys) throws DAOException {
         Collection<TransientObject> results = dao.get(keys);
         eventManager.fire(new GET_EVENT(results));
         return results;
@@ -66,6 +67,11 @@ public final class DAOManager implements DAO {
     @Override
     public int count(String objectType) {
         return dao.count(objectType);
+    }
+
+    @Override
+    public KeyPair keys(KeyPair keys) {
+        return dao.keys(keys);
     }
 
     public static final class QUERY_EVENT extends Event {

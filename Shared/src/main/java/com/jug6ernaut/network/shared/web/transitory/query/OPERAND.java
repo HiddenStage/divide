@@ -12,9 +12,7 @@ public enum OPERAND{
     LESS_THAN("<"),
     GREATER_THAN_EQ(">="),
     LESS_THAN_EQ("<="),
-    EQ("="),
-    AND("&&"),
-    OR("||");
+    EQ("==");
 
     String symbol;
 
@@ -23,22 +21,39 @@ public enum OPERAND{
     }
 
     public static OPERAND from(String symbol){
-        if(symbol.equals(GREATER_THAN.symbol)){
+        if(GREATER_THAN.symbol.equals(symbol)){
             return GREATER_THAN;
-        } else if(symbol.equals(LESS_THAN.symbol)){
+        } else if(LESS_THAN.symbol.equals(symbol)){
             return LESS_THAN;
-        } else if(symbol.equals(GREATER_THAN_EQ.symbol)){
+        } else if(GREATER_THAN_EQ.symbol.equals(symbol)){
             return GREATER_THAN_EQ;
-        } else if(symbol.equals(LESS_THAN_EQ.symbol)){
+        } else if(LESS_THAN_EQ.symbol.equals(symbol)){
             return LESS_THAN_EQ;
-        } else if(symbol.equals(EQ.symbol)){
+        } else if(EQ.symbol.equals(symbol)){
             return EQ;
-        } else if(symbol.equals(AND.symbol)){
-            return AND;
-        } else if(symbol.equals(OR.symbol)){
-            return OR;
-        } else {
+        }else {
             return null;
+        }
+    }
+
+    public static enum Conditional{
+        AND("&&"),
+        OR("||");
+
+        String symbol;
+
+        Conditional(String symbol){
+            this.symbol = symbol;
+        }
+
+        public static Conditional from(String symbol){
+            if(AND.symbol.equals(symbol)){
+                return AND;
+            } else if(OR.symbol.equals(symbol)){
+                return OR;
+            } else {
+                return null;
+            }
         }
     }
 

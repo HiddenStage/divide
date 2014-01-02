@@ -9,12 +9,10 @@ import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.AbstractWebManager;
 import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.BackendUser;
-import com.jug6ernaut.network.authenticator.client.DataServices;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.authenticator.client.auth.LoginState;
 import com.jug6ernaut.network.shared.event.EventManager;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 
 import java.util.Set;
@@ -30,26 +28,12 @@ public class PushManager extends AbstractWebManager<PushWebService> {
     private Backend backend;
     private static PushManager pushManager;
     private static EventManager eventManager = EventManager.get();
+    private String senderId;
 
     public PushManager(Backend backend) {
         super(backend);
         this.backend = backend;
         this.pushManager = this;
-
-        enableLoginListener(backend.register4Push);
-    }
-
-    @Override
-    public void setup(RestAdapter.Builder builder){
-        builder.setRequestInterceptor(new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade requestFacade) {
-                if (DataServices.get().getUser() != null)
-                    requestFacade.addHeader(
-                            "Authorization",
-                            "CUSTOM " + DataServices.get().getUser().getAuthToken());
-            }
-        });
     }
 
     @Override
@@ -57,33 +41,48 @@ public class PushManager extends AbstractWebManager<PushWebService> {
         return PushWebService.class;
     }
 
-    public void enableLoginListener(boolean enable){
-        if(enable)
+    public void setEnablePush(boolean enable, String senderId){
+        if(enable){
+            this.senderId = senderId;
             backend.getAuthManager().addLoginListener(loginListener);
-        else
+        } else {
+            this.senderId = null;
             backend.getAuthManager().removeLoginListener(loginListener);
+            if(isRegistered(backend.app)){
+                unregister();
+                GCMRegistrar.unregister(backend.app);
+            }
+        }
+        this.senderId = senderId;
+    }
+
+    public boolean isRegistered(){
+        return isRegistered(backend.app);
     }
 
     private AuthManager.LoginListener loginListener = new AuthManager.LoginListener() {
         @Override
-        public void onLogin(BackendUser user) {
+        public void onLogin(BackendUser user, LoginState state) {
+            logger.debug("onLogin: " + user);
+
             register4Push();
         }
     };
 
-    public boolean register(String token){
+    boolean register(String token){
         try {
             EncryptedEntity entity = new EncryptedEntity();
             entity.setCipherText(token,backend.getAuthManager().getServerKey() );
 
             getWebService().register(entity);
+            return true;
         } catch (Exception e) {
             logger.error("register failed",e);
+            return false;
         }
-        return false;
     }
 
-    public boolean unregister(String token){
+    boolean unregister(){
         try{
             getWebService().unregister();
             return true;
@@ -101,10 +100,15 @@ public class PushManager extends AbstractWebManager<PushWebService> {
         if (regId.equals("")) {
             logger.info("Registering");
             GCMRegistrar.setRegisteredOnServer(context, true);
-            GCMRegistrar.register(context, Backend.SENDER_ID);
+            GCMRegistrar.register(context, senderId);
         } else {
             logger.info("Push already registered: " + regId);
         }
+    }
+
+    private boolean isRegistered(Context context){
+        final String regId = GCMRegistrar.getRegistrationId(context);
+        return !regId.equals("");
     }
 
     public static class PushReceiver extends GCMBaseIntentService {
@@ -146,7 +150,7 @@ public class PushManager extends AbstractWebManager<PushWebService> {
         protected void onUnregistered(Context context, String s) {
             logger.debug("onUnregistered(): " + s);
             if(pushManager!=null)
-                pushManager.unregister(s);
+                pushManager.unregister();
         }
     }
 

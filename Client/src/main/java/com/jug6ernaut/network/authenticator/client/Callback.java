@@ -7,5 +7,6 @@ package com.jug6ernaut.network.authenticator.client;
  * Time: 3:53 PM
  */
 public interface Callback<T> {
-    public void callback(T t);
+    public void onResult(T t);
+    public void onError(Exception t);
 }

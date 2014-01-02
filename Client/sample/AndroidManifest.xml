@@ -17,8 +17,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.jug6ernaut.network.authenticator.client.auth.SignInActivity" />
-        <activity android:name="com.jug6ernaut.network.authenticator.client.auth.SignUpActivity" />
+
+        <activity android:name="com.jug6ernaut.network.authenticator.client.auth.AuthActivity" />
         <service android:name="com.jug6ernaut.network.authenticator.client.auth.AuthService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -44,7 +44,8 @@
 
     <permission
             android:name="com.example.client_sample.permission.C2D_MESSAGE"
-            android:protectionLevel="signature" />
+            android:protectionLevel="signature"
+    />
 
     <uses-permission android:name="com.example.client_sample.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -54,6 +55,7 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
 </manifest>

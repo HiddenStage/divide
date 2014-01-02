@@ -6,11 +6,12 @@ import android.os.Handler;
 import android.widget.Toast;
 import com.jug6ernaut.android.logging.ALogger;
 import com.jug6ernaut.android.logging.Logger;
+import com.jug6ernaut.android.utilites.DeviceWake;
+import com.jug6ernaut.network.authenticator.client.auth.AccountInformation;
 import com.jug6ernaut.network.authenticator.client.Backend;
-import com.jug6ernaut.network.authenticator.client.DataServices;
+import com.jug6ernaut.network.authenticator.client.BackendServices;
 import com.jug6ernaut.network.authenticator.client.push.PushEvent;
 import com.jug6ernaut.network.authenticator.client.push.PushListener;
-import com.jug6ernaut.otto.Subscribe;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,11 +24,13 @@ public class MyApplication extends Application {
     private static Logger logger;
     private static final String remoteUrl = "http://authenticator-test.appspot.com/api";
     private static final String localUrl = "http://williams-mbp:8888/api";
+//    private static final String localUrl = "http://192.168.1.12:8888/api";
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static String url = (DEBUG ? localUrl : remoteUrl);
     private SharedPreferences prefs;
     private static String URL_KEY = "url_key";
     private Handler handler = new Handler();
+    DeviceWake dw;
 
     @Override
     public void onCreate(){
@@ -40,18 +43,51 @@ public class MyApplication extends Application {
         }
         initBackend(url);
 
-        DataServices.get().addPushListener(listener);
+        BackendServices.addPushListener(listener);
 
+        dw = new DeviceWake(this);
+        dw.attain().setTimeout(1000*60);
     }
 
     @Override
     public void onTerminate() {
-
+        dw.release();
     }
 
     public void initBackend(String url){
         prefs.edit().putString(URL_KEY,url).commit();
-        Backend.init(this,url,true);
+        Backend backend = Backend.init(this,url, new AccountInformation() {
+            @Override
+            public String getAccountName() {
+                return "Example";
+            }
+
+            @Override
+            public String getAccountType() {
+                return "ExampleType";
+            }
+
+            @Override
+            public String getFullAccessType() {
+                return "FullAccess";
+            }
+
+            @Override
+            public String getFullAccessLabel() {
+                return "FullAccessLabel";
+            }
+
+            @Override
+            public String getReadAccessType() {
+                return "ReadAccess";
+            }
+
+            @Override
+            public String getReadAccessLabel() {
+                return "ReadAccessLabel";
+            }
+        });
+        //backend.registerPush("171321841613");
     }
 
     public String switchUrl(){
@@ -67,14 +103,6 @@ public class MyApplication extends Application {
 
     public String getUrl(){
         return url;
-    }
-
-    private class Listener{
-
-        @Subscribe
-        public void onEvent(PushEvent event){
-            logger.info("L: " + event);
-        }
     }
 
     private PushListener listener = new PushListener() {

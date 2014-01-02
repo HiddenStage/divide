@@ -7,9 +7,14 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.jug6ernaut.android.logging.Logger;
+import retrofit.ErrorHandler;
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.OkClient;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,41 +26,66 @@ public abstract class AbstractWebManager<T> {
 
     private static Logger logger = Logger.getLogger(AbstractWebManager.class);
     private static Logger retrologger = Logger.getLogger("Retrofit");
-    private Backend backend;
+    private static Boolean connectionReceiverRegistered = false;
+    private static RestAdapter restAdapter;
+    protected Backend backend;
     T t;
 
     protected AbstractWebManager(Backend backend){
         this.backend = backend;
         initAdapter();
-        backend.app.registerReceiver(CONNECTION_RECIEVER, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        synchronized (connectionReceiverRegistered){
+            if(!connectionReceiverRegistered){
+                backend.app.registerReceiver(CONNECTION_RECIEVER, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+                connectionReceiverRegistered = true;
+            }
+        }
     }
 
     private void initAdapter(){
-        RestAdapter.Builder builder = new RestAdapter.Builder();
+
+        if(restAdapter == null){
+            RestAdapter.Builder builder = new RestAdapter.Builder();
+            builder.setClient( new OkClient( backend.client ) )
+                    .setLogLevel(RestAdapter.LogLevel.FULL)
+                    .setLog(new RestAdapter.Log() {
+                        @Override
+                        public void log(String s) {
+                            retrologger.debug(s);
+                        }
+                    })
+                    .setServer(backend.serverUrl)
+                    .setRequestInterceptor(new RequestInterceptor() {
+                        @Override
+                        public void intercept(RequestFacade requestFacade) {
+                            onRequest(requestFacade);
+                        }
+                    })
+                    .setErrorHandler(new ErrorHandler() {
+                        @Override
+                        public Throwable handleError(RetrofitError retrofitError) {
+                            return onError(retrofitError);
+                        }
+                    });
+            restAdapter = builder.build();
+        }
+
         Class<T> type = getType();
         if(type==null)throw new IllegalStateException("getType can not be null");
 
-        builder.setClient(backend.client)
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setLog(new RestAdapter.Log() {
-                    @Override
-                    public void log(String s) {
-                        retrologger.debug(s);
-                    }
-                })
-                .setServer(backend.serverUrl);
-        setup(builder);
-
-        t = builder.build().create(type);
+        t = restAdapter.create(type);
     }
 
     public T getWebService(){
         return t;
     }
 
+    protected RetrofitError onError(RetrofitError retrofitError){
+        return retrofitError;
+    }
 
-    protected void setup(RestAdapter.Builder builder){
-
+    protected RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){
+        return requestFacade;
     }
 
     protected abstract Class<T> getType();
@@ -70,7 +100,7 @@ public abstract class AbstractWebManager<T> {
         }
     }
 
-    private static final ArrayList<ConnectionListner> listeners = new ArrayList<ConnectionListner>();
+    private static final List<ConnectionListner> listeners = new CopyOnWriteArrayList<ConnectionListner>();
     public void addConnectionListener(ConnectionListner listener){
         listeners.add(listener);
     }

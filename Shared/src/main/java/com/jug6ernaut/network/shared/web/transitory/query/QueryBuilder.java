@@ -2,15 +2,13 @@ package com.jug6ernaut.network.shared.web.transitory.query;
 
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 
-import java.util.Collections;
-
 /**
  * Created with IntelliJ IDEA.
  * User: williamwebb
  * Date: 8/19/13
  * Time: 7:13 PM
  */
-public class QueryBuilder{
+public class QueryBuilder<T extends TransientObject>{
 
     public static enum QueryAction{
         SELECT,
@@ -22,13 +20,13 @@ public class QueryBuilder{
         }
     }
 
-    private Query query;
+    private Query<T> query;
 
     public QueryBuilder(){
-        query = new Query();
+        query = new Query<T>();
     }
 
-    public SelectBuilder select(String... select){
+    public SelectBuilder select(SelectOperation... select){
         return new SelectBuilder(this,select);
     }
 
@@ -41,16 +39,28 @@ public class QueryBuilder{
     }
 
     private void addWhere(String one, OPERAND operand, String two){
-        query.where.put(query.where.size(),new Clause(TransientObject.getKey(one),operand,two));
+        query.where.put(query.where.size(),new UserDataClause(one,operand,two));
+    }
+
+    private void addWhere(TransientObject.MetaKey one, OPERAND operand, String two){
+        query.where.put(query.where.size(),new MetaDataClause(one.KEY,operand,two));
+    }
+
+    private void addWhere(OPERAND.Conditional conditional,String one, OPERAND operand, String two){
+        query.where.put(query.where.size(),new UserDataClause(conditional,one,operand,two));
+    }
+
+    private void addWhere(OPERAND.Conditional conditional,TransientObject.MetaKey one, OPERAND operand, String two){
+        query.where.put(query.where.size(),new MetaDataClause(conditional,one.KEY,operand,two));
     }
 
     private void setFrom(String from){
         query.from = from;
     }
 
-    private void addSelect(String... select){
+    private void addSelect(SelectOperation select){
         if(select!=null)
-            Collections.addAll(query.select, select);
+            query.select = select;
     }
 
     private void setLimit(Integer limit){
@@ -65,17 +75,20 @@ public class QueryBuilder{
         query.action = action;
     }
 
+    private void setRandom(boolean random){ query.random = random; }
+
     private Query getQuery(){
         return query;
     }
 
     public class SelectBuilder extends QueryActionBuilder{
 
-        private SelectBuilder(QueryBuilder builder, String... select){
+        private SelectBuilder(QueryBuilder builder, SelectOperation... select){
             super(builder,QueryAction.SELECT);
-            builder.addSelect(select);
+            if (select!=null)
+                for (SelectOperation s : select)
+                    builder.addSelect(s);
         }
-
     }
 
     public class DeleteBuilder extends QueryActionBuilder{
@@ -83,7 +96,6 @@ public class QueryBuilder{
         private DeleteBuilder(QueryBuilder builder) {
             super(builder,QueryAction.DELETE);
         }
-
     }
 
     public class UpdateBuilder extends QueryActionBuilder{
@@ -91,7 +103,6 @@ public class QueryBuilder{
         private UpdateBuilder(QueryBuilder builder) {
             super(builder,QueryAction.UPDATE);
         }
-
     }
 
     public class QueryActionBuilder{
@@ -102,25 +113,25 @@ public class QueryBuilder{
             this.builder.setAction(action);
         }
 
-        public WhereBuilder from(String from){
-            builder.setFrom((from==null?"":from));
+        public WhereBuilder from(Class<T> from){
+            builder.setFrom(from.getName());
             return new WhereBuilder(builder);
         }
-
-        public Query build(){
-            return builder.getQuery();
-        }
-
     }
 
     public class WhereBuilder{
         private QueryBuilder builder;
 
-        private WhereBuilder(QueryBuilder builder){
+        protected WhereBuilder(QueryBuilder builder){
             this.builder = builder;
         }
 
         public WhereMoreBuilder where(String one, OPERAND operand, String two){
+            builder.addWhere(one,operand,two);
+            return new WhereMoreBuilder(builder);
+        }
+
+        public WhereMoreBuilder where(TransientObject.MetaKey one, OPERAND operand, String two){
             builder.addWhere(one,operand,two);
             return new WhereMoreBuilder(builder);
         }
@@ -133,34 +144,44 @@ public class QueryBuilder{
             return new OffsetConstraintBuilder(builder,offset);
         }
 
+        public RandomConstraintBuilder random(Boolean random, Integer limit){
+            return new RandomConstraintBuilder(builder,random,limit);
+        }
+
+        public Query<T> build(){
+            return builder.getQuery();
+        }
     }
 
-    public class WhereMoreBuilder{
+    public class WhereMoreBuilder extends WhereBuilder{
         private QueryBuilder builder;
 
-        private WhereMoreBuilder(QueryBuilder builder){
+        protected WhereMoreBuilder(QueryBuilder builder){
+            super(builder);
             this.builder = builder;
         }
 
         public WhereMoreBuilder and(String one, OPERAND operand, String two){
-            builder.addWhere(one,operand,two);
+            builder.addWhere(OPERAND.Conditional.AND,one,operand,two);
             return this;
         }
 
         public WhereMoreBuilder or(String one, OPERAND operand, String two){
-            builder.addWhere(one,operand,two);
+            builder.addWhere(OPERAND.Conditional.OR,one,operand,two);
             return this;
         }
 
-        public LimitConstraintBuilder limit(Integer limit){
-            return new LimitConstraintBuilder(builder,limit);
+        public WhereMoreBuilder and(TransientObject.MetaKey one, OPERAND operand, String two){
+            builder.addWhere(OPERAND.Conditional.AND,one,operand,two);
+            return this;
         }
 
-        public OffsetConstraintBuilder offset(Integer offset){
-            return new OffsetConstraintBuilder(builder,offset);
+        public WhereMoreBuilder or(TransientObject.MetaKey one, OPERAND operand, String two){
+            builder.addWhere(OPERAND.Conditional.OR,one,operand,two);
+            return this;
         }
 
-        public Query build(){
+        public Query<T> build(){
             return builder.getQuery();
         }
     }
@@ -198,6 +219,15 @@ public class QueryBuilder{
         }
     }
 
+    public class RandomConstraintBuilder extends ConstraintBuilder{
+
+        private RandomConstraintBuilder(QueryBuilder builder, Boolean random, Integer limit) {
+            super(builder);
+            builder.setRandom(random);
+            builder.setLimit(limit);
+        }
+    }
+
     public class ConstraintBuilder{
         protected QueryBuilder builder;
 
@@ -205,7 +235,7 @@ public class QueryBuilder{
             this.builder = builder;
         }
 
-        public Query build(){
+        public Query<T> build(){
             return builder.getQuery();
         }
 

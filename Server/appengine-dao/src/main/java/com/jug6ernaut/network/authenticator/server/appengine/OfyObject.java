@@ -5,6 +5,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,11 +22,19 @@ public class OfyObject {
 
     @Index
     @EmbedMap
-    public Map<String,String> user_data;
+    public Map<String,Object> user_data = new HashMap<String, Object>(0);
 
     @Index
     @EmbedMap
-    public Map<String,String> meta_data;
+    public Map<String,String> meta_data = new HashMap<String, String>(0);
+
+    public OfyObject(){}
+
+    public OfyObject(String key,Map<String,Object> userData, Map<String,String> metaData){
+        this.object_key = key;
+        this.user_data = userData;
+        this.meta_data = metaData;
+    }
 
     @Override
     public String toString() {

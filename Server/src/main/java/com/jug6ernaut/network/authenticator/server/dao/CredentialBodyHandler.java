@@ -70,27 +70,31 @@ public class CredentialBodyHandler<T extends Credentials> implements MessageBody
             }
 
             // if the object != null and emails dont match
-            if(!match(object,context)){
-                getGson().toJson(object.getSafe(), jsonType, writer);
 
-            } else {
-                getGson().toJson(object, jsonType, writer);
+            if(!match(object,context)){
+                object = (T) object.getSafe();
             }
+
+            getGson().toJson(object, jsonType, writer);
+            logger.info("sending: " + object);
 
         } finally {
             writer.close();
         }
     }
 
-    private static final boolean match( Credentials credentials, SecurityContext context){
+    private static final boolean match(Credentials credentials, SecurityContext context){
         if(credentials == null ||
            credentials.getEmailAddress() == null ||
            context == null ||
            context.getUserPrincipal() == null ||
-           context.getUserPrincipal().getName() == null){
-
+           context.getUserPrincipal().getName() == null)
+        {
+            logger.info("something null");
             return false;
         }
+        logger.info("Logged In: " + credentials.getEmailAddress() + "\n" +
+                    "Returning: " + context.getUserPrincipal().getName());
 
         return (credentials.getEmailAddress().equals(context.getUserPrincipal().getName()));
     }

@@ -29,7 +29,7 @@ public class GsonMessageBodyHandler implements MessageBodyWriter<Object>,
         if (gson == null) {
             final GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.enableComplexMapKeySerialization();
-            gsonBuilder.setPrettyPrinting();
+//            gsonBuilder.setPrettyPrinting();
             gson = gsonBuilder.create();
         }
         return gson;
