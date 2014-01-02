@@ -110,7 +110,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private void loginStoredUser(Account account){
         logger.debug("loginStoredUser: " + account);
         try {
-            String token = authUtils.blockingGetAuthToken(account,accountInfo.getFullAccessType());
+            String token = authUtils.blockingGetAuthToken(account,accountInfo.getFullAccessTokenType());
             logger.info("Successfully Logged in! " + token);
             logger.info("Getting user...");
             getRemoteUserFromTokenAsync(token);
@@ -125,7 +125,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         synchronized (CURRENT_STATE){
             if(CURRENT_STATE.equals(LOGGED_IN) || CURRENT_STATE.equals(LOGGING_IN)) return;
             CURRENT_STATE = LOGGING_IN;
-            authUtils.getAuthToken(account,accountInfo.getFullAccessType(),new com.jug6ernaut.network.authenticator.client.Callback<String>() {
+            authUtils.getAuthToken(account,accountInfo.getFullAccessTokenType(),new com.jug6ernaut.network.authenticator.client.Callback<String>() {
 
                 @Override
                 public void onResult(String s) {
@@ -218,7 +218,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         if (account == null) {
             account = new Account(accountName, accountInfo.getAccountType());
 
-            String authtokenType = accountInfo.getFullAccessType();
+            String authtokenType = accountInfo.getFullAccessTokenType();
 
             // Creating the account on the device and setting the auth token we got
             // (Not setting the auth token will cause another call to the server to authenticate the user)

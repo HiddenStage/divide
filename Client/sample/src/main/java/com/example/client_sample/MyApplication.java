@@ -7,7 +7,6 @@ import android.widget.Toast;
 import com.jug6ernaut.android.logging.ALogger;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.android.utilites.DeviceWake;
-import com.jug6ernaut.network.authenticator.client.auth.AccountInformation;
 import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.BackendServices;
 import com.jug6ernaut.network.authenticator.client.push.PushEvent;
@@ -56,37 +55,7 @@ public class MyApplication extends Application {
 
     public void initBackend(String url){
         prefs.edit().putString(URL_KEY,url).commit();
-        Backend backend = Backend.init(this,url, new AccountInformation() {
-            @Override
-            public String getAccountName() {
-                return "Example";
-            }
-
-            @Override
-            public String getAccountType() {
-                return "ExampleType";
-            }
-
-            @Override
-            public String getFullAccessType() {
-                return "FullAccess";
-            }
-
-            @Override
-            public String getFullAccessLabel() {
-                return "FullAccessLabel";
-            }
-
-            @Override
-            public String getReadAccessType() {
-                return "ReadAccess";
-            }
-
-            @Override
-            public String getReadAccessLabel() {
-                return "ReadAccessLabel";
-            }
-        });
+        Backend.init(this,url);
         //backend.registerPush("171321841613");
     }
 

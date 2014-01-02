@@ -42,7 +42,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
         this.mContext = context;
         this.accountInformation = Backend.get().accountInformation;
         authUtils = AuthUtils.get(context, accountInformation.getAccountType());
-        tokenTypes = Arrays.asList(accountInformation.getFullAccessType(),accountInformation.getReadAccessType());
+        tokenTypes = Arrays.asList(accountInformation.getFullAccessTokenType(),accountInformation.getReadAccessTokenType());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
         // If the caller requested an authToken type we don't support, then
         // return an error
-        if (!authTokenType.equals(accountInformation.getFullAccessType()) && !authTokenType.equals(accountInformation.getReadAccessType())) {
+        if (!authTokenType.equals(accountInformation.getFullAccessTokenType()) && !authTokenType.equals(accountInformation.getReadAccessTokenType())) {
             final Bundle result = new Bundle();
             result.putString(AccountManager.KEY_ERROR_MESSAGE, "invalid authTokenType[" + tokenTypes +"] : " + authTokenType);
 
@@ -138,10 +138,10 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public String getAuthTokenLabel(String authTokenType) {
-        if (accountInformation.getFullAccessType().equals(authTokenType))
-            return accountInformation.getFullAccessLabel();
-        else if (accountInformation.getReadAccessType().equals(authTokenType))
-            return accountInformation.getReadAccessLabel();
+        if (accountInformation.getFullAccessTokenType().equals(authTokenType))
+            return accountInformation.getFullAccessTokenLabel();
+        else if (accountInformation.getReadAccessTokenType().equals(authTokenType))
+            return accountInformation.getReadAccessTokenLabel();
         else
             return authTokenType + " (Label)";
     }

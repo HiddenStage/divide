@@ -2,6 +2,7 @@ package com.jug6ernaut.network.authenticator.client;
 
 import android.accounts.Account;
 import com.jug6ernaut.android.logging.Logger;
+import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.android.utilites.UserUtils;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.auth.SignInResponse;
@@ -9,7 +10,6 @@ import com.jug6ernaut.network.authenticator.client.auth.SignUpResponse;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.LoginCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.SignUpCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.ValidCredentials;
-import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import retrofit.RetrofitError;
@@ -86,7 +86,7 @@ public final class BackendUser extends Credentials {
     private void initFrom(Credentials credentials){
         logger.debug("initFrom: " + credentials);
         try {
-            ReflectionUtils.setObjectField(this, TransientObject.META_DATA,credentials.getMetaData());
+            ReflectionUtils.setObjectField(this, TransientObject.META_DATA, credentials.getMetaData());
             ReflectionUtils.setObjectField(this, TransientObject.USER_DATA,credentials.getUserData());
 //            Method setObjectType = ReflectionUtils.getObjectMethod(this, "setObjectType", String.class);
 //            setObjectType.invoke(this,BackendUser.class.getName());

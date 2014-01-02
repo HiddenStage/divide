@@ -34,10 +34,10 @@ public class Backend {
         PRNGFixes.apply();
     }
 
-    private Backend(final Application application, final String serverUrl, AccountInformation accountInformation) {
+    private Backend(final Application application, final String serverUrl) {
         this.app = application;
         this.serverUrl = serverUrl;
-        this.accountInformation = accountInformation;
+        this.accountInformation = new AccountInformation(application);
 //        checkManifest(application);
 
         authManager = new AuthManager(this);
@@ -49,9 +49,9 @@ public class Backend {
         pushManager.setEnablePush(true, senderId);
     }
 
-    public static Backend init(final Application context, final String serverUrl, AccountInformation accountInformation) {
+    public static Backend init(final Application context, final String serverUrl) {
         logger.info("Connecting to: " + serverUrl);
-        backend = new Backend(context,serverUrl,accountInformation);
+        backend = new Backend(context,serverUrl);
         return backend;
     }
 
