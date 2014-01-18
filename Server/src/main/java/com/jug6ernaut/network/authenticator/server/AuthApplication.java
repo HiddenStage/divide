@@ -1,5 +1,6 @@
 package com.jug6ernaut.network.authenticator.server;
 
+import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.auth.SecurityFilter;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.*;
@@ -36,9 +37,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         reg(MetaEndpoint.class);
         reg(CredentialBodyHandler.class);  // insures passwords are not sent back
         reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
-//        reg(UserContext.class);
         reg(SecurityFilter.class);
-        reg(Session.class);
 
         DynamicConfiguration dc = Injections.getConfiguration(serviceLocator);
         bind(dc,getDAO());
@@ -59,6 +58,9 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
             DAOManager manager = new DAOManager(t);
             Injections.addBinding(
                     Injections.newBinder(manager).to(DAOManager.class),
+                    dc);
+            Injections.addBinding(
+                    Injections.newBinder(new KeyManager(manager)).to(KeyManager.class),
                     dc);
         } catch (Exception e) {
             logger.severe("Failed to register DAO");

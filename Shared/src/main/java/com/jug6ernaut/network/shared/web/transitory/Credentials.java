@@ -7,9 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import java.io.Serializable;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,6 +29,7 @@ public class Credentials extends TransientObject implements Serializable {
     private static final MetaKey PASSWORD_KEY = new MetaKey("pw");
     public static final MetaKey EMAIL_KEY = new MetaKey("email");
     public static final MetaKey AUTH_TOKEN_KEY = new MetaKey("auth_token");
+    public static final MetaKey RECOVERY_TOKEN_KEY = new MetaKey("recovery_auth_token");
     private static final MetaKey AUTH_TOKEN_EXPIRE_KEY = new MetaKey("auth_token_expire");
     public static final MetaKey USERNAME_KEY = new MetaKey("username");
     protected static final MetaKey VALIDATION_KEY = new MetaKey("validation");
@@ -105,21 +104,7 @@ public class Credentials extends TransientObject implements Serializable {
     }
 
     public void setAuthToken(String authToken) {
-        Calendar c = Calendar.getInstance(TimeZone.getDefault());
-        setAuthTokenExpireDate(c.getTime().getTime() + (1000*60*60*12)); //expires in one day
-
         meta_put(AUTH_TOKEN_KEY, authToken);
-    }
-
-    public long getAuthTokenExpireDate() {
-        if(getUserData().containsKey(AUTH_TOKEN_EXPIRE_KEY))
-            return Long.valueOf( meta_get(String.class, AUTH_TOKEN_EXPIRE_KEY));
-        else
-            return -1;
-    }
-
-    private void setAuthTokenExpireDate(long authTokenExpireDate) {
-        meta_put(AUTH_TOKEN_EXPIRE_KEY, String.valueOf(authTokenExpireDate));
     }
 
     public String getValidation() {
@@ -146,6 +131,14 @@ public class Credentials extends TransientObject implements Serializable {
         return meta_get(String.class, PUSH_MESSAGING_KEY);
     }
 
+    public String getRecoveryToken() {
+        return meta_get(String.class, RECOVERY_TOKEN_KEY);
+    }
+
+    public void setRecoveryToken(String authToken) {
+        meta_put(RECOVERY_TOKEN_KEY, authToken);
+    }
+
     public Credentials getSafe(){
         Credentials safeCreds = new Credentials(this);
         safeCreds.meta_remove(PASSWORD_KEY);
@@ -153,6 +146,7 @@ public class Credentials extends TransientObject implements Serializable {
         safeCreds.meta_remove(AUTH_TOKEN_EXPIRE_KEY);
         safeCreds.meta_remove(VALIDATION_KEY);
         safeCreds.meta_remove(PUSH_MESSAGING_KEY);
+        safeCreds.meta_remove(RECOVERY_TOKEN_KEY);
         return safeCreds;
     }
 

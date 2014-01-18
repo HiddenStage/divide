@@ -71,8 +71,9 @@ public class PushManager extends AbstractWebManager<PushWebService> {
 
     boolean register(String token){
         try {
-            EncryptedEntity entity = new EncryptedEntity();
-            entity.setCipherText(token,backend.getAuthManager().getServerKey() );
+            EncryptedEntity.Writter entity = new EncryptedEntity.Writter(backend.getAuthManager().getServerKey());
+            entity.put("token",token);
+//            entity.setCipherText(token,backend.getAuthManager().getServerKey() );
 
             getWebService().register(entity);
             return true;

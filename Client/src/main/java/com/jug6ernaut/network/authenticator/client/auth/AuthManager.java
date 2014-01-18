@@ -2,6 +2,7 @@ package com.jug6ernaut.network.authenticator.client.auth;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import com.google.gson.Gson;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.*;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.LoginCredentials;
@@ -11,6 +12,7 @@ import com.jug6ernaut.network.authenticator.client.http.Status;
 import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
@@ -23,9 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.jug6ernaut.network.authenticator.client.auth.LoginState.LOGGED_IN;
-import static com.jug6ernaut.network.authenticator.client.auth.LoginState.LOGGED_OUT;
-import static com.jug6ernaut.network.authenticator.client.auth.LoginState.LOGGING_IN;
+import static com.jug6ernaut.network.authenticator.client.auth.LoginState.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -81,7 +81,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         if (getUser() != null) {
             requestFacade.addHeader("Authorization", "CUSTOM " + getUser().getAuthToken());
         } else {
-            logger.error("no auth key: " + getUser());
+            logger.warn("no auth key: " + getUser());
         }
         return requestFacade;
     }
@@ -153,13 +153,36 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         return getWebService().getUser(authToken);
     }
 
+    public RecoveryResponse recoverFromOneTimeToken(String token){
+        try {
+            logger.debug("recoverFromOneTimeToken(" + token + ")");
+
+            CURRENT_STATE = LOGGING_IN;
+            Response response = getWebService().recoverFromOneTimeToken(token);
+
+            String body = IOUtils.toString(response.getBody().in());
+
+            ValidCredentials credentials = new Gson().fromJson(body,ValidCredentials.class);
+//            String newRecoveryToken = response.getHeaders().get(0).getValue();
+
+            Account account = authUtils.getAccount(credentials.getEmailAddress());
+
+            authUtils.setPassword(account, credentials.getRecoveryToken());
+            return new RecoveryResponse(setUser(credentials), Status.SUCCESS_OK, "");
+        } catch (Exception e) {
+            logger.error("recoverFromOneTimeToken Failure(" + token + ")", e);
+            return new RecoveryResponse(null, Status.SERVER_ERROR_INTERNAL, e.getLocalizedMessage());
+        }
+
+    }
+
     private void getRemoteUserFromTokenAsync(String authToken) {
         try {
             CURRENT_STATE = LoginState.LOGGING_IN;
             getWebService().getUser(authToken, new Callback<ValidCredentials>() {
                 @Override
                 public void success(final ValidCredentials webUser, Response response) {
-                    setUser(null,webUser);
+                    setUser(webUser);
                 }
 
                 @Override
@@ -194,14 +217,14 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         CURRENT_STATE = LoginState.LOGGED_OUT;
     }
 
-    private BackendUser setUser(Credentials sent, ValidCredentials returned){
+    private BackendUser setUser(ValidCredentials returned){
         logger.debug("setUser: " + returned);
         this.user = BackendUser.from(returned);
         logger.debug("user: " + user);
         CURRENT_STATE = LOGGED_IN;
 
-        if(sent!=null)
-            storeOrUpdateAccount(sent);
+        if(returned!=null)
+            storeOrUpdateAccount(returned);
 
         fireLoginListeners();
         return user;
@@ -209,25 +232,33 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     private void storeOrUpdateAccount(Credentials validCredentials){
         logger.debug("storeOrUpdateAccount: " + validCredentials);
+
         String accountName = validCredentials.getEmailAddress();
-        String accountPassword = validCredentials.getPassword();
+        String accountPassword = validCredentials.getRecoveryToken();
         String authToken = validCredentials.getAuthToken();
+        String authTokenType = accountInfo.getFullAccessTokenType();
+
+        logger.debug("name: " + accountName);
+        logger.debug("recoveryToken: " + accountPassword);
+        logger.debug("authToken: " + authToken);
+        logger.debug("authTokenType: " + authTokenType);
 
         Account account = authUtils.getAccount(accountName);
 
         if (account == null) {
             account = new Account(accountName, accountInfo.getAccountType());
 
-            String authtokenType = accountInfo.getFullAccessTokenType();
-
             // Creating the account on the device and setting the auth token we got
             // (Not setting the auth token will cause another call to the server to authenticate the user)
             authUtils.addAcccount(account, accountPassword, null);
 //            mAccountManager.addAccountExplicitly(account, accountPassword, null);
-            authUtils.setAuthToken(account, authtokenType, authToken);
-        } else {
-            authUtils.setPassword(account, accountPassword);
         }
+
+        if(accountPassword!=null && accountPassword.length()>0)
+            authUtils.setPassword(account, accountPassword);
+
+        authUtils.setAuthToken(account, authTokenType, authToken);
+
     }
 
     private static PublicKey serverPublicKey = null;
@@ -262,7 +293,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 //            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
             BackendUser user = null;
             if (response.getStatus().isSuccess()) {
-                user = setUser(loginCreds, g.getBody());
+                user = setUser(g.getBody());
             }
 
             return new SignUpResponse(user, response.getStatus(), response.getError());
@@ -285,7 +316,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             getWebService().userSignUp(signInCreds, new Callback<ValidCredentials>() {
                 @Override
                 public void success(ValidCredentials credentials, Response response) {
-                    callback.onResult(setUser(signInCreds,credentials));
+                    callback.onResult(setUser(credentials));
                 }
 
                 @Override
@@ -317,7 +348,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 //            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
             BackendUser user = null;
             if(response.getStatus().isSuccess()){
-                user = setUser(loginCreds,g.getBody());
+                user = setUser(g.getBody());
             }
 
             return new SignInResponse(user,response.getStatus(),response.getError());
@@ -343,7 +374,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             getWebService().login(loginCreds, new Callback<ValidCredentials>() {
                 @Override
                 public void success(ValidCredentials user, Response response) {
-                    callback.onResult(setUser(loginCreds,user));
+                    callback.onResult(setUser(user));
                 }
 
                 @Override
@@ -369,14 +400,14 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     }
 
     public void getUserData(){
-        setUser(null,getWebService().getUserData());
+        setUser(getWebService().getUserData());
     }
 
     public void getUserData(final Callback<BackendUser> callback){
         getWebService().getUserData(new Callback<ValidCredentials>() {
             @Override
             public void success(ValidCredentials validCredentials, Response response) {
-                setUser(null,validCredentials);
+                setUser(validCredentials);
                 callback.success(getUser(),response);
             }
 

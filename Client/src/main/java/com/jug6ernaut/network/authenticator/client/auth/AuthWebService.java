@@ -29,10 +29,13 @@ public interface AuthWebService {
     @GET("/auth/key")
     public byte[] getPublicKey();
 
-    @GET("/auth/user/{token}")
+    @GET("/auth/from/{token}")
     public ValidCredentials getUser(@Path("token")String authToken);
 
-    @GET("/auth/user/{token}")
+    @GET("/auth/recover/{token}")
+    public Response recoverFromOneTimeToken(@Path("token")String authToken);
+
+    @GET("/auth/from/{token}")
     public void getUser(@Path("token")String authToken, Callback<ValidCredentials> callback);
 
     @POST("/auth/user/data")

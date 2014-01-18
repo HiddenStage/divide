@@ -197,7 +197,7 @@ public final class BackendUser extends Credentials {
                 ", userKey='" + getOwnerId() + '\'' +
                 ", authToken='" + getAuthToken() + '\'' +
                 ", createDate=" + getCreateDate() +
-                ", authTokenExpireDate=" + getAuthTokenExpireDate() +
+//                ", authTokenExpireDate=" + getAuthTokenExpireDate() +
                 ", validation='" + getValidation() + '\'' +
                 '}';
     }

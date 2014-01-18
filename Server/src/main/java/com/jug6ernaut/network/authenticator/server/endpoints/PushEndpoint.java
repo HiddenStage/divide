@@ -4,11 +4,11 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
 import com.jug6ernaut.network.authenticator.server.AuthApplication;
+import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.shared.Constants;
-import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -41,17 +40,23 @@ public class PushEndpoint {
     @Context
     AuthApplication app;
 
+    @Context
+    KeyManager keyManager;
+
 
     /*
     currently failing as the decryption key is probably different
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response register(@Context Session session,EncryptedEntity entity){
+    public Response register(@Context Session session,EncryptedEntity.Reader entity){
         try{
             logger.info("App: " + app);
             Credentials credentials = session.getUser();
-            String token = entity.getPlainText(Crypto.get().getPrivate());
+            entity.setKey(keyManager.getPrivateKey());
+            String token = entity.get("token");
+
+//            String token = entity.getPlainText(Crypto.get().getPrivate());
             credentials.setPushMessagingKey(token);
             logger.info("Before: " + getUserByEmail(dao,credentials.getEmailAddress()));
             dao.save(credentials);
@@ -59,7 +64,7 @@ public class PushEndpoint {
         } catch (DAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return Response.serverError().build();
         }

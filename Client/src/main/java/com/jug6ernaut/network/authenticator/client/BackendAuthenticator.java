@@ -8,10 +8,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.network.authenticator.client.auth.AccountInformation;
-import com.jug6ernaut.network.authenticator.client.auth.AuthActivity;
-import com.jug6ernaut.network.authenticator.client.auth.AuthUtils;
-import com.jug6ernaut.network.authenticator.client.auth.SignInResponse;
+import com.jug6ernaut.network.authenticator.client.auth.*;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.LoginCredentials;
 
 import java.util.Arrays;
@@ -47,7 +44,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-        logger.debug("> addAccount");
+        logger.debug("> addAccount: " + accountType + " : " + authTokenType + " : " + Arrays.asList(requiredFeatures) + " : " + options);
 
         if (authUtils.getAccounts().size() > 0) {
             final Bundle result = new Bundle();
@@ -74,7 +71,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
-        logger.debug("> getAuthToken");
+        logger.debug("> getAuthToken("+account+"): " + authTokenType);
 
         // If the caller requested an authToken type we don't support, then
         // return an error
@@ -103,12 +100,16 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
                     LoginCredentials loginCredentials = new LoginCredentials(account.name,password);
                     loginCredentials.setEncrypted(true);
 
-                    SignInResponse signInResponse = BackendUser.signIn(loginCredentials);
-                    if(signInResponse.getStatus().isSuccess()){
-                        authToken = signInResponse.get().getAuthToken();
+                    AuthManager manager = Backend.get().getAuthManager();
+                    RecoveryResponse recoveryResponse = manager.recoverFromOneTimeToken(password);
+
+                    if(recoveryResponse.getStatus().isSuccess()){
+                        BackendUser user = recoveryResponse.get();
+                        logger.debug(user);
+                        authToken = user.getAuthToken();
                         logger.debug("AuthToken: " + authToken);
                     } else {
-                        logger.error("Failed to re-authenticate: " + signInResponse.getError());
+                        logger.error("Failed to re-authenticate: " + recoveryResponse.getError());
                     }
                 } catch (Exception e) {
                     logger.error("",e);

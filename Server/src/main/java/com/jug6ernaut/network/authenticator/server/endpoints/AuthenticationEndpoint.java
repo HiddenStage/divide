@@ -1,13 +1,13 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
 import com.google.common.base.Stopwatch;
+import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.shared.util.AuthTokenUtils;
-import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
@@ -22,9 +22,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -39,6 +36,9 @@ public final class AuthenticationEndpoint{
 
     @Context
     DAOManager dao;
+
+    @Context
+    KeyManager keyManager;
 
     public static final String key = "somekey";
 
@@ -61,7 +61,7 @@ public final class AuthenticationEndpoint{
             ServerCredentials toSave = new ServerCredentials(credentials);
 
             String en = toSave.getPassword();
-            toSave.decryptPassword(getKeys().getPrivate()); //decrypt the password
+            toSave.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
             String de = toSave.getPassword();
             String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
             logger.info("PW\n" +
@@ -70,6 +70,7 @@ public final class AuthenticationEndpoint{
                         "Hashed:    " + ha);
             toSave.setPassword(ha); //hash the password for storage
             toSave.setAuthToken(AuthTokenUtils.getToken(key, toSave));
+            toSave.setRecoveryToken(AuthTokenUtils.getToken(key, toSave));
             toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
 
 //            session.setup(new UserContext(null,toSave));
@@ -80,12 +81,12 @@ public final class AuthenticationEndpoint{
 
             logger.info("SignUp Successful. Returning: " + toSave);
             return ok(toSave);
-        } catch (NoSuchAlgorithmException e) {
-            logger.severe(ExceptionUtils.getStackTrace(e));
-            return Response.serverError().build();
         } catch (DAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
+        } catch (Exception e) {
+            logger.severe(ExceptionUtils.getStackTrace(e));
+            return Response.serverError().build();
         }
     }
 
@@ -110,13 +111,13 @@ public final class AuthenticationEndpoint{
                 //check if we are resetting the password
                 if(dbCreds.getValidation()!=null && dbCreds.getValidation().equals(credentials.getValidation())){
                     logger.info("Validated, setting new password");
-                    credentials.decryptPassword(getKeys().getPrivate()); //decrypt the password
+                    credentials.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
                     dbCreds.setPassword(BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt(10))); //set the new password
                 }
                 //else check password
                 else {
                     String en = credentials.getPassword();
-                    credentials.decryptPassword(getKeys().getPrivate()); //decrypt the password
+                    credentials.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
                     String de = credentials.getPassword();
                     String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
                     logger.info("Comparing passwords.\n" +
@@ -134,7 +135,8 @@ public final class AuthenticationEndpoint{
                 context.setSecurityContext(new UserContext(context.getUriInfo(),dbCreds));
 //                session.
 //                // check if token is expired, if so return/set new
-                if (c.getTime().getTime() > dbCreds.getAuthTokenExpireDate()) {
+                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(key,dbCreds.getAuthToken());
+                if (c.getTime().getTime() > token.expirationDate) {
                     logger.info("Updating ExpireDate");
                     dbCreds.setAuthToken(AuthTokenUtils.getToken(key, dbCreds));
                     dao.save(dbCreds);
@@ -143,12 +145,12 @@ public final class AuthenticationEndpoint{
                 logger.info("Login Successful. Returning: " + dbCreds);
                 return ok(dbCreds);
             }
-        } catch (NoSuchAlgorithmException e) {
-            logger.severe(ExceptionUtils.getStackTrace(e));
-            return Response.serverError().build();
-        } catch (DAO.DAOException e) {
+        }catch (DAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
+        } catch (Exception e) {
+            logger.severe(ExceptionUtils.getStackTrace(e));
+            return Response.serverError().build();
         }
     }
 
@@ -157,13 +159,13 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPublicKey()  {
         try{
-        PublicKey publicKey = getKeys().getPublic();
+        PublicKey publicKey = keyManager.getPublicKey();
 
         return Response
                 .ok()
                 .entity(publicKey.getEncoded())
                 .build();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return Response.serverError().build();
         }
@@ -199,7 +201,7 @@ public final class AuthenticationEndpoint{
     }
 
     @GET
-    @Path("/user/{token}")
+    @Path("/from/{token}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
@@ -212,12 +214,34 @@ public final class AuthenticationEndpoint{
                 context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
                 return ok(sc);
             } else {
-                return Response.status(Status.NOT_FOUND).build();
+                return Response.status(Status.NOT_FOUND).entity("whoopsie...").build();
             }
         }catch (DAO.DAOException e) {
             return fromDAOExpection(e);
         }
+    }
 
+    @GET
+    @Path("/recover/{token}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response recoverFromOneTimeToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
+        try{
+            Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.RECOVERY_TOKEN_KEY,OPERAND.EQ,token).build();
+
+            TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
+            if(to!=null){
+                ServerCredentials sc = new ServerCredentials(to);
+                logger.info("Successfully gotUserFromToken: " + sc);
+                context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
+                sc.setRecoveryToken(AuthTokenUtils.getToken(key, sc));
+                Response r = Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
+                return r;
+            } else {
+                return Response.status(Status.NOT_FOUND).entity("whoopsie...").build();
+            }
+        }catch (DAO.DAOException e) {
+            return fromDAOExpection(e);
+        }
     }
 
 //    @POST
@@ -398,21 +422,6 @@ public final class AuthenticationEndpoint{
             plainText = BCrypt.hashpw(plainText,salt);
         }
         return plainText;
-    }
-
-    private static KeyPair cachedKeys = null;
-    private KeyPair getKeys() throws NoSuchAlgorithmException {
-        if(cachedKeys!=null) return cachedKeys;
-
-        KeyPair keys = dao.keys(null);
-        if(keys==null){
-            PrivateKey priKey = Crypto.get().getPrivate();
-            PublicKey pubKey = Crypto.get().getPublic();
-            keys = new KeyPair(pubKey,priKey);
-            dao.keys(keys);
-        }
-        cachedKeys = keys;
-        return keys;
     }
 
 }

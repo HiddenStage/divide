@@ -3,7 +3,6 @@ package com.jug6ernaut.network.shared.web.transitory;
 import com.jug6ernaut.network.shared.util.BitMask;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ public class FilePermissions {
 
     public boolean isReadable(Level level){
         return permissions.get(level.offset);
-
     }
 
     public boolean isWritable(Level level){
@@ -62,11 +60,11 @@ public class FilePermissions {
         return groups;
     }
 
-    private static BitSet fromString(final String s) {
-        return BitSet.valueOf(new long[] { Long.parseLong(s, 2) });
-    }
-
-    private static String toString(BitSet bs) {
-        return Long.toString(bs.toLongArray()[0], 2);
-    }
+//    private static BitSet fromString(final String s) {
+//        return BitSet.valueOf(new long[] { Long.parseLong(s, 2) });
+//    }
+//
+//    private static String toString(BitSet bs) {
+//        return Long.toString(bs.toLongArray()[0], 2);
+//    }
 }
