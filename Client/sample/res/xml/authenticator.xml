@@ -4,4 +4,4 @@
                        android:icon="@drawable/ic_launcher"
                        android:smallIcon="@drawable/ic_launcher"
                        android:label="@string/app_name"
-                       android:accountPreferences="@xml/prefs"/>
+                       android:accountPreferences="@xml/account_prefs"/>

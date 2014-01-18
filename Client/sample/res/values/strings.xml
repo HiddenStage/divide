@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">client-sample</string>
+    <string name="accountType">com.example.client_sample</string>
+    <string name="isDebugKey">isDebugKey</string>
+    <string name="debugUrlKey">debugUrlKey</string>
+    <string name="debugUrl">http://williams-mbp:8888/api</string>
+    <string name="remoteUrl">http://authenticator-test.appspot.com/api</string>
 </resources>
