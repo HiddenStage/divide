@@ -51,6 +51,7 @@ import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
 import org.glassfish.jersey.server.ContainerRequest;
 
+import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
@@ -82,10 +83,14 @@ public class SecurityFilter implements ContainerRequestFilter {
         log.info("Filter(): " + request.getUriInfo().getPath());
 
         String path = request.getUriInfo().getPath();
-        if (path.startsWith("auth") || path.startsWith("/auth")
-        || path.equals("") || path.equals("/")
-        && !path.equals("/auth/user/data")) {
-            log.info("Auth Skipped");
+        if(!path.equals("/auth/user/data") && !path.equals("/auth/user/data/"))
+        if (
+           path.startsWith("auth")
+        || path.startsWith("/auth")
+        || path.equals("")
+        || path.equals("/")
+           ) {
+            log.info("Auth Skipped : (" + path +")");
             return;
         }
 
@@ -117,8 +122,13 @@ public class SecurityFilter implements ContainerRequestFilter {
         }
 
         // TODO verify
-        AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(AuthenticationEndpoint.key,token);
-        if(authToken.expirationDate < System.currentTimeMillis()){
+        AuthTokenUtils.AuthToken authToken = null;
+        try {
+            authToken = new AuthTokenUtils.AuthToken(AuthenticationEndpoint.key,token);
+        } catch (AuthenticationException e) {
+            return abort(request,"Auth Token Expired");
+        }
+        if(authToken.isExpired()){
             return abort(request,"Auth Token Expired");
         }
 

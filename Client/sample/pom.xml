@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.jug6ernaut.network</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5</version>
+        <version>0.5.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>authenticator-client-sample</artifactId>
@@ -19,7 +19,6 @@
             <groupId>com.jug6ernaut.network</groupId>
             <artifactId>authenticator-client</artifactId>
             <version>${app.version}</version>
-            <!--<type>apklib</type>-->
         </dependency>
         <dependency>
             <groupId>android</groupId>
@@ -42,7 +41,7 @@
                 <plugin>
                     <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                     <artifactId>android-maven-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.8.2</version>
                     <extensions>true</extensions>
                 </plugin>
             </plugins>

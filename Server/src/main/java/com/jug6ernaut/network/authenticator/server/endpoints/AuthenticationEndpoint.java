@@ -17,6 +17,7 @@ import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
@@ -205,6 +206,9 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
+            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(key,token);
+            if(authToken.isExpired()) return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
+
             Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
 
             TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
@@ -218,6 +222,8 @@ public final class AuthenticationEndpoint{
             }
         }catch (DAO.DAOException e) {
             return fromDAOExpection(e);
+        } catch (AuthenticationException e) {
+            return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
         }
     }
 
@@ -231,11 +237,12 @@ public final class AuthenticationEndpoint{
             TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
             if(to!=null){
                 ServerCredentials sc = new ServerCredentials(to);
-                logger.info("Successfully gotUserFromToken: " + sc);
-                context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
+                logger.info("Successfully recoverFromOneTimeToken: " + sc);
+                sc.setAuthToken(AuthTokenUtils.getToken(key, sc));
                 sc.setRecoveryToken(AuthTokenUtils.getToken(key, sc));
-                Response r = Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
-                return r;
+                context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
+                dao.save(sc);
+                return Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
             } else {
                 return Response.status(Status.NOT_FOUND).entity("whoopsie...").build();
             }

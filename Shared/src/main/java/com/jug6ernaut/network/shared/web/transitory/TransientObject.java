@@ -153,8 +153,16 @@ public class TransientObject {
 
     public <O> O get(Class<O> clazz, String key){
         canWrite();
-
-        return (O) user_data.get(key);
+        Object o = null;
+        try{
+            o = user_data.get(key);
+            return clazz.cast( o );
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Get(" + clazz.getSimpleName() + "," + key + ")");
+            System.out.println(o);
+            return null;
+        }
 
 //        if(isCollection(clazz)){
 //            return (O) v2c((Object[])user_data.get(key));
@@ -258,6 +266,7 @@ public class TransientObject {
 
     @Override
     public boolean equals(Object o) {
+        if (null == o) return false;
         if (this == o) return true;
         if (!(TransientObject.class.isAssignableFrom(o.getClass()))) return false;
 

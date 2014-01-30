@@ -1,7 +1,6 @@
 package com.jug6ernaut.network.authenticator.client.auth;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import com.google.gson.Gson;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.*;
@@ -35,13 +34,6 @@ import static com.jug6ernaut.network.authenticator.client.auth.LoginState.*;
  */
 public class AuthManager extends AbstractWebManager<AuthWebService> {
 
-//    public static final String ACCOUNT_TYPE = "com.jug6ernaut.tactics";
-//    public static final String ACCOUNT_NAME = "Tactics";
-//    public static final String AUTHTOKEN_TYPE_READ_ONLY = "Read only";
-//    public static final String AUTHTOKEN_TYPE_READ_ONLY_LABEL = "Read only access to an Tactics account";
-//    public static final String AUTHTOKEN_TYPE_FULL_ACCESS = "Full access";
-//    public static final String AUTHTOKEN_TYPE_FULL_ACCESS_LABEL = "Full access to an Tactics account";
-
     private static Logger logger = Logger.getLogger(AuthManager.class);
 
     private BackendUser user;
@@ -58,22 +50,30 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             @Override
             public void onConnectionChange(boolean connected) {
                 if(connected){
-                    loadCachedUser();
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            loadCachedUser();
+                        }
+                    }.start();
                 }
             }
         });
     }
 
     @Override
-    public RetrofitError onError(RetrofitError retrofitError){
-        switch (retrofitError.getResponse().getStatus()) {
+    public int onError(int status){
+        switch (status) {
             case HttpStatus.SC_UNAUTHORIZED: {
-                if (getUser() != null) { //TODO verify this works
-                    AccountManager.get(backend.app).invalidateAuthToken(backend.accountInformation.getAccountType(),getUser().getAuthToken());
+                logger.error("UNAUTHORIZED Recieved");
+                Account account = getStoredAccount();
+                if (account != null) { //TODO verify this works
+                    if(getUser()!=null) authUtils.invalidateToken(accountInfo.getFullAccessTokenType(),getUser().getAuthToken());
+                    recoverFromOneTimeToken(authUtils.getPassword(account));
                 }
             }
         }
-        return retrofitError;
+        return status;
     }
 
     @Override
@@ -102,7 +102,6 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     public Account getStoredAccount(){
         List<Account> accounts = authUtils.getAccounts();
-        logger.debug("getStoredAccount: " + accounts.size());
         return ObjectUtils.get1stOrNull(accounts);
     }
 
@@ -124,27 +123,41 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private void loginStoredUserASync(Account account){
         synchronized (CURRENT_STATE){
             if(CURRENT_STATE.equals(LOGGED_IN) || CURRENT_STATE.equals(LOGGING_IN)) return;
+            logger.debug("loginStoredUserASync: " + account);
             CURRENT_STATE = LOGGING_IN;
-            authUtils.getAuthToken(account,accountInfo.getFullAccessTokenType(),new com.jug6ernaut.network.authenticator.client.Callback<String>() {
-
-                @Override
-                public void onResult(String s) {
-                    if(s!=null){
-                        logger.info("Successfully Logged in! " + s);
-                        logger.info("Getting user...");
-                        getRemoteUserFromTokenAsync(s);
-                    } else {
-                        logger.error("Login error, null token");
-                    }
-                    CURRENT_STATE = LOGGED_OUT;
+            try {
+                String token = authUtils.blockingGetAuthToken(account,accountInfo.getFullAccessTokenType());
+                if(token!=null){
+                    logger.info("Recieved stored token: " + token);
+                    logger.info("Getting user from token...");
+                    getRemoteUserFromTokenAsync(token);
+                } else {
+                    logger.error("Login error, null token");
                 }
-
-                @Override
-                public void onError(Exception e) {
-                    logger.error("Failed to login...",e);
-                    CURRENT_STATE = LOGGED_OUT;
-                }
-            });
+                CURRENT_STATE = LOGGED_OUT;
+            } catch (Exception e) {
+                logger.error("Failed to get Token",e);
+            }
+//            authUtils.getAuthToken(account,accountInfo.getFullAccessTokenType(),new com.jug6ernaut.network.authenticator.client.Callback<String>() {
+//
+//                @Override
+//                public void onResult(String s) {
+//                    if(s!=null){
+//                        logger.info("Recieved stored token: " + s);
+//                        logger.info("Getting user from token...");
+//                        getRemoteUserFromTokenAsync(s);
+//                    } else {
+//                        logger.error("Login error, null token");
+//                    }
+//                    CURRENT_STATE = LOGGED_OUT;
+//                }
+//
+//                @Override
+//                public void onError(Exception e) {
+//                    logger.error("Failed to login...",e);
+//                    CURRENT_STATE = LOGGED_OUT;
+//                }
+//            });
         }
     }
 
@@ -187,8 +200,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
                 @Override
                 public void failure(RetrofitError retrofitError) {
-                    if (retrofitError != null) logger.error("Failed to get User!", retrofitError);
-                    else logger.error("Failed to get user...");
+//                    ignore here, this is handled in AbstractWebManager
+//                    if (retrofitError != null){
+//                        logger.error("Failed to get User!", retrofitError);
+//                    }
+//                    else logger.error("Failed to get user...");
                 }
             });
         } catch (Exception e) {
@@ -197,7 +213,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     }
 
     public BackendUser getUser() {
-        return loadCachedUser();
+        return user;
     }
 
     /*
@@ -234,12 +250,12 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         logger.debug("storeOrUpdateAccount: " + validCredentials);
 
         String accountName = validCredentials.getEmailAddress();
-        String accountPassword = validCredentials.getRecoveryToken();
+        String accountRecoveryToken = validCredentials.getRecoveryToken();
         String authToken = validCredentials.getAuthToken();
         String authTokenType = accountInfo.getFullAccessTokenType();
 
         logger.debug("name: " + accountName);
-        logger.debug("recoveryToken: " + accountPassword);
+        logger.debug("recoveryToken: " + accountRecoveryToken);
         logger.debug("authToken: " + authToken);
         logger.debug("authTokenType: " + authTokenType);
 
@@ -250,12 +266,12 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
             // Creating the account on the device and setting the auth token we got
             // (Not setting the auth token will cause another call to the server to authenticate the user)
-            authUtils.addAcccount(account, accountPassword, null);
+            authUtils.addAcccount(account, accountRecoveryToken, null);
 //            mAccountManager.addAccountExplicitly(account, accountPassword, null);
         }
 
-        if(accountPassword!=null && accountPassword.length()>0)
-            authUtils.setPassword(account, accountPassword);
+        if(accountRecoveryToken!=null && accountRecoveryToken.length()>0)
+            authUtils.setPassword(account, accountRecoveryToken);
 
         authUtils.setAuthToken(account, authTokenType, authToken);
 

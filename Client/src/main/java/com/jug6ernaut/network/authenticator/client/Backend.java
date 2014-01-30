@@ -42,7 +42,6 @@ public class Backend {
 //        checkManifest(application);
         checkSetup(application);
 
-
         authManager = new AuthManager(this);
         dataManager = new DataManager(this);
         pushManager = new PushManager(this);

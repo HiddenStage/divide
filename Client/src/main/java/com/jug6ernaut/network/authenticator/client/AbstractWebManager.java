@@ -7,10 +7,9 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.jug6ernaut.android.logging.Logger;
-import retrofit.ErrorHandler;
+import retrofit.Profiler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class AbstractWebManager<T> {
 
-    private static Logger logger = Logger.getLogger(AbstractWebManager.class);
+//    private static Logger logger = Logger.getLogger(AbstractWebManager.class);
     private static Logger retrologger = Logger.getLogger("Retrofit");
     private static Boolean connectionReceiverRegistered = false;
     private static RestAdapter restAdapter;
@@ -61,12 +60,24 @@ public abstract class AbstractWebManager<T> {
                             onRequest(requestFacade);
                         }
                     })
-                    .setErrorHandler(new ErrorHandler() {
+                    .setProfiler(new Profiler() {
                         @Override
-                        public Throwable handleError(RetrofitError retrofitError) {
-                            return onError(retrofitError);
+                        public Object beforeCall() {
+                            return null;
+                        }
+
+                        @Override
+                        public void afterCall(RequestInformation requestInformation, long l, int i, Object o) {
+                            retrologger.error("afterCall(" + requestInformation.getRelativePath() + ":"+requestInformation.getMethod() + ": " + i);
+                            onError(i);
                         }
                     });
+//                    .setErrorHandler(new ErrorHandler() {
+//                        @Override
+//                        public Throwable handleError(RetrofitError retrofitError) {
+//                            return onError(retrofitError.getResponse().getStatus());
+//                        }
+//                    });
             restAdapter = builder.build();
         }
 
@@ -80,8 +91,8 @@ public abstract class AbstractWebManager<T> {
         return t;
     }
 
-    protected RetrofitError onError(RetrofitError retrofitError){
-        return retrofitError;
+    protected int onError(int statusCode){
+        return statusCode;
     }
 
     protected RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){
@@ -117,12 +128,12 @@ public abstract class AbstractWebManager<T> {
             NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
 
             if (activeNetInfo != null && activeNetInfo.getState() == NetworkInfo.State.CONNECTED) {
-                logger.debug("Network " + activeNetInfo.getTypeName() + " connected");
+                retrologger.debug("Network " + activeNetInfo.getTypeName() + " connected");
                 fireConnectionChange(true);
             }
 
             if (intent.getExtras().getBoolean(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                logger.debug("There's no network connectivity");
+                retrologger.debug("There's no network connectivity");
                 fireConnectionChange(false);
             }
         }

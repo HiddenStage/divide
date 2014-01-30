@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.jug6ernaut.network</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5</version>
+        <version>0.5.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>authenticator-client</artifactId>
@@ -41,6 +41,7 @@
             <artifactId>alogger-base</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>com.jug6ernaut.android</groupId>
             <artifactId>utilities</artifactId>
@@ -81,27 +82,6 @@
         <sourceDirectory>src/main/java</sourceDirectory>
 
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>com.google.code.maven-replacer-plugin</groupId>-->
-                <!--<artifactId>maven-replacer-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>process-sources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>replace</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<ignoreMissingFile>false</ignoreMissingFile>-->
-                    <!--<file>target/generated-sources/r/com/jug6ernaut/network/authenticator/client/R.java</file>-->
-                    <!--<outputFile>target/generated-sources/r/com/jug6ernaut/network/authenticator/client/R.java</outputFile>-->
-                    <!--<regex>false</regex>-->
-                    <!--<token>static final int</token>-->
-                    <!--<value>static int</value>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -113,7 +93,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.2</version>
                 <configuration>
                     <sdk>
                         <platform>${android.platform}</platform>

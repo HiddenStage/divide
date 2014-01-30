@@ -54,7 +54,6 @@ public class AuthUtils {
     }
 
     public void removeAccount(String accountName){
-        logger.debug("removeAccount(" + accountName + ")");
         Account account = getAccount(accountName);
         if(account!=null)
             mAccountManager.removeAccount(account,null,handler);
@@ -72,7 +71,6 @@ public class AuthUtils {
             return null;
         } else {
             for (Account a : accounts) {
-                logger.debug("Account: " + a.name);
                 if(a.name.equals(accountName)){
                     account = a;
                     break;
@@ -84,6 +82,10 @@ public class AuthUtils {
 
     public void setAuthToken(android.accounts.Account account, java.lang.String authTokenType, java.lang.String authToken){
         mAccountManager.setAuthToken(account,authTokenType,authToken);
+    }
+
+    public void invalidateToken(java.lang.String authTokenType, java.lang.String authToken){
+        mAccountManager.invalidateAuthToken(authTokenType,authToken);
     }
 
     public void setPassword(Account account, String password){
@@ -98,7 +100,6 @@ public class AuthUtils {
             public void run(AccountManagerFuture<Bundle> future) {
                 try {
                     bnd = future.getResult();
-                    logger.debug("Login Results: " + bnd.toString());
                     final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                     callback.onResult(authtoken);
                 } catch (Exception e) {

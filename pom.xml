@@ -5,10 +5,25 @@
 
   <groupId>com.jug6ernaut.network</groupId>
   <artifactId>parent</artifactId>
-  <version>0.5</version>
+  <version>0.5.0</version>
   <packaging>pom</packaging>
 
     <profiles>
+        <profile>
+            <id>client</id>
+            <modules>
+                <module>Client</module>
+                <module>Client/sample</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>server</id>
+            <modules>
+                <module>Server</module>
+                <module>Server/appengine-dao</module>
+                <module>Server/sample</module>
+            </modules>
+        </profile>
         <profile>
             <id>dev</id>
             <modules>

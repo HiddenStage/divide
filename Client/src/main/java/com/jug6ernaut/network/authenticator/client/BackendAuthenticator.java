@@ -44,7 +44,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-        logger.debug("> addAccount: " + accountType + " : " + authTokenType + " : " + Arrays.asList(requiredFeatures) + " : " + options);
+        logger.debug("> addAccount: " + accountType + " : " + authTokenType + " : " + (requiredFeatures==null?"null":Arrays.asList(requiredFeatures)) + " : " + options);
 
         if (authUtils.getAccounts().size() > 0) {
             final Bundle result = new Bundle();

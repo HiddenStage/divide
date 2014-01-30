@@ -105,7 +105,7 @@ public class ObjectifyDAO implements DAO {
             throw new DAOException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),e);
         }
 
-        logger.info("Get Complete.");
+        logger.info("Get Complete: " + tos);
         return tos;
     }
 
