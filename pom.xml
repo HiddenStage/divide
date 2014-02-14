@@ -46,7 +46,6 @@
                 <module>Shared</module>
                 <module>Client</module>
                 <module>Server</module>
-                <module>Server/appengine-dao</module>
             </modules>
         </profile>
     </profiles>
@@ -68,8 +67,15 @@
     <robolectric.version>2.2</robolectric.version>
     <junit.version>4.11</junit.version>
 
-    <appengine.target.version>1.8.8</appengine.target.version>
+    <appengine.target.version>1.8.9</appengine.target.version>
     <appengine.app.version>1</appengine.app.version>
   </properties>
+
+    <repositories>
+        <repository>
+            <id>gcm-server-repository</id>
+            <url>https://raw.github.com/slorber/gcm-server-repository/master/releases/</url>
+        </repository>
+    </repositories>
 
 </project>
