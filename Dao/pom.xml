@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.jug6ernaut.network</groupId>
+        <version>0.5.0</version>
+    </parent>
+    <artifactId>authenticator-dao</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>common</module>
+        <module>dao-appengine</module>
+        <module>dao-orientdb</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jug6ernaut.network</groupId>
+            <artifactId>authenticator-shared</artifactId>
+            <version>${app.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

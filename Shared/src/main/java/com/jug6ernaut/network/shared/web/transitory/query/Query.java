@@ -1,7 +1,5 @@
 package com.jug6ernaut.network.shared.web.transitory.query;
 
-import com.jug6ernaut.network.shared.web.transitory.TransientObject;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +10,7 @@ import java.util.Map;
  * Date: 8/19/13
  * Time: 6:43 PM
  */
-public class Query<T extends TransientObject> {
+public class Query {
 
     protected Query(){
 

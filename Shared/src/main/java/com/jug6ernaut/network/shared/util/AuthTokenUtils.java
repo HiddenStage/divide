@@ -18,7 +18,7 @@ public class AuthTokenUtils {
 
     static long expirateIn = (1000 * 60 * 60 * 24);
 
-    public static String getToken(String key, Credentials credentials){
+    public static String getNewToken(String key, Credentials credentials){
         if(!pw.equals(key)){
             pw = new String(key);
             jasypt.setPassword(pw);

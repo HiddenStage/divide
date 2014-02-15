@@ -15,16 +15,13 @@ import com.jug6ernaut.network.authenticator.client.BackendObject;
 import com.jug6ernaut.network.authenticator.client.BackendServices;
 import com.jug6ernaut.network.authenticator.client.BackendUser;
 import com.jug6ernaut.network.authenticator.client.auth.AuthActivity;
-import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.authenticator.client.auth.LoginEvent;
+import com.jug6ernaut.network.authenticator.client.auth.LoginListener;
 import com.jug6ernaut.network.authenticator.client.auth.LoginState;
-import com.jug6ernaut.network.authenticator.client.data.ObjectManager;
+import com.jug6ernaut.network.authenticator.client.data.CountObject;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
-import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
-import com.jug6ernaut.network.shared.web.transitory.query.Query;
-import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import com.jug6ernaut.network.shared.web.transitory.query.*;
+import rx.util.functions.Action1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,17 +56,14 @@ public class MyActivity extends Activity {
 
         urlTV.setText("URL: " + app.getUrl(app.getSharedPreferences()));
 
-        BackendServices.addLoginListener(new AuthManager.LoginListener() {
+        BackendServices.addLoginListener(new LoginListener(){
+
             @Override
-            public void onLogin(final BackendUser user, LoginState state) {
-                if(LoginState.LOGGED_IN.equals(state))
-                MyActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        logger.info("loginListener: setUser: " + user);
-                        setUser(user);
-                    }
-                });
+            public void onNext(LoginEvent loginEvent) {
+                if(LoginState.LOGGED_IN.equals(loginEvent.state)){
+                    logger.info("loginListener: setUser: " + loginEvent.user);
+                    setUser(user);
+                }
             }
         });
 
@@ -79,7 +73,7 @@ public class MyActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BackendObject o = adapter.getItem(position);
-                Query<BackendObject> q = new QueryBuilder<BackendObject>()
+                Query q = new QueryBuilder()
                         .delete()
                         .from(BackendObject.class)
                         .where(TransientObject.OBJECT_KEY, OPERAND.EQ, o.getObjectKey())
@@ -87,15 +81,10 @@ public class MyActivity extends Activity {
 
                 BackendServices.remote()
                         .query(BackendObject.class, q)
-                        .async(new Callback<Collection<BackendObject>>() {
+                        .subscribe(new Action1<Collection<BackendObject>>() {
                             @Override
-                            public void success(Collection<BackendObject> backendObjects, Response response) {
+                            public void call(Collection<BackendObject> backendObjects) {
                                 getObjects();
-                            }
-
-                            @Override
-                            public void failure(RetrofitError retrofitError) {
-
                             }
                         });
         }});
@@ -131,22 +120,17 @@ public class MyActivity extends Activity {
     public void addObject(){
 
         if(user != null){
-            BackendObject b = new BackendObject();
-            try {
-                BackendServices.remote().save(b).async( new Callback<String>() {
-                    @Override
-                    public void success(String s, Response response) {
-                        getObjects();
-                    }
 
-                    @Override
-                    public void failure(RetrofitError retrofitError) {
+            BackendServices
+                    .remote()
+                    .save(new BackendObject())
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(String s) {
+                            getObjects();
+                        }
+                    });
 
-                    }
-                });
-            } catch (ObjectManager.NotLoggedInException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -159,23 +143,42 @@ public class MyActivity extends Activity {
 
         BackendServices.remote()
                 .query(BackendObject.class, q)
-                .async(new Callback<Collection<BackendObject>>() {
-                    @Override
-                    public void success(Collection<BackendObject> objects, Response response) {
-                        objectList.clear();
-                        objectList.addAll(objects);
-                        adapter.notifyDataSetChanged();
+                .subscribe(new Action1<Collection<BackendObject>>() {
+                               @Override
+                               public void call(Collection<BackendObject> objects) {
+                                   objectList.clear();
+                                   objectList.addAll(objects);
+                                   adapter.notifyDataSetChanged();
 
-                        BackendServices.local().save(objects);
-                        List<BackendObject> col = BackendServices.local().query(BackendObject.class, q);
-                        for(BackendObject o : col)logger.debug(o);
-                    }
+                                   BackendServices.local().save(objects);
+                                   List<BackendObject> col = BackendServices.local().query(BackendObject.class, q);
+                                   for (BackendObject o : col) logger.debug(o);
+                               }
+                           }, new Action1<Throwable>() {
+                               @Override
+                               public void call(Throwable throwable) {
+                                   logger.debug("",throwable);
+                               }
+                           });
 
-                    @Override
-                    public void failure(RetrofitError retrofitError) {
-                        retrofitError.printStackTrace();
-                    }
-                });
+        final Query countQuery = new QueryBuilder()
+                .select(SelectOperation.COUNT)
+                .from(BackendObject.class)
+                .limit(10).build();
+
+        BackendServices.remote()
+                .query(CountObject.class, countQuery)
+                .subscribe(new Action1<Collection<CountObject>>() {
+                               @Override
+                               public void call(Collection<CountObject> objects) {
+
+                               }
+                           }, new Action1<Throwable>() {
+                               @Override
+                               public void call(Throwable throwable) {
+                                   logger.debug("",throwable);
+                               }
+                           });
 
     }
 

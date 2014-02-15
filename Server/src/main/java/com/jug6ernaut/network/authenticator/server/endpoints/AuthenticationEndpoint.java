@@ -3,10 +3,10 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 import com.google.common.base.Stopwatch;
 import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
-import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
+import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.util.AuthTokenUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
@@ -41,8 +41,6 @@ public final class AuthenticationEndpoint{
     @Context
     KeyManager keyManager;
 
-    public static final String key = "somekey";
-
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
 
     /*
@@ -70,8 +68,8 @@ public final class AuthenticationEndpoint{
                         "Decrypted: " + de + "\n" +
                         "Hashed:    " + ha);
             toSave.setPassword(ha); //hash the password for storage
-            toSave.setAuthToken(AuthTokenUtils.getToken(key, toSave));
-            toSave.setRecoveryToken(AuthTokenUtils.getToken(key, toSave));
+            toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), toSave));
+            toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getKey(), toSave));
             toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
 
 //            session.setup(new UserContext(null,toSave));
@@ -136,10 +134,10 @@ public final class AuthenticationEndpoint{
                 context.setSecurityContext(new UserContext(context.getUriInfo(),dbCreds));
 //                session.
 //                // check if token is expired, if so return/set new
-                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(key,dbCreds.getAuthToken());
+                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(keyManager.getKey(),dbCreds.getAuthToken());
                 if (c.getTime().getTime() > token.expirationDate) {
                     logger.info("Updating ExpireDate");
-                    dbCreds.setAuthToken(AuthTokenUtils.getToken(key, dbCreds));
+                    dbCreds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), dbCreds));
                     dao.save(dbCreds);
                 }
 
@@ -206,7 +204,7 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
-            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(key,token);
+            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
             if(authToken.isExpired()) return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
 
             Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
@@ -238,8 +236,8 @@ public final class AuthenticationEndpoint{
             if(to!=null){
                 ServerCredentials sc = new ServerCredentials(to);
                 logger.info("Successfully recoverFromOneTimeToken: " + sc);
-                sc.setAuthToken(AuthTokenUtils.getToken(key, sc));
-                sc.setRecoveryToken(AuthTokenUtils.getToken(key, sc));
+                sc.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), sc));
+                sc.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getKey(), sc));
                 context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
                 dao.save(sc);
                 return Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();

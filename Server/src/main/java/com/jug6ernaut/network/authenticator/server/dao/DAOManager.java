@@ -1,5 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.dao;
 
+import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.event.Event;
 import com.jug6ernaut.network.shared.event.EventManager;
 import com.jug6ernaut.network.shared.util.ObjectUtils;

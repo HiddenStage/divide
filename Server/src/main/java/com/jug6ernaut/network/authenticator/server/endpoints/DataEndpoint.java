@@ -1,18 +1,16 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
-import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.authenticator.server.utils.ResponseUtils;
+import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -81,67 +79,21 @@ public class DataEndpoint {
             return ResponseUtils.fromDAOExpection(e);
         }
     }
-//
-//    @GET
-//    @Path("/test/get/{one}/{two}/{three}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public List<TransientObject> getObjectTest(
-//            @PathParam("one") String one,
-//            @PathParam("two") String two,
-//            @PathParam("three") String three,
-//            @QueryParam("limit") Integer limit,
-//            @QueryParam("offset") Integer offset,
-//            @QueryParam("action") String action,
-//            @QueryParam("from") String from) throws Exception {
-//
-//        Query q = null;
-//
-//        if (action!=null){
-//            if(QueryAction.SELECT.is(action)){
-//                q = new QueryBuilder().
-//                        select(null).
-//                        from(from).
-//                        where(one, OPERAND.from(two), three).
-//                        limit(limit).
-//                        offset(offset).build();
-//            }else if(QueryAction.DELETE.is(action)){
-//                q = new QueryBuilder().
-//                        delete().
-//                        from(from).
-//                        where(one, OPERAND.from(two), three).
-//                        limit(limit).
-//                        offset(offset).build();
-//            }else if(QueryAction.UPDATE.is(action)){
-//
-//            }
-//        } else {
-//            q = new QueryBuilder().
-//                    select(null).
-//                    from(from).
-//                    where(one, OPERAND.from(two), three).
-//                    limit(limit).
-//                    offset(offset).build();
-//        }
-//
-//        List<TransientObject> objects = dao.query(q);
-//
-//        return objects;
-//    }
-//
-//    @GET
-//    @Path("/test/save/{one}/{two}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public TransientObject setObjectTest(@PathParam("one") String one,
-//                                       @PathParam("two") String two,
-//                                       @QueryParam("type") String type) throws Exception {
-//
-//        TransientObject b = new ServerObject(type);
-//        b.add(one, two);
-//
-//
-//        dao.save(b);
-//
-//        return b;
-//    }
+
+    @GET
+    @Path("/count/{objectType}")
+    public Response count(@Context Session session, @PathParam("objectType") String objectType) {
+        try { logger.info("count: " + objectType);
+            int count = dao.count(objectType);
+
+            return Response
+                    .ok()
+                    .entity(count)
+                    .build();
+        }catch (Exception e) {
+            logger.severe(ExceptionUtils.getStackTrace(e));
+            return Response.serverError().build();
+        }
+    }
 
 }

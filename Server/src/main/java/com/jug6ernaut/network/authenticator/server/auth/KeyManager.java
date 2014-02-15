@@ -14,9 +14,11 @@ import java.security.PublicKey;
 public class KeyManager {
 
     DAOManager dao;
+    private String encryptionKey;
 
-    public KeyManager(DAOManager dao){
+    public KeyManager(DAOManager dao, String encryptionKey){
         this.dao = dao;
+        this.encryptionKey = encryptionKey;
     };
 
 
@@ -46,5 +48,10 @@ public class KeyManager {
     }
 
     public PrivateKey getPrivateKey(){
-        return getKeys().getPrivate();    }
+        return getKeys().getPrivate();
+    }
+
+    public String getKey(){
+        return encryptionKey;
+    }
 }

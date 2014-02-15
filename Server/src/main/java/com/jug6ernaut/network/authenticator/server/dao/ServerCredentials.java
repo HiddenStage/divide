@@ -20,14 +20,6 @@ public class ServerCredentials extends Credentials {
 
         this.user_data = userData;
         this.meta_data = metaData;
-
-        // not creating copy it seems
-//        try {
-//            ReflectionUtils.setObjectField(this, TransientObject.META_DATA, metaData);
-//            ReflectionUtils.setObjectField(this, TransientObject.USER_DATA, userData);
-//        } catch (Exception e) {
-//            throw new RuntimeException();
-//        }
     }
 
     @Override

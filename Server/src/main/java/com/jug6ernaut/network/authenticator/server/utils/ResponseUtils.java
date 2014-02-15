@@ -1,6 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.utils;
 
-import com.jug6ernaut.network.authenticator.server.dao.DAO;
+import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 
 import javax.ws.rs.core.Response;

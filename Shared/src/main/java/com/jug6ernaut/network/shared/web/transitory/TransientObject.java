@@ -3,9 +3,13 @@ package com.jug6ernaut.network.shared.web.transitory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.jug6ernaut.network.shared.util.ObjectUtils.*;
+import static com.jug6ernaut.network.shared.util.ObjectUtils.isArray;
+import static com.jug6ernaut.network.shared.util.ObjectUtils.v2c;
 
 /*  *
  * Created with IntelliJ IDEA.

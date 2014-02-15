@@ -10,6 +10,12 @@
 
     <profiles>
         <profile>
+            <id>setup</id>
+            <modules>
+                <module>dependacy_setup</module>
+            </modules>
+        </profile>
+        <profile>
             <id>client</id>
             <modules>
                 <module>Client</module>
@@ -20,7 +26,6 @@
             <id>server</id>
             <modules>
                 <module>Server</module>
-                <module>Server/appengine-dao</module>
                 <module>Server/sample</module>
             </modules>
         </profile>
@@ -31,7 +36,8 @@
                 <module>Client</module>
                 <module>Server</module>
 
-                <module>Server/appengine-dao</module>
+                <module>Dao</module>
+
                 <module>Server/sample</module>
                 <module>Client/sample</module>
             </modules>

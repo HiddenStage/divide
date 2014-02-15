@@ -37,15 +37,13 @@
 
 package com.jug6ernaut.network.authenticator.server.auth;
 
-import com.jug6ernaut.network.authenticator.server.dao.DAO;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
-import com.jug6ernaut.network.authenticator.server.endpoints.AuthenticationEndpoint;
+import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.util.AuthTokenUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
-import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
@@ -68,6 +66,9 @@ public class SecurityFilter implements ContainerRequestFilter {
 
     @Context
     DAOManager dao;
+
+    @Context
+    KeyManager keyManager;
 
     private static final List<String> SAFE_PATHS = Arrays.asList(
             "auth",
@@ -124,11 +125,11 @@ public class SecurityFilter implements ContainerRequestFilter {
         // TODO verify
         AuthTokenUtils.AuthToken authToken = null;
         try {
-            authToken = new AuthTokenUtils.AuthToken(AuthenticationEndpoint.key,token);
+            authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
+            if(authToken.isExpired()){
+                return abort(request,"Auth Token Expired");
+            }
         } catch (AuthenticationException e) {
-            return abort(request,"Auth Token Expired");
-        }
-        if(authToken.isExpired()){
             return abort(request,"Auth Token Expired");
         }
 
@@ -136,8 +137,9 @@ public class SecurityFilter implements ContainerRequestFilter {
         synchronized (dao) {
             Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY, OPERAND.EQ, token).build();
             try {
-                TransientObject creds = ObjectUtils.get1stOrNull(dao.query(q));
+                Credentials creds = (Credentials) ObjectUtils.get1stOrNull(dao.query(q));
                 if (creds != null) {
+                    creds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(),creds)); // assign new token
                     return new UserContext(request.getUriInfo(), new ServerCredentials(creds));
                 } else {
                     request.abortWith(notAuthReponse("Invalid authentication token"));

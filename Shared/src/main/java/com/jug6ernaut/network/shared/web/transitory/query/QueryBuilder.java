@@ -8,7 +8,7 @@ import com.jug6ernaut.network.shared.web.transitory.TransientObject;
  * Date: 8/19/13
  * Time: 7:13 PM
  */
-public class QueryBuilder<T extends TransientObject>{
+public class QueryBuilder{
 
     public static enum QueryAction{
         SELECT,
@@ -20,10 +20,10 @@ public class QueryBuilder<T extends TransientObject>{
         }
     }
 
-    private Query<T> query;
+    private Query query;
 
     public QueryBuilder(){
-        query = new Query<T>();
+        query = new Query();
     }
 
     public SelectBuilder select(SelectOperation... select){
@@ -54,8 +54,8 @@ public class QueryBuilder<T extends TransientObject>{
         query.where.put(query.where.size(),new MetaDataClause(conditional,one.KEY,operand,two));
     }
 
-    private void setFrom(String from){
-        query.from = from;
+    private void setFrom(Class from){
+        query.from = from.getName();
     }
 
     private void addSelect(SelectOperation select){
@@ -113,8 +113,8 @@ public class QueryBuilder<T extends TransientObject>{
             this.builder.setAction(action);
         }
 
-        public WhereBuilder from(Class<T> from){
-            builder.setFrom(from.getName());
+        public <T extends TransientObject> WhereBuilder from(Class<T> from){
+            builder.setFrom(from);
             return new WhereBuilder(builder);
         }
     }
@@ -148,7 +148,7 @@ public class QueryBuilder<T extends TransientObject>{
             return new RandomConstraintBuilder(builder,random,limit);
         }
 
-        public Query<T> build(){
+        public Query build(){
             return builder.getQuery();
         }
     }
@@ -181,7 +181,7 @@ public class QueryBuilder<T extends TransientObject>{
             return this;
         }
 
-        public Query<T> build(){
+        public Query build(){
             return builder.getQuery();
         }
     }
@@ -235,7 +235,7 @@ public class QueryBuilder<T extends TransientObject>{
             this.builder = builder;
         }
 
-        public Query<T> build(){
+        public Query build(){
             return builder.getQuery();
         }
 

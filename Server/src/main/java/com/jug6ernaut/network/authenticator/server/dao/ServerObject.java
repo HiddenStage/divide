@@ -17,8 +17,6 @@ public class ServerObject extends TransientObject {
 
     public ServerObject() {
         super(ServerObject.class);
-//        this.user_data = userData;
-//        this.meta_data = metaData;
     }
 
     @Override

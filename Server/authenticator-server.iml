@@ -28,19 +28,22 @@
     <orderEntry type="library" name="Maven: org.glassfish.hk2.external:cglib:2.1.76" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-client:2.0-m13-3" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.CR2" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-inmemory:2.0-m13-3" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish.jersey.test-framework:jersey-test-framework-core:2.0-m13-3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.5.0-b01" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.1" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson-extras:1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish:javax.servlet:3.2-b06" level="project" />
-    <orderEntry type="library" name="Maven: com.google.android.gcm:gcm-server:3" level="project" />
     <orderEntry type="module" module-name="authenticator-shared" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.8" level="project" />
     <orderEntry type="library" name="Maven: org.mindrot:jbcrypt:0.3m" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.jasypt:jasypt:lite:1.9.1" level="project" />
+    <orderEntry type="module" module-name="common" />
+    <orderEntry type="library" name="Maven: com.google.android.gcm:gcm-server:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1" level="project" />
   </component>
 </module>
 

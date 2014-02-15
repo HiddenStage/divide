@@ -1,13 +1,18 @@
 package com.jug6ernaut.network.authenticator.server;
 
 import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
+import com.jug6ernaut.network.authenticator.server.auth.ResponseFilter;
 import com.jug6ernaut.network.authenticator.server.auth.SecurityFilter;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
-import com.jug6ernaut.network.authenticator.server.dao.*;
+import com.jug6ernaut.network.authenticator.server.dao.CredentialBodyHandler;
+import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
+import com.jug6ernaut.network.authenticator.server.dao.GsonMessageBodyHandler;
+import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.authenticator.server.endpoints.AuthenticationEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.DataEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.MetaEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.PushEndpoint;
+import com.jug6ernaut.network.dao.DAO;
 import org.glassfish.hk2.api.DynamicConfiguration;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.internal.inject.Injections;
@@ -38,9 +43,11 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         reg(CredentialBodyHandler.class);  // insures passwords are not sent back
         reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
         reg(SecurityFilter.class);
+        reg(ResponseFilter.class);
+        reg(GZIPReaderInterceptor.class);
 
         DynamicConfiguration dc = Injections.getConfiguration(serviceLocator);
-        bind(dc,getDAO());
+        bind(dc,getDAO(),"somekey");
 
         property("jersey.config.workers.legacyOrdering",true);
     }
@@ -52,7 +59,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         this.register(clazz);
     }
 
-    public void bind(DynamicConfiguration dc, Class<T> daoClass){
+    public void bind(DynamicConfiguration dc, Class<T> daoClass, String encryptionKey){
         try {
             T t = (T) Class.forName(daoClass.getName()).newInstance();
             DAOManager manager = new DAOManager(t);
@@ -60,7 +67,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
                     Injections.newBinder(manager).to(DAOManager.class),
                     dc);
             Injections.addBinding(
-                    Injections.newBinder(new KeyManager(manager)).to(KeyManager.class),
+                    Injections.newBinder(new KeyManager(manager,encryptionKey)).to(KeyManager.class),
                     dc);
         } catch (Exception e) {
             logger.severe("Failed to register DAO");
