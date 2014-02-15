@@ -8,9 +8,8 @@ import com.google.android.gcm.GCMRegistrar;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.AbstractWebManager;
 import com.jug6ernaut.network.authenticator.client.Backend;
-import com.jug6ernaut.network.authenticator.client.BackendUser;
-import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
-import com.jug6ernaut.network.authenticator.client.auth.LoginState;
+import com.jug6ernaut.network.authenticator.client.auth.LoginEvent;
+import com.jug6ernaut.network.authenticator.client.auth.LoginListener;
 import com.jug6ernaut.network.shared.event.EventManager;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
 import retrofit.RetrofitError;
@@ -46,8 +45,8 @@ public class PushManager extends AbstractWebManager<PushWebService> {
             this.senderId = senderId;
             backend.getAuthManager().addLoginListener(loginListener);
         } else {
+            if(loginListener != null) loginListener.unsubscribe();
             this.senderId = null;
-            backend.getAuthManager().removeLoginListener(loginListener);
             if(isRegistered(backend.app)){
                 unregister();
                 GCMRegistrar.unregister(backend.app);
@@ -60,10 +59,11 @@ public class PushManager extends AbstractWebManager<PushWebService> {
         return isRegistered(backend.app);
     }
 
-    private AuthManager.LoginListener loginListener = new AuthManager.LoginListener() {
+    private LoginListener loginListener = new LoginListener() {
+
         @Override
-        public void onLogin(BackendUser user, LoginState state) {
-            logger.debug("onLogin: " + user);
+        public void onNext(LoginEvent loginEvent) {
+            logger.debug("onLogin: " + loginEvent.user);
 
             register4Push();
         }

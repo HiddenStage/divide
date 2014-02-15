@@ -4,7 +4,6 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.os.Bundle;
 import com.jug6ernaut.android.logging.Logger;
 import com.jug6ernaut.network.authenticator.client.BackendServices;
-import com.jug6ernaut.network.authenticator.client.BackendUser;
 
 /**
  * The AuthUtils activity.
@@ -23,10 +22,11 @@ public class AuthActivity extends AccountAuthenticatorActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(new CredentialView(this,"client-example"));
-        BackendServices.addLoginListener(new AuthManager.LoginListener() {
+        BackendServices.addLoginListener(new LoginListener() {
+
             @Override
-            public void onLogin(BackendUser user, LoginState state) {
-                switch(state){
+            public void onNext(LoginEvent loginEvent) {
+                switch(loginEvent.state){
                     case LOGGED_IN:
                         AuthActivity.this.finish();
                         break;

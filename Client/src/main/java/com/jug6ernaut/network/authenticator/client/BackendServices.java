@@ -1,6 +1,7 @@
 package com.jug6ernaut.network.authenticator.client;
 
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
+import com.jug6ernaut.network.authenticator.client.auth.LoginListener;
 import com.jug6ernaut.network.authenticator.client.cache.LocalStorage;
 import com.jug6ernaut.network.authenticator.client.data.DataManager;
 import com.jug6ernaut.network.authenticator.client.data.ObjectManager;
@@ -28,14 +29,7 @@ public class BackendServices {
         pushManager = b.getPushManager();
 
         objectManager = new ObjectManager(b);
-
-//        cacheManager = new CacheManager(b.app);
     }
-
-//    public static synchronized BackendServices get(){
-//        if(dataService == null)dataService = new BackendServices();
-//        return dataService;
-//    }
 
     private static void init(){
         if(dataService == null)dataService = new BackendServices();
@@ -49,14 +43,9 @@ public class BackendServices {
         return dataService.objectManager.local();
     }
 
-    public static void addLoginListener(AuthManager.LoginListener loginListener){
+    public static void addLoginListener(LoginListener loginListener){
         init();
         dataService.authManager.addLoginListener(loginListener);
-    }
-
-    public static void removeLoginListener(AuthManager.LoginListener loginListener){
-        init();
-        dataService.authManager.removeLoginListener(loginListener);
     }
 
     public static void addPushListener(PushListener listener){

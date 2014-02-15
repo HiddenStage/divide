@@ -26,7 +26,10 @@ public class Backend {
     private AuthManager authManager;
     private DataManager dataManager;
     private PushManager pushManager;
-    protected OkHttpClient client = new OkHttpClient();
+    protected static OkHttpClient client = new OkHttpClient();
+    static {
+//        client.set
+    }
     public Application app;
     public String serverUrl;
     public AccountInformation accountInformation;

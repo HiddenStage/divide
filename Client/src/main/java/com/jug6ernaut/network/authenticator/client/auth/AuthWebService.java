@@ -7,6 +7,7 @@ import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import retrofit.Callback;
 import retrofit.client.Response;
 import retrofit.http.*;
+import rx.Observable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,13 +19,18 @@ public interface AuthWebService {
 
     @POST("/auth")
     public Response userSignUp(@Body SignUpCredentials credentials);
+//    @POST("/auth")
+//    public void userSignUp(@Body SignUpCredentials credentials, Callback<ValidCredentials> callback);
     @POST("/auth")
-    public void userSignUp(@Body SignUpCredentials credentials, Callback<ValidCredentials> callback);
+    public Observable<ValidCredentials> userSignUpA(@Body SignUpCredentials credentials);
 
     @PUT("/auth")
     public Response login(@Body LoginCredentials credentials);
     @PUT("/auth")
-    public void login(@Body LoginCredentials credentials,Callback<ValidCredentials> callback);
+    public Observable<ValidCredentials> loginA(@Body LoginCredentials credentials);
+
+    @GET("/auth/key")
+    public Observable<byte[]> getPublicKeyA();
 
     @GET("/auth/key")
     public byte[] getPublicKey();

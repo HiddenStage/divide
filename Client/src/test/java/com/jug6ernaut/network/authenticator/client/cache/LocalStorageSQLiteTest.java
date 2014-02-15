@@ -131,7 +131,7 @@ public class LocalStorageSQLiteTest extends TestCase {
 
         storage.save(Arrays.asList(a,b,c));
 
-        Query<BObject> q = new QueryBuilder<BObject>().select().from(BObject.class).build();
+        Query q = new QueryBuilder().select().from(BObject.class).build();
         List<BObject> list = storage.query(BObject.class,q);
         assertTrue(list.size() == 1);
         BObject bObject = ObjectUtils.get1stOrNull(list);

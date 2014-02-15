@@ -9,7 +9,10 @@ import iBoxDB.LocalServer.DB;
 import iBoxDB.LocalServer.E.CommitExpection;
 import iBoxDB.LocalServer.IFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static com.jug6ernaut.network.shared.util.ObjectUtils.isArray;
 
@@ -17,30 +20,16 @@ import static com.jug6ernaut.network.shared.util.ObjectUtils.isArray;
  * Created by williamwebb on 11/2/13.
  */
 
-public class LocalStorageNoSQL implements LocalStorage {
+public class LocalStorageIBoxDb implements LocalStorage {
 
     DB db;
     AutoBox box;
-    Map<Class<?>,AutoBox> boxMap = new HashMap<Class<?>, AutoBox>();
 
-    public LocalStorageNoSQL(Context context){
+    public LocalStorageIBoxDb(Context context){
         db = new DB(1,context.getFilesDir().getPath().toString());
         db.ensureTable(Wrapper.class, "Wrapper","Key","Table");
         box = db.open();
     }
-
-//    private <B extends BackendObject> AutoBox getOrCreateBox(Class<B> type){
-//        AutoBox box;
-//        if(boxMap.containsKey(type)){
-//            box = boxMap.get(type);
-//        } else {
-//
-//            db.ensureTable(Wrapper.class,"Table","key");
-//            box = db.open();
-//            boxMap.put(type,box);
-//        }
-//        return box;
-//    }
 
     @Override
     public <B extends BackendObject> void save(Collection<B> objects) {
@@ -69,7 +58,7 @@ public class LocalStorageNoSQL implements LocalStorage {
     }
 
     @Override
-    public <B extends BackendObject> List<B> query(Class<B> type, Query<B> query) {
+    public <B extends BackendObject> List<B> query(Class<B> type, Query query) {
 
         String table = query.getFrom();
         Map<Integer,Clause> where = query.getWhere();
@@ -115,11 +104,6 @@ public class LocalStorageNoSQL implements LocalStorage {
             return null;
         }
 
-        public static String GetDou(double d) {
-            long l = (long) (d * 1000);
-            return Double.toString(l / 1000.0);
-        }
-
     }
 
     public static class QueryArray implements IFunction {
@@ -139,27 +123,6 @@ public class LocalStorageNoSQL implements LocalStorage {
             }
             for (Object t : tags) {
                 if (match.equals(t)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    public static class QueryEmbeddedMap implements IFunction {
-        String match;
-
-        public QueryEmbeddedMap(String match) {
-            this.match = match;
-        }
-
-        public Object execute(int argCount, Object[] args) {
-            Map tags = (Map) args[0];
-            if (tags == null) {
-                return false;
-            }
-            for(Object e : tags.values()){
-                if (match.equals(e)) {
                     return true;
                 }
             }

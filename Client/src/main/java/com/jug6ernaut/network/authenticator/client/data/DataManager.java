@@ -11,6 +11,12 @@ import org.apache.commons.io.IOUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -36,31 +42,70 @@ public class DataManager extends AbstractWebManager<DataWebService> {
         return DataWebService.class;
     }
 
-    public <B extends BackendObject> void send(Collection<B> objects){
-        getWebService().save(objects);
+    public <B extends BackendObject> Observable<String> send(final Collection<B> objects){
+        return getWebService().save(objects)
+               .subscribeOn(Schedulers.io())
+               .observeOn(AndroidSchedulers.mainThread());
+
     }
 
-    public <B extends BackendObject> void send(Collection<B> objects, Callback<String> callback){
-        getWebService().save(objects,callback);
+    public <B extends BackendObject> Observable<Collection<B>> get(final Class<B> type, final Collection<String> objects){
+        return Observable.create(new Observable.OnSubscribeFunc<Collection<B>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
+                try {
+                    observer.onNext(convertRequest(getArrayType(type),getWebService().get(objects)));
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
+
+                return Subscriptions.empty();
+            }
+        }).subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread());
+
     }
 
-    public <B extends BackendObject> Collection<B> get(Class<B> type, Collection<String> objects){
-        Response response = getWebService().get(objects);
-        return processRequest(getArrayType(type),response);
+    public <B extends BackendObject> Observable<Collection<B>> query(final Class<B> type,final Query query){
+        return Observable.create(new Observable.OnSubscribeFunc<Collection<B>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
+                try {
+                    observer.onNext(convertRequest(getArrayType(type),getWebService().query(query)));
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
+
+                return Subscriptions.empty();
+            }
+        }).subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public <B extends BackendObject> void get(Class<B> type, Collection<String> keys, Callback<Collection<B>> callback){
-        getWebService().get(keys, new DataCallback<B>(getArrayType(type), callback));
+    public <B extends BackendObject> Observable<Integer> count(final Class<B> type){
+        return getWebService().count(type.getName());
     }
 
-    public <B extends BackendObject> Collection<B> query(Class<B> type, Query query){
-        Response response = getWebService().query(query);
-        return processRequest(getArrayType(type),response);
+    private <B extends BackendObject> Observable<Collection<B>> processRequest(final Class<B[]> type,final Response response){
+        return Observable.create(new Observable.OnSubscribeFunc<Collection<B>>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
+                try {
+                    observer.onNext(convertRequest(type,response));
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
+
+                return Subscriptions.empty();
+            }
+        }).subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread());
+
     }
 
-    public <B extends BackendObject> void query(Class<B> type, Query query, Callback<Collection<B>> callback){
-        getWebService().query(query,new DataCallback<B>(getArrayType(type),callback));
-    }
 
     private class DataCallback<B extends BackendObject> implements Callback<Response> {
         Callback<Collection<B>> callback;
@@ -73,7 +118,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
 
         @Override
         public void success(Response response, Response response2) {
-            callback.success(processRequest(mType,response),response);
+            callback.success(convertRequest(mType,response),response);
         }
 
         @Override
@@ -84,7 +129,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
 
     private static Gson gson = new Gson();
 
-    private <B extends TransientObject> Collection<B> processRequest(Class<B[]> type, Response response){
+    private <B extends TransientObject> Collection<B> convertRequest(Class<B[]> type, Response response){
         String body = null;
         try {
             body = IOUtils.toString(response.getBody().in());

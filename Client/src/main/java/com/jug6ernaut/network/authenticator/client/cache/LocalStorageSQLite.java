@@ -267,7 +267,7 @@ public class LocalStorageSQLite implements LocalStorage{
         return items;
     }
 
-    public <B extends BackendObject> List<B> query(Class<B> type, Query<B> query){
+    public <B extends BackendObject> List<B> query(Class<B> type, Query query){
         List<B> items = new ArrayList<B>();
         Cursor c = null;
         try{

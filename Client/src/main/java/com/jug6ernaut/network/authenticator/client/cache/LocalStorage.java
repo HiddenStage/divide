@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface LocalStorage {
 
-    public <B extends BackendObject> List<B> query(Class<B> type, Query<B> query);
+    public <B extends BackendObject> List<B> query(Class<B> type, Query query);
     public <B extends BackendObject> List<B> getAllByType(Class<B> type);
     public <B extends BackendObject> void save(Collection<B> objects);
     public <B extends BackendObject> boolean exists(Class<B> type,String objectKey);

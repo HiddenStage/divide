@@ -63,18 +63,33 @@
         </dependency>
 
         <dependency>
-            <groupId>android</groupId>
+            <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>${android.version}</version>
+            <version>4.1.1.4</version>
             <scope>provided</scope>
         </dependency>
-
 
         <dependency>
             <groupId>iboxdb</groupId>
             <artifactId>iboxdb</artifactId>
-            <version>1.4.2</version>
+            <version>1.5.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.netflix.rxjava</groupId>
+            <artifactId>rxjava-core</artifactId>
+            <version>0.16.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.rxjava</groupId>
+            <artifactId>rxjava-android</artifactId>
+            <version>0.16.1</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.parse</groupId>-->
+            <!--<artifactId>Bolts</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+        <!--</dependency>-->
 
     </dependencies>
 

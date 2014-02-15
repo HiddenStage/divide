@@ -14,6 +14,7 @@ import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Observable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
@@ -115,8 +116,9 @@ public final class BackendUser extends Credentials {
         return signUp(new SignUpCredentials(username,email,password));
     }
 
-    public static void logInInBackground(String email, String password, Callback<BackendUser> callback){
-        authManager.loginASync(new LoginCredentials(email,password),callback);
+    public static Observable<BackendUser> logInInBackground(String email, String password){
+        return authManager.loginASync(new LoginCredentials(email,password));
+//        authManager.loginASync(new LoginCredentials(email,password),callback);
     }
 
     public static void logout(){
@@ -130,20 +132,21 @@ public final class BackendUser extends Credentials {
         throw new NotImplementedException();
     }
 
-    public void signUp(final Callback<BackendUser> callback){
+    public Observable<BackendUser> signUpA(){
         SignUpCredentials creds = new SignUpCredentials(getUsername(),getEmailAddress(),getPassword());
-        authManager.signUpASync(creds,new Callback<BackendUser>() {
-            @Override
-            public void onResult(BackendUser backendUser) {
-                initFrom(backendUser);
-                callback.onResult(BackendUser.this);
-            }
-
-            @Override
-            public void onError(Exception t) {
-                callback.onError(t);
-            }
-        });
+        return authManager.signUpASync(creds);
+//        authManager.signUpASync(creds,new Callback<BackendUser>() {
+//            @Override
+//            public void onResult(BackendUser backendUser) {
+//                initFrom(backendUser);
+//                callback.onResult(BackendUser.this);
+//            }
+//
+//            @Override
+//            public void onError(Exception t) {
+//                callback.onError(t);
+//            }
+//        });
     }
 
     public boolean signUp(){
@@ -155,11 +158,11 @@ public final class BackendUser extends Credentials {
         } else return false;
     }
 
-    private <T extends TransientObject> void save(BackendUser object){
+    private void save(BackendUser object){
         authManager.sendUserData(object);
     }
 
-    private <T extends TransientObject> void saveASync(BackendUser user, retrofit.Callback<String> callback){
+    private void saveASync(BackendUser user, retrofit.Callback<String> callback){
         authManager.sendUserData(user,callback);
     }
 

@@ -37,14 +37,14 @@ import static org.junit.Assert.assertEquals;
 @Config( shadows = {CustomSQLiteShadow.class})
 public class LocalStorageNoSQLTest {
     Activity activity;
-    LocalStorageNoSQL storage;
+    LocalStorageIBoxDb storage;
 
     @Before
     public void setUp() throws Exception {
         ShadowLog.stream = System.out;
         activity = Robolectric.buildActivity(Activity.class).create().get();
         ALogger.init(Robolectric.application, "dummy", true);
-        storage = new LocalStorageNoSQL(activity);
+        storage = new LocalStorageIBoxDb(activity);
     }
 
     @After
@@ -62,18 +62,18 @@ public class LocalStorageNoSQLTest {
 //
 //        Object[] args = new Object[]{B.class.getName(),map.get("b2").getObjectKey()};
 //        Iterable<Wrapper> wrapper = storage.box.select(Wrapper.class, "from Wrapper where Table==? && meta_data.object_key==?",args);
-//        Wrapper w = LocalStorageNoSQL.iBoxUtils.GetFrist(wrapper);
+//        Wrapper w = LocalStorageIBoxDb.iBoxUtils.GetFrist(wrapper);
 //        B b = w.toObject(B.class);
 //        assertEquals(map.get("b2"), b);
 //        if(!map.get("b1").equals(b) && !map.get("b2").equals(b))fail();
 
-        Query<B> q = new QueryBuilder<B>().select().from(B.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,map.get("b1").getObjectKey()).build();
+        Query q = new QueryBuilder().select().from(B.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,map.get("b1").getObjectKey()).build();
 
         List<B> list = storage.query(B.class, q);
         assertEquals(1, list.size());
         assertEquals(map.get("b1"), list.get(0));
 
-        q = new QueryBuilder<B>().select().from(B.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,"nonsense").build();
+        q = new QueryBuilder().select().from(B.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,"nonsense").build();
 
         list = storage.query(B.class, q);
         assertEquals(0, list.size());
@@ -110,7 +110,7 @@ public class LocalStorageNoSQLTest {
         a.put("test","test");
         storage.save(Arrays.asList(a));
 
-        Wrapper wrapper = LocalStorageNoSQL.iBoxUtils.GetFrist(storage.box.select(Wrapper.class, "from Wrapper where Key==?", a.getObjectKey()));
+        Wrapper wrapper = LocalStorageIBoxDb.iBoxUtils.GetFrist(storage.box.select(Wrapper.class, "from Wrapper where Key==?", a.getObjectKey()));
 
         A b = wrapper.toObject(A.class);
         assertEquals(a,b);
@@ -133,7 +133,7 @@ public class LocalStorageNoSQLTest {
         assertEquals(2, count);
     }
 
-    private Map<String,BackendObject> insertTestData(LocalStorageNoSQL localStorage){
+    private Map<String,BackendObject> insertTestData(LocalStorageIBoxDb localStorage){
         A a1 = new A();
         a1.put("a1","a1");
         a1.put("list",Arrays.asList("1", "2", "3"));
@@ -204,7 +204,7 @@ public class LocalStorageNoSQLTest {
 //
 //        storage.save(Arrays.asList(a));
 //
-//        Wrapper wrapper = LocalStorageNoSQL.iBoxUtils.GetFrist(storage.box.select(Wrapper.class, "from Wrapper where Key==?", a.getObjectKey()));
+//        Wrapper wrapper = LocalStorageIBoxDb.iBoxUtils.GetFrist(storage.box.select(Wrapper.class, "from Wrapper where Key==?", a.getObjectKey()));
 //
 //        A b = wrapper.toObject(A.class);
 //        assertEquals(a,b);

@@ -17,12 +17,17 @@ import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
+import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 import java.security.PublicKey;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.jug6ernaut.network.authenticator.client.auth.LoginState.*;
 
@@ -118,8 +123,6 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
-//    private Boolean loggingIn = false;
-
     private void loginStoredUserASync(Account account){
         synchronized (CURRENT_STATE){
             if(CURRENT_STATE.equals(LOGGED_IN) || CURRENT_STATE.equals(LOGGING_IN)) return;
@@ -138,26 +141,6 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             } catch (Exception e) {
                 logger.error("Failed to get Token",e);
             }
-//            authUtils.getAuthToken(account,accountInfo.getFullAccessTokenType(),new com.jug6ernaut.network.authenticator.client.Callback<String>() {
-//
-//                @Override
-//                public void onResult(String s) {
-//                    if(s!=null){
-//                        logger.info("Recieved stored token: " + s);
-//                        logger.info("Getting user from token...");
-//                        getRemoteUserFromTokenAsync(s);
-//                    } else {
-//                        logger.error("Login error, null token");
-//                    }
-//                    CURRENT_STATE = LOGGED_OUT;
-//                }
-//
-//                @Override
-//                public void onError(Exception e) {
-//                    logger.error("Failed to login...",e);
-//                    CURRENT_STATE = LOGGED_OUT;
-//                }
-//            });
         }
     }
 
@@ -319,33 +302,38 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
-    public void signUpASync(final SignUpCredentials signInCreds,final com.jug6ernaut.network.authenticator.client.Callback<BackendUser> callback){
+    public Observable<BackendUser> signUpASync(final SignUpCredentials signInCreds){
         logger.debug("signUpASync("+signInCreds+")");
         try {
             CURRENT_STATE = LOGGING_IN;
-            PublicKey key = Crypto.pubKeyFromBytes(getWebService().getPublicKey());
 
-            signInCreds.encryptPassword(key);
-
-            logger.debug("SignIn Creds: " + signInCreds);
-
-            getWebService().userSignUp(signInCreds, new Callback<ValidCredentials>() {
+            return getWebService().getPublicKeyA().flatMap(new Func1<byte[], Observable<SignUpCredentials>>() {
                 @Override
-                public void success(ValidCredentials credentials, Response response) {
-                    callback.onResult(setUser(credentials));
+                public Observable<SignUpCredentials> call(byte[] bytes) {
+                    try {
+                        PublicKey key = Crypto.pubKeyFromBytes(bytes);
+                        signInCreds.encryptPassword(key);
+
+                        return Observable.from(signInCreds);
+                    }catch (Exception e) {
+                        return Observable.error(e);
+                    }
                 }
-
+            }).flatMap(new Func1<SignUpCredentials, Observable<ValidCredentials>>() {
                 @Override
-                public void failure(RetrofitError retrofitError) {
-                    if (retrofitError != null) logger.error("Failed to signUp(" + signInCreds.getEmailAddress() + ")", retrofitError);
-                    callback.onError(retrofitError);
+                public Observable<ValidCredentials> call(SignUpCredentials o) {
+                    return getWebService().userSignUpA(signInCreds);
+                }
+            }).map(new Func1<ValidCredentials, BackendUser>() {
+                @Override
+                public BackendUser call(ValidCredentials validCredentials) {
+                    return setUser(validCredentials);
                 }
             });
-
         } catch (Exception e) {
             logger.error("Failed to signUp(" + signInCreds.getEmailAddress() + ")", e);
+            return Observable.error(e);
         }
-
     }
 
     public SignInResponse login(final LoginCredentials loginCreds){
@@ -359,7 +347,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             }
 
             logger.debug("Login Creds: " + loginCreds);
-            GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class,getWebService().login(loginCreds));
+            GenericResponse<ValidCredentials> g = new GenericResponse<>(ValidCredentials.class,getWebService().login(loginCreds));
             ServerResponse<ValidCredentials> response = ServerResponse.from(g);
 //            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
             BackendUser user = null;
@@ -375,35 +363,41 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
-    public boolean loginASync(final LoginCredentials loginCreds,final com.jug6ernaut.network.authenticator.client.Callback<BackendUser> callback){
+    public Observable<BackendUser> loginASync(final LoginCredentials loginCreds){
         logger.debug("loginASync("+loginCreds+")");
         try{
             CURRENT_STATE = LOGGING_IN;
-            if(!loginCreds.isEncrypted()){
-                PublicKey key = Crypto.pubKeyFromBytes(getWebService().getPublicKey());
 
-                loginCreds.encryptPassword(key);
-            }
-
-            logger.debug("Login Creds: " + loginCreds);
-
-            getWebService().login(loginCreds, new Callback<ValidCredentials>() {
+            return getWebService().getPublicKeyA().flatMap(new Func1<byte[], Observable<LoginCredentials>>() {
                 @Override
-                public void success(ValidCredentials user, Response response) {
-                    callback.onResult(setUser(user));
+                public Observable<LoginCredentials> call(byte[] bytes) {
+                    try {
+                        if (!loginCreds.isEncrypted()) {
+                            PublicKey key = Crypto.pubKeyFromBytes(bytes);
+                            loginCreds.encryptPassword(key);
+                        }
+                        return Observable.from(loginCreds);
+                    } catch (Exception e) {
+                        return Observable.error(e);
+                    }
                 }
-
+            }).flatMap(new Func1<LoginCredentials, Observable<ValidCredentials>>() {
                 @Override
-                public void failure(RetrofitError retrofitError) {
-                    callback.onError(retrofitError);
-                    throw retrofitError;
+                public Observable<ValidCredentials> call(LoginCredentials credentials) {
+                    return getWebService().loginA(credentials);
+                }
+            }).map(new Func1<ValidCredentials, BackendUser>() {
+                @Override
+                public BackendUser call(ValidCredentials validCredentials) {
+                    return setUser(validCredentials);
                 }
             });
-            return true;
+
         }catch (Exception e){
             logger.error("Failed to SignIn("+loginCreds.getEmailAddress()+")",e);
             CURRENT_STATE = LOGGED_OUT;
-            return false;
+            return Observable.error(e);
+//
         }
     }
 
@@ -415,23 +409,21 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         getWebService().sendUserData(user,callback);
     }
 
-    public void getUserData(){
-        setUser(getWebService().getUserData());
-    }
-
-    public void getUserData(final Callback<BackendUser> callback){
-        getWebService().getUserData(new Callback<ValidCredentials>() {
+    public Observable<BackendUser> getUserData(){
+        return Observable.create(new Observable.OnSubscribeFunc<BackendUser>() {
             @Override
-            public void success(ValidCredentials validCredentials, Response response) {
-                setUser(validCredentials);
-                callback.success(getUser(),response);
-            }
+            public Subscription onSubscribe(Observer<? super BackendUser> observer) {
+                try {
+                    setUser(getWebService().getUserData());
+                    observer.onNext(getUser());
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
 
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                callback.failure(retrofitError);
+                return Subscriptions.empty();
             }
-        });
+        }).subscribeOn(Schedulers.threadPoolForIO());
     }
 
     @Override
@@ -439,29 +431,26 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         return AuthWebService.class;
     }
 
-    public static interface LoginListener{
-        public void onLogin(BackendUser user, LoginState state);
-    }
+    PublishSubject<LoginEvent> loginEventPublisher = PublishSubject.create();
 
-    private final List<LoginListener> loginListeners = Collections.synchronizedList(new CopyOnWriteArrayList<LoginListener>());
     public void addLoginListener(LoginListener listener){
-        synchronized (loginListeners){
-            loginListeners.add(listener);
-            if(user!=null)listener.onLogin(user,CURRENT_STATE);
-        }
-    }
-    public boolean removeLoginListener(LoginListener listener){
-        synchronized (loginListeners){
-            return loginListeners.remove(listener);
+        Subscription subscription = loginEventPublisher
+                .subscribeOn(Schedulers.currentThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listener);
+        listener.setSubscription(subscription);
+        if(getUser()!=null){
+            loginEvent.user = user;
+            loginEvent.state = CURRENT_STATE;
+            listener.onNext(loginEvent);
         }
     }
 
+    private LoginEvent loginEvent = new LoginEvent();
     private void fireLoginListeners(){
-        synchronized (loginListeners){
-            Iterator<LoginListener> i = loginListeners.iterator(); // Must be in synchronized block
-            while (i.hasNext())
-                i.next().onLogin(user,CURRENT_STATE);
-        }
+        loginEvent.user = user;
+        loginEvent.state = CURRENT_STATE;
+        loginEventPublisher.onNext(loginEvent);
     }
 
 
