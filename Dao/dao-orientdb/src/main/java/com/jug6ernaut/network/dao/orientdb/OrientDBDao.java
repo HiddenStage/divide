@@ -2,15 +2,20 @@ package com.jug6ernaut.network.dao.orientdb;
 
 import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
+import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
+import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.tx.OTransaction;
 
 import java.security.KeyPair;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,35 +24,95 @@ import java.util.List;
  */
 public class OrientDBDao implements DAO{
 
-    ODatabaseDocumentTx db;
+    ODatabaseDocument db;
 
-    public OrientDBDao(ODatabaseDocumentTx db){
-        this.db = db;
+    public OrientDBDao(){
+        this.db = new ODatabaseDocumentTx("memory:unique!").create();
+    }
+
+    public OrientDBDao(ODatabaseDocument db){
+        this();
+    }
+
+    private void checkDb(){
+        ODatabaseRecordThreadLocal.INSTANCE.set(db);
+
     }
 
     @Override
     public List<TransientObject> query(Query query) throws DAO.DAOException {
-        List<Wrapper> objects = db.query(new OSQLSynchQuery<Wrapper>(query.getSQL()));
-        List list = new ArrayList();
-        for(Wrapper w : objects){
-            list.add(w.toObject(TransientObject.class));
+        checkDb();
+        List<TransientObject> list = new ArrayList<TransientObject>();
+
+        OTransaction transaction = db.getTransaction();
+        transaction.begin();
+        try{
+            String q = query.getSQL();
+            System.out.println("OrientDB_Query: " + q);
+
+            if(query.getAction().equals(QueryBuilder.QueryAction.SELECT)){
+                List<ODocument> objects = db.query(new OSQLSynchQuery<ODocument>(q));
+                    for(ODocument w : objects){
+                        list.add( new ODocumentWrapper(w).toObject(TransientObject.class));
+                    }
+            }
+            if(query.getAction().equals(QueryBuilder.QueryAction.DELETE)) {
+    //            List<ODocument> objects = db.command(new OCommandSQL("delete from com.jug6ernaut.network.dao.TestObject1 RETURN BEFORE")).execute();
+                Integer objects = db.command(new OCommandSQL(q)).execute();
+                TransientObject o = new EmptyTO();
+                o.put("count",objects);
+                list.add(o);
+                System.out.println("Delete: " + objects);
+            }
+
+            transaction.commit();
+            transaction.close();
+        }catch (Exception e){
+            transaction.rollback();
+            transaction.close();
+            e.printStackTrace();
         }
         return list;
     }
 
     @Override
-    public Collection<TransientObject> get(String... keys) throws DAOException {
-//        List list = db.query(new OSQLSynchQuery<ODocument>("SELECT FROM Wrapper WHERE meta_data.object_type = "  + objectType));
+    public Collection<TransientObject> get(String objectType, String... keys) throws DAOException {
+        if(keys.length == 0) return Arrays.asList();
+//        String objectType = Query.safeTable(type);
 
-        return null;
+        checkDb();
+        OTransaction transaction = db.getTransaction();
+        transaction.begin();
+//        System.err.println(db.browseCluster(objectType).next());
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM " + objectType + " WHERE ");
+        for(int x=0;x<keys.length;x++){
+            sb.append("meta_data.object_key = '" + keys[x] +"'");
+            if(x+1<keys.length) sb.append( " OR ");
+        }
+        List<TransientObject> objects = new ArrayList<TransientObject>();
+        System.err.println("Query: " + sb.toString());
+        List<ODocument> list = db.query(new OSQLSynchQuery<ODocument>(sb.toString()));
+        System.err.println("Found: " + list.size());
+        for(ODocument w : list){
+            System.err.println("Get: " + w);
+            TransientObject to = ODocumentWrapper.toObject(w, TransientObject.class);
+            objects.add(to);
+        }
+        transaction.commit();
+        transaction.close();
+        return objects;
     }
 
     @Override
     public void save(TransientObject... objects) throws DAOException {
+        System.out.println("save: " + Arrays.asList(objects));
+        checkDb();
+
         OTransaction transaction = db.getTransaction();
         transaction.begin();
         for(TransientObject t : objects){
-            new Wrapper(t).save();
+            db.save(new ODocumentWrapper(t));
         }
         transaction.commit();
         transaction.close();
@@ -55,27 +120,86 @@ public class OrientDBDao implements DAO{
 
     @Override
     public void delete(TransientObject... objects) throws DAOException {
-        for(TransientObject o : objects){
-            db.delete(new ORecordId(o.getObjectKey()));
+        checkDb();
+
+        if(objects.length == 0) return;
+
+        QueryBuilder.WhereMoreBuilder builder = new QueryBuilder()
+                .select()
+                .from(objects[0].getClass())
+                .where(TransientObject.OBJECT_KEY, OPERAND.EQ, objects[0].getObjectKey());
+
+        for(int x=1;x<objects.length;x++){
+            builder.or(TransientObject.OBJECT_KEY, OPERAND.EQ, objects[x].getObjectKey());
+        }
+
+        Query q = builder.build();
+
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("SELECT * FROM " + objects[0].getClass().getName() + " WHERE ");
+//        for(int x=0;x<objects.length;x++){
+//            sb.append("meta_data.object_key = '" + objects[x].getObjectKey() +"'");
+//            if(x+1<objects.length)
+//                sb.append( " OR ");
+//        }
+
+
+        System.out.println("Delete: " + q.getSQL());
+        List<ODocument> list = db.query(new OSQLSynchQuery<ODocument>(q.getSQL()));
+        for(ODocument w : list){
+            System.out.println("Deleting: " + w);
+            w.delete();
         }
     }
 
     @Override
     public boolean exists(TransientObject... objects) {
-        boolean found = true;
-        for(TransientObject o : objects){
-            if( db.getRecord(new ORecordId(o.getObjectKey())) == null ) found = false;
+        checkDb();
+
+        if(objects.length == 0) return false;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM " + Query.safeTable(objects[0].getClass()) + " WHERE ");
+        for(int x=0;x<objects.length;x++){
+            sb.append("meta_data.object_key = '" + objects[x].getObjectKey() +"'");
+            if(x+1<objects.length)
+                sb.append( " OR ");
         }
-        return found;
+        List<ODocument> list = db.query(new OSQLSynchQuery<ODocument>(sb.toString()));
+        return objects.length == list.size();
     }
 
     @Override
     public int count(String objectType) {
-        return ((ODocument)db.query(new OSQLSynchQuery<ODocument>("SELECT COUNT(*) as count FROM Wrapper WHERE meta_data.object_type = "  + objectType)).get(0)).field("count");
+        checkDb();
+
+        try {
+            return (int) db.countClass(objectType);
+        }catch (java.lang.IllegalArgumentException e){
+            e.printStackTrace();
+            return 0;
+        }
+//        return ((Long)((ODocument)db.query(new OSQLSynchQuery<ODocument>("SELECT COUNT(*) as count FROM ODocumentWrapper WHERE meta_data.object_type = "  + objectType)).get(0)).field("count")).intValue();
     }
 
     @Override
     public KeyPair keys(KeyPair keys) {
         return null;
     }
+
+    private static class EmptyTO extends TransientObject{
+
+        protected EmptyTO() {
+            super(TransientObject.class);
+            this.meta_data.clear();
+            this.user_data.clear();
+        }
+
+        @Override
+        public void put(String key, Object value){
+            super.put(key,value);
+            meta_data.clear();
+        }
+    }
+
 }

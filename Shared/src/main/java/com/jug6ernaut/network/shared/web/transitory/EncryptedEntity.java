@@ -1,6 +1,7 @@
 package com.jug6ernaut.network.shared.web.transitory;
 
 import com.jug6ernaut.network.shared.util.Crypto;
+import org.apache.commons.codec.binary.Base64;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -14,18 +15,28 @@ import java.util.Map;
  * Time: 8:54 PM
  */
 public class EncryptedEntity {
-    protected Map<String,String> data = new HashMap<String, String>();
+    private Map<String,String> data = new HashMap<String, String>();
     protected transient PublicKey publicKey;
     protected transient PrivateKey privateKey;
 
     private EncryptedEntity(){};
 
-    protected String encrypt(String string){
-        return new String(Crypto.encrypt(string.getBytes(),publicKey));
+    private String decrypt(String string, PrivateKey privateKey){
+        byte[] decoded = Base64.decodeBase64(string.getBytes());
+        byte[] encrypted = Crypto.decrypt(decoded,privateKey);
+        return new String(encrypted);
     }
 
-    protected String decrypt(String string){
-        return new String(Crypto.decrypt(string.getBytes(),privateKey));
+    private String encrypt(String string, PublicKey publicKey){
+        byte[] encrypted  = Crypto.encrypt(string.getBytes(),publicKey);
+        return new String(Base64.encodeBase64(encrypted));
+    }
+    protected void put(String key, String value){
+        data.put(key,encrypt(value,publicKey));
+    }
+
+    protected String get(String key){
+        return decrypt(data.get(key), privateKey);
     }
 
     public static class Writter extends EncryptedEntity{
@@ -34,8 +45,9 @@ public class EncryptedEntity {
             this.publicKey = publicKey;
         }
 
+        @Override
         public void put(String key, String value){
-            data.put(key,encrypt(value));
+            super.put(key, value);
         }
     }
 
@@ -49,9 +61,11 @@ public class EncryptedEntity {
             this.privateKey = privateKey;
         }
 
+        @Override
         public String get(String key){
-            return decrypt(data.get(key));
+            return super.get(key);
         }
 
     }
+
 }

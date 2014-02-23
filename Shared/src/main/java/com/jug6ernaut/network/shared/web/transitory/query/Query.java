@@ -1,6 +1,7 @@
 package com.jug6ernaut.network.shared.web.transitory.query;
 
-import java.util.Collection;
+import com.jug6ernaut.network.shared.web.transitory.TransientObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,14 +60,9 @@ public class Query {
                     sql = "SELECT * FROM " + from;
 
                     if(!where.isEmpty()){
-
-                        sql += " WHERE";
-
-                        Collection<Clause> wheres = where.values();
-                        for(Clause e : wheres){
-                            sql += " " + e.getCoded() + " AND";
+                        if(!where.isEmpty()){
+                            sql += buildWhere(where);
                         }
-                        sql = sql.substring(0,sql.length()-3);
                     }
 
                     if(limit != null){
@@ -76,20 +72,22 @@ public class Query {
                     switch (select){
                         case COUNT:{
                             sql = "SELECT count(*) from " + from;
-
                             if(!where.isEmpty()){
-                                Collection<Clause> wheres = where.values();
-                                for(Clause e : wheres){
-                                    sql += " " + e.getCoded() + " AND";
-                                }
-                                sql = sql.substring(0,sql.length()-3);
+                                sql += buildWhere(where);
                             }
                         }break;
                     }
                 }
             }break;
             case DELETE:{
+                    sql = "DELETE FROM " + from;
 
+                    if(!where.isEmpty()){
+                        sql += buildWhere(where);
+                    }
+                    if(limit != null){
+                        sql += " LIMIT " + limit;
+                    }
             }break;
             case UPDATE:{
 
@@ -97,6 +95,22 @@ public class Query {
         }
 
         return sql;
+    }
+
+    private String buildWhere(Map<Integer,Clause> clauses){
+        if(clauses.size()==0)return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(" WHERE ");
+        sb.append(clauses.get(0).getCoded());
+        for(int x=1;x<clauses.size();x++){
+            Clause c = clauses.get(x);
+            sb.append(" " + c.getPreOperator() + " " + c.getCoded());
+        }
+        return sb.toString();
+    }
+
+    public static <T extends TransientObject> String safeTable(Class<T> type){
+        return type.getName().replace(".","_");
     }
 
     @Override

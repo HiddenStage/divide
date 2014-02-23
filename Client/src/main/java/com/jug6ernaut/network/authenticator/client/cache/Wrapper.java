@@ -5,6 +5,7 @@ import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.network.authenticator.client.BackendObject;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
+import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -23,7 +24,7 @@ public class Wrapper extends HashMap<String, Object> {
 
     public <B extends BackendObject> Wrapper(B b){
         Key(b.getObjectKey());
-        Table(b.getClass().getName());
+        Table(Query.safeTable(b.getClass()));
         recursiveSave("user_data","", b.getUserData());
         recursiveSave("meta_data","", b.getMetaData());
     }

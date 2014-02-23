@@ -1,5 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.appengine;
 
+import com.jug6ernaut.network.dao.TestObject1;
 import org.junit.Test;
 
 import java.util.HashMap;

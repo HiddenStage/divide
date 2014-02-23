@@ -12,7 +12,6 @@ import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RetrofitError;
@@ -69,7 +68,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     @Override
     public int onError(int status){
         switch (status) {
-            case HttpStatus.SC_UNAUTHORIZED: {
+            case 401: {
                 logger.error("UNAUTHORIZED Recieved");
                 Account account = getStoredAccount();
                 if (account != null) { //TODO verify this works

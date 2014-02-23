@@ -56,16 +56,6 @@ public class LocalStorageNoSQLTest {
     @Test
     public void testQuery() throws Exception {
         Map<String, BackendObject> map = insertTestData(storage);
-//
-//        long count = storage.box.selectCount("from Wrapper where Table==? && meta_data.object_key==?",B.class.getName(), map.get("b2").getObjectKey());
-//        assertEquals(1,count);
-//
-//        Object[] args = new Object[]{B.class.getName(),map.get("b2").getObjectKey()};
-//        Iterable<Wrapper> wrapper = storage.box.select(Wrapper.class, "from Wrapper where Table==? && meta_data.object_key==?",args);
-//        Wrapper w = LocalStorageIBoxDb.iBoxUtils.GetFrist(wrapper);
-//        B b = w.toObject(B.class);
-//        assertEquals(map.get("b2"), b);
-//        if(!map.get("b1").equals(b) && !map.get("b2").equals(b))fail();
 
         Query q = new QueryBuilder().select().from(B.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,map.get("b1").getObjectKey()).build();
 

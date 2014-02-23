@@ -47,14 +47,14 @@ public class LocalStorageIBoxDb implements LocalStorage {
 
     @Override
     public <B extends BackendObject> boolean exists(Class<B> type, String objectKey) {
-        Wrapper o1 = iBoxUtils.GetFrist(box.select(Wrapper.class,"from Wrapper where Key==? && Table==?", objectKey,type.getName() ));
+        Wrapper o1 = iBoxUtils.GetFrist(box.select(Wrapper.class,"from Wrapper where Key==? && Table==?", objectKey, Query.safeTable(type) ));
 
         return o1 != null;
     }
 
     @Override
     public <B extends BackendObject> long count(Class<B> type) {
-        return box.selectCount("from Wrapper where Table==?",type.getName());
+        return box.selectCount("from Wrapper where Table==?", Query.safeTable(type));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class LocalStorageIBoxDb implements LocalStorage {
 
     @Override
     public <B extends BackendObject> List<B> getAllByType(Class<B> type) {
-        Iterable<Wrapper> list = box.select(Wrapper.class, "from Wrapper where Table==?",type.getName());
+        Iterable<Wrapper> list = box.select(Wrapper.class, "from Wrapper where Table==?",Query.safeTable(type));
         List<B> bList = new ArrayList<B>();
         for(Wrapper w : list){
             bList.add(w.toObject(type));

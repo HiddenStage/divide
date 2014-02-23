@@ -55,7 +55,7 @@ public class QueryBuilder{
     }
 
     private void setFrom(Class from){
-        query.from = from.getName();
+        query.from = Query.safeTable(from);
     }
 
     private void addSelect(SelectOperation select){
@@ -153,11 +153,10 @@ public class QueryBuilder{
         }
     }
 
-    public class WhereMoreBuilder extends WhereBuilder{
+    public class WhereMoreBuilder{
         private QueryBuilder builder;
 
         protected WhereMoreBuilder(QueryBuilder builder){
-            super(builder);
             this.builder = builder;
         }
 
@@ -181,10 +180,22 @@ public class QueryBuilder{
             return this;
         }
 
+
+        public LimitConstraintBuilder limit(Integer limit){
+            return new LimitConstraintBuilder(builder,limit);
+        }
+
+        public OffsetConstraintBuilder offset(Integer offset){
+            return new OffsetConstraintBuilder(builder,offset);
+        }
+
+        public RandomConstraintBuilder random(Boolean random, Integer limit){
+            return new RandomConstraintBuilder(builder,random,limit);
+        }
+
         public Query build(){
             return builder.getQuery();
-        }
-    }
+        }    }
 
     public class LimitConstraintBuilder extends ConstraintBuilder{
 

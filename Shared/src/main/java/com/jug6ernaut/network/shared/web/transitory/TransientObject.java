@@ -2,11 +2,9 @@ package com.jug6ernaut.network.shared.web.transitory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.jug6ernaut.network.shared.web.transitory.query.Query;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.jug6ernaut.network.shared.util.ObjectUtils.isArray;
 import static com.jug6ernaut.network.shared.util.ObjectUtils.v2c;
@@ -32,10 +30,10 @@ public class TransientObject {
     private static final MetaKey PERMISSIONS_KEY = new MetaKey("permissions_key");
 
     private static Gson gson = initGson();
-    protected Map<String,Object> user_data = new HashMap<String, Object>();
-    protected Map<String,String> meta_data = new HashMap<String, String>();
+    protected Map<String,Object> user_data = new LinkedHashMap<String, Object>();
+    protected Map<String,String> meta_data = new LinkedHashMap<String, String>();
 
-    private boolean isNewObject = false;
+    private transient boolean isNewObject = false;
 
     private TransientObject(){}
 
@@ -43,7 +41,7 @@ public class TransientObject {
         isNewObject = true;
         meta_put(PERMISSIONS_KEY, new FilePermissions());
 //        setOwnerId(getLoggedInUser());
-        setObjectType(objectType.getName());
+        setObjectType(Query.safeTable(objectType));
         setObjectKey(UUID.randomUUID().toString());
         updateCreateDate();
     }
@@ -87,24 +85,24 @@ public class TransientObject {
 
     private void canRead(){
         if(!isReadable()) {
-            throw new IllegalAccessError(getObjectType() + " is not readable for " + getLoggedInUser());
+            throw new IllegalAccessError(meta_data.get(OBJECT_KEY.KEY) + " is not readable for " + getLoggedInUser() +". " + getFilePermissions());
         }
     }
 
     private void canWrite(){
         if(!isWritable()) {
-            throw new IllegalAccessError(getObjectType() + " is not writable for " + getLoggedInUser());
+            throw new IllegalAccessError(meta_data.get(OBJECT_KEY.KEY) + " is not writable for " + getLoggedInUser() +". " + getFilePermissions());
         }
     }
 
     public void setFilePermissions(FilePermissions filePermissions){
         if(isWritable()){
-            meta_put(PERMISSIONS_KEY, filePermissions);
+            meta_data.put(PERMISSIONS_KEY.KEY,gson.toJson(filePermissions,FilePermissions.class));
         }
     }
 
     public FilePermissions getFilePermissions(){
-        return meta_get(FilePermissions.class, PERMISSIONS_KEY);
+        return gson.fromJson(meta_data.get(PERMISSIONS_KEY.KEY), FilePermissions.class);
     }
 
     protected final void meta_put(MetaKey key, Object object) {
@@ -118,7 +116,7 @@ public class TransientObject {
     }
 
     protected final <O> O meta_get(Class<O> clazz, MetaKey key){
-        canWrite();
+        canRead();
 
         if(clazz.equals(String.class))
             return (O) meta_data.get(key.KEY);

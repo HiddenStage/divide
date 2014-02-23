@@ -1,5 +1,6 @@
 package com.jug6ernaut.network.shared.web.transitory;
 
+import com.google.gson.Gson;
 import com.jug6ernaut.network.shared.util.BitMask;
 
 import java.util.Arrays;
@@ -67,4 +68,9 @@ public class FilePermissions {
 //    private static String toString(BitSet bs) {
 //        return Long.toString(bs.toLongArray()[0], 2);
 //    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

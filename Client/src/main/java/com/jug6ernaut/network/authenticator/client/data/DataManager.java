@@ -54,7 +54,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
             @Override
             public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
                 try {
-                    observer.onNext(convertRequest(getArrayType(type),getWebService().get(objects)));
+                    observer.onNext(convertRequest(getArrayType(type),getWebService().get(type.getName(),objects)));
                     observer.onCompleted();
                 } catch (Exception e) {
                     observer.onError(e);

@@ -2,9 +2,7 @@ package com.jug6ernaut.network.authenticator.server.sample;
 
 import com.jug6ernaut.network.authenticator.server.AuthApplication;
 import com.jug6ernaut.network.authenticator.server.appengine.ObjectifyDAO;
-import org.glassfish.hk2.api.ServiceLocator;
 
-import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
@@ -17,9 +15,8 @@ public class SomeApplication extends AuthApplication<ObjectifyDAO> {
 
     Logger logger = Logger.getLogger(SomeApplication.class.getName());
 
-    @Inject
-    public SomeApplication(ServiceLocator serviceLocator) {
-        super(serviceLocator);
+    public SomeApplication() {
+        super(ObjectifyDAO.class, "saywhatwhat");
 
 //        EventManager.get().register(
 //                new Subscriber<DAOManager.QUERY_EVENT>() {
@@ -35,11 +32,6 @@ public class SomeApplication extends AuthApplication<ObjectifyDAO> {
 //                        logger.info("Send Event: " + event);
 //                    }
 //                });
-    }
-
-    @Override
-    public Class<ObjectifyDAO> getDAO() {
-        return ObjectifyDAO.class;
     }
 
 }

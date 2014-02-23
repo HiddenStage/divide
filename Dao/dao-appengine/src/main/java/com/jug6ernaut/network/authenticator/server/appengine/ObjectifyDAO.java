@@ -6,10 +6,7 @@ import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
-import com.jug6ernaut.network.shared.web.transitory.query.Clause;
-import com.jug6ernaut.network.shared.web.transitory.query.Count;
-import com.jug6ernaut.network.shared.web.transitory.query.Query;
-import com.jug6ernaut.network.shared.web.transitory.query.SelectOperation;
+import com.jug6ernaut.network.shared.web.transitory.query.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.core.Response;
@@ -37,8 +34,11 @@ public class ObjectifyDAO implements DAO {
         com.googlecode.objectify.cmd.Query<?> oFilter =
         filter.filter(TransientObject.META_DATA+"."+ TransientObject.OBJECT_TYPE_KEY.KEY + " =",query.getFrom());
 
-        for(Clause c : (Collection<Clause>)query.getWhere().values()){
-            oFilter = oFilter.filter(c.getBefore() + " " + c.getOperand(), c.getAfter());
+        for(Clause c : query.getWhere().values()){
+            oFilter = oFilter.filter(
+                    c.getBefore() + " " +
+                    (c.getOperand().equals(OPERAND.CONTAINS.toString())?OPERAND.EQ.toString():c.getOperand()), // replace CONTAINS with ==
+                    c.getAfter());
         }
 
         if(query.getOffset()!=null){
@@ -82,6 +82,11 @@ public class ObjectifyDAO implements DAO {
             case DELETE:{
                 list = oFilter.keys().list();
                 ofy().delete().keys(list);
+                int count = list.size();
+                list.clear();
+                EmptyTO o = new EmptyTO();
+                o.put("count",count);
+                list.add(o);
             }break;
             case UPDATE:{
                 throw new NotImplementedException();
@@ -94,7 +99,7 @@ public class ObjectifyDAO implements DAO {
     }
 
     @Override
-    public Collection<TransientObject> get(final String... keys) throws DAOException {
+    public Collection<TransientObject> get(String objectType, final String... keys) throws DAOException {
         logger.info("get: " + ObjectUtils.v2c(keys));
 
         List<Key<OfyObject>> ofyKeys = new ArrayList<Key<OfyObject>>(keys.length);
@@ -107,7 +112,8 @@ public class ObjectifyDAO implements DAO {
         List<TransientObject> tos = new ArrayList<TransientObject>(ofyObjets.size());
         try{
             for (OfyObject oo : ofyObjets.values()){
-                tos.add(BackendToOfy.getBack(oo));
+                if(objectType.equals( oo.meta_data.get("object_type") ))
+                    tos.add(BackendToOfy.getBack(oo));
             }
         } catch (Exception e) {
             throw new DAOException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),e);
@@ -188,5 +194,20 @@ public class ObjectifyDAO implements DAO {
 
     private boolean exists(String key){
         return (OfyService.ofy().load().filterKey(Key.create(OfyObject.class,key)).count() == 1);
+    }
+
+    private static class EmptyTO extends TransientObject{
+
+        protected EmptyTO() {
+            super(TransientObject.class);
+            this.meta_data.clear();
+            this.user_data.clear();
+        }
+
+        @Override
+        public void put(String key, Object value){
+            super.put(key,value);
+            meta_data.clear();
+        }
     }
 }

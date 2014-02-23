@@ -1,6 +1,5 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
-import com.google.common.base.Stopwatch;
 import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
@@ -35,11 +34,8 @@ import static javax.ws.rs.core.Response.Status;
 public final class AuthenticationEndpoint{
     Logger logger = Logger.getLogger(AuthenticationEndpoint.class.getName());
 
-    @Context
-    DAOManager dao;
-
-    @Context
-    KeyManager keyManager;
+    @Context DAOManager dao;
+    @Context KeyManager keyManager;
 
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
 
@@ -204,6 +200,7 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
+            logger.fine("getUserFromToken");
             AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
             if(authToken.isExpired()) return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
 
@@ -216,9 +213,11 @@ public final class AuthenticationEndpoint{
                 context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
                 return ok(sc);
             } else {
-                return Response.status(Status.NOT_FOUND).entity("whoopsie...").build();
+                return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
             }
         }catch (DAO.DAOException e) {
+            e.printStackTrace();
+            logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         } catch (AuthenticationException e) {
             return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
@@ -242,9 +241,11 @@ public final class AuthenticationEndpoint{
                 dao.save(sc);
                 return Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
             } else {
-                return Response.status(Status.NOT_FOUND).entity("whoopsie...").build();
+                return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
             }
         }catch (DAO.DAOException e) {
+            e.printStackTrace();
+            logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         }
     }
@@ -308,7 +309,7 @@ public final class AuthenticationEndpoint{
         }
     }
 
-    @GET
+    @PUT
     @Path("/user/data")
     @Produces(MediaType.APPLICATION_JSON)
     public Response sendUserData(@Context Session session) {
@@ -422,7 +423,7 @@ public final class AuthenticationEndpoint{
     }
 
     private String doHash(String plainText, int interations){
-        Stopwatch s = new Stopwatch();String salt = BCrypt.gensalt(20);
+        String salt = BCrypt.gensalt(20);
         for(int x=0;x<interations;x++){
             plainText = BCrypt.hashpw(plainText,salt);
         }

@@ -19,8 +19,8 @@ import java.util.Collection;
  */
 public interface DataWebService {
 
-    @POST("/data/get")
-    public Response get(@Body Collection<String> keys);
+    @POST("/data/get/{objectType}")
+    public Response get(@EncodedPath("objectType") String objectType,@Body Collection<String> keys);
 
     @POST("/data/query")
     public Response query(@Body Query query);

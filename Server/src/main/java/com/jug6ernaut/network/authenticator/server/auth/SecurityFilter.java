@@ -44,6 +44,7 @@ import com.jug6ernaut.network.dao.DAO;
 import com.jug6ernaut.network.shared.util.AuthTokenUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
+import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
@@ -64,11 +65,9 @@ public class SecurityFilter implements ContainerRequestFilter {
 
     Logger log = Logger.getLogger(SecurityFilter.class.getName());
 
-    @Context
-    DAOManager dao;
+    @Context DAOManager dao;
 
-    @Context
-    KeyManager keyManager;
+    @Context KeyManager keyManager;
 
     private static final List<String> SAFE_PATHS = Arrays.asList(
             "auth",
@@ -110,22 +109,25 @@ public class SecurityFilter implements ContainerRequestFilter {
         // Extract authentication credentials
         String authentication = request.getHeaderString(ContainerRequest.AUTHORIZATION);
         if (authentication == null) {
+            System.out.println("HeaderCount: " + request.getHeaders().keySet().size());
+            System.out.println(request.getHeaders().keySet());
+            System.out.println(request.getPropertyNames());
+            System.out.println(request.getCookies().keySet());
             return abort(request, "Authentication credentials are required");
         }
         if (!authentication.startsWith("CUSTOM ")) {
             return abort(request, "Only CUSTOM authentication is supported");
         }
         authentication = authentication.substring("CUSTOM ".length());
-        String token = new String(authentication);
+        String token = authentication;
 
         if (token == null) {
             return abort(request, "Missing token");
         }
 
         // TODO verify
-        AuthTokenUtils.AuthToken authToken = null;
         try {
-            authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
+            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
             if(authToken.isExpired()){
                 return abort(request,"Auth Token Expired");
             }
@@ -137,11 +139,13 @@ public class SecurityFilter implements ContainerRequestFilter {
         synchronized (dao) {
             Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY, OPERAND.EQ, token).build();
             try {
-                Credentials creds = (Credentials) ObjectUtils.get1stOrNull(dao.query(q));
-                if (creds != null) {
+                TransientObject temp = ObjectUtils.get1stOrNull(dao.query(q));
+                if (temp != null) {
+                    ServerCredentials creds = new ServerCredentials(temp);
                     creds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(),creds)); // assign new token
                     return new UserContext(request.getUriInfo(), new ServerCredentials(creds));
                 } else {
+                    System.err.println(dao.query(new QueryBuilder().select().from(Credentials.class).build()));
                     request.abortWith(notAuthReponse("Invalid authentication token"));
                     return abort(request, "Invalid authentication token");
                 }

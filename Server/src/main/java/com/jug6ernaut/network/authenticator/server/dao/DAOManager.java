@@ -40,8 +40,8 @@ public final class DAOManager implements DAO {
     }
 
     @Override
-    public Collection<TransientObject> get(String... keys) throws DAOException {
-        Collection<TransientObject> results = dao.get(keys);
+    public Collection<TransientObject> get(String objectType, String... keys) throws DAOException {
+        Collection<TransientObject> results = dao.get(objectType,keys);
         eventManager.fire(new GET_EVENT(results));
         return results;
     }

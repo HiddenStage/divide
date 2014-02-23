@@ -12,7 +12,8 @@ public enum OPERAND{
     LESS_THAN("<"),
     GREATER_THAN_EQ(">="),
     LESS_THAN_EQ("<="),
-    EQ("==");
+    EQ("=="),
+    CONTAINS("CONTAINS");
 
     String symbol;
 
@@ -37,8 +38,8 @@ public enum OPERAND{
     }
 
     public static enum Conditional{
-        AND("&&"),
-        OR("||");
+        AND("AND"),
+        OR("OR");
 
         String symbol;
 
@@ -55,6 +56,11 @@ public enum OPERAND{
                 return null;
             }
         }
+    }
+
+    @Override
+    public String toString(){
+        return symbol;
     }
 
 };

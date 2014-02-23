@@ -23,7 +23,6 @@ public class ResponseUtils {
     public static Response fromDAOExpection(DAO.DAOException exception){
         return Response
                 .status(exception.getStatusCode())
-//                .entity(exception.getEntity())
                 .build();
     }
 

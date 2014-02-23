@@ -7,11 +7,11 @@ import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
 import com.jug6ernaut.network.shared.web.transitory.query.Query;
 import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -23,18 +23,18 @@ import static org.junit.Assert.*;
 */
 public abstract class DAOTest<BaseObject extends Keyable> {
 
-    DAO dao;
-    TestObject1 testObject1 = new TestObject1("key1","1",
+    protected DAO dao;
+    public static final TestObject1 testObject1 = new TestObject1("key1","1",
                                               "key2","value2",
                                               "key3","value3");
-    TestObject1 testObject2 = new TestObject1("key1","1",
+    public static final TestObject1 testObject2 = new TestObject1("key1","3",
                                               "key2","value2",
                                               "key3","value3");
-    TestObject2 testObject3 = new TestObject2("key1","1",
+    public static final TestObject1 testObject3 = new TestObject1("key1","1",
                                               "key2","2",
                                               "key3","value3");
-    TestObject1 testObject4 = new TestObject1("key1","3",
-                                              "key2","value2",
+    public static final TestObject2 testObject4 = new TestObject2("key1","1",
+                                              "key2","2",
                                               "key3","value3");
 
     BaseObject object1 = toBaseObject(testObject1);
@@ -42,9 +42,19 @@ public abstract class DAOTest<BaseObject extends Keyable> {
     BaseObject object3 = toBaseObject(testObject3);
     BaseObject object4 = toBaseObject(testObject4);
 
+    String testObject1Table = Query.safeTable(TestObject1.class);
+    String testObject2Table = Query.safeTable(TestObject2.class);
+
+
     protected DAOTest(DAO dao){
         this.dao = dao;
     }
+
+    @Before
+    public abstract void setUp();
+
+    @After
+    public abstract void tearDown();
 
     @Test
     public void testQuery() throws Exception {
@@ -58,8 +68,9 @@ public abstract class DAOTest<BaseObject extends Keyable> {
         q = new QueryBuilder().select().from(TestObject1.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ,key).build();
         results = dao.query(q);
         assertFalse("1.", results == null);
-        assertFalse("2.", results.size()!=1);
-        assertFalse("3.", !ObjectUtils.get1stOrNull(results).getObjectKey().equals(key));
+        assertTrue("2.", results.size()==1);
+        TransientObject to = ObjectUtils.get1stOrNull(results);
+        assertEquals(results+"", to.getObjectKey(), testObject1.getObjectKey());
 
         q = new QueryBuilder().select().from(TestObject1.class).build();
         results = dao.query(q);
@@ -93,17 +104,29 @@ public abstract class DAOTest<BaseObject extends Keyable> {
 
         q = new QueryBuilder().select().from(TestObject2.class)
                 .where("key1",OPERAND.EQ,"1")
-                .where("key2",OPERAND.EQ,"2").build();
+                .or("key2",OPERAND.EQ,"2").build();
         results = dao.query(q);
         assertNotEquals("2where", null, results);
         assertEquals("2where", 1, results.size());
-        assertEquals("2where", testObject3.getObjectKey(), ObjectUtils.get1stOrNull(results).getObjectKey());
+        assertEquals("2where", testObject4.getObjectKey(), ObjectUtils.get1stOrNull(results).getObjectKey());
 
         //limit
         q = new QueryBuilder().select().from(TestObject1.class).where("key1",OPERAND.LESS_THAN_EQ,"3").limit(2).build();
         results = dao.query(q);
         assertNotEquals("limit", null, results);
         assertEquals("limit", 2, results.size());
+
+        q = new QueryBuilder().delete().from(TestObject1.class).where("key1",OPERAND.LESS_THAN_EQ,"3").build();
+        results = dao.query(q);
+        assertNotEquals("delete", null, results);
+        assertEquals("delete", 1, results.size());
+        assertEquals("delete", 3, (int)results.get(0).get(Integer.class,"count"));
+
+        q = new QueryBuilder().delete().from(TestObject1.class).build();
+        results = dao.query(q);
+        assertNotEquals("delete", null, results);
+        assertEquals("delete", 1, results.size());
+        assertEquals("delete", 0, (int)results.get(0).get(Integer.class,"count"));
 
         //offset
     }
@@ -131,14 +154,14 @@ public abstract class DAOTest<BaseObject extends Keyable> {
 
         dao.save(t1,t2);
 
-        Query q = new QueryBuilder().select().from(TestObject1.class).where("players_key",OPERAND.EQ,"2").build();
+        Query q = new QueryBuilder().select().from(TestObject1.class).where("players_key",OPERAND.CONTAINS,"2").build();
         List<TransientObject> results = dao.query(q);
         assertNotEquals(null, results);
         assertEquals(1, results.size());
         assertEquals(t1.getObjectKey(),ObjectUtils.get1stOrNull(results).getObjectKey());
         assertEquals(l1,ObjectUtils.get1stOrNull(results).get(l1.getClass(),"players_key"));
 
-        q = new QueryBuilder().select().from(TestObject1.class).where("players_key",OPERAND.EQ,"4").build();
+        q = new QueryBuilder().select().from(TestObject1.class).where("players_key",OPERAND.CONTAINS,"4").build();
         results = dao.query(q);
         assertNotEquals(null, results);
         assertEquals(1, results.size());
@@ -154,41 +177,57 @@ public abstract class DAOTest<BaseObject extends Keyable> {
         rawSave(object1,object2,object3,object4);
         String[] keys = {object1.getKey(),object3.getKey()};
 
-        Collection<TransientObject> results = dao.get(keys);
+        Collection<TransientObject> results = dao.get(testObject1Table, keys);
         assertNotEquals(null, results);
         assertEquals(String.valueOf(results), 2, results.size());
 
         String[] keys2 = {object1.getKey(),object2.getKey(),object3.getKey(),object4.getKey()};
-        results = dao.get(keys2);
+        results = dao.get(testObject2Table, keys2);
         assertNotEquals(null, results);
-        assertEquals(4, results.size());
+        assertEquals(results+"", 1, results.size());
     }
 
     @Test
     public void testSave() throws Exception {
-        rawSave(object1,object2);
-        Collection<TransientObject> results = dao.get(testObject1.getObjectKey(),testObject2.getObjectKey());
+        dao.save(testObject1,testObject2);
+        String testObject1Table = Query.safeTable(TestObject1.class);
+        Collection<TransientObject> results = dao.get(testObject1Table, testObject1.getObjectKey(),testObject2.getObjectKey());
         assertNotEquals(null, results);
         assertEquals(String.valueOf(results),2, results.size());
+        assertEquals(null,testObject1.get(String.class,"someKey"));
 
-        String bigString = StringUtils.leftPad("", 501, "0");
+        testObject1.put("someKey","someValue");
+        dao.save(testObject1);
+        Collection<TransientObject> objects = dao.get(testObject1Table, testObject1.getObjectKey()); //  dao.query(new QueryBuilder().select().from(TestObject1.class).where(TransientObject.OBJECT_KEY, OPERAND.EQ, testObject1.getObjectKey()).build());
+        assertEquals("Returned wrong number of objects",1,objects.size());
+        TransientObject o = ObjectUtils.get1stOrNull(objects);
+        assertEquals("Value not updated","someValue",o.get(String.class,"someKey"));
+
+        String bigString = CharBuffer.allocate(600).toString();
         testObject1.put("big_string", bigString);
         dao.save(testObject1);
     }
 
     @Test
     public void testDelete() throws Exception {
-        rawSave(object1,object2,object4);
-        dao.delete(testObject1,testObject2);
+        rawSave(object1,object2,object3,object4);
+        dao.delete(testObject1);
+        dao.delete(testObject4);
 
-        Collection<TransientObject> results = dao.get(testObject1.getObjectKey(),testObject2.getObjectKey());
+        Collection<TransientObject> results = dao.get(testObject1Table,testObject1.getObjectKey(),testObject2.getObjectKey());
         assertNotEquals(null, results);
-        assertEquals(0, results.size());
+        assertEquals(1, results.size());
+        assertEquals(ObjectUtils.get1stOrNull(results).getObjectKey(),testObject2.getObjectKey());
 
         Query q = new QueryBuilder().select().from(TestObject1.class).build();
         results = dao.query(q);
         assertNotEquals("Select All", null, results);
-        assertEquals("Select All", 1, results.size());
+        assertEquals("Select All", 2, results.size());
+
+        q = new QueryBuilder().select().from(TestObject2.class).build();
+        results = dao.query(q);
+        assertNotEquals("Select All", null, results);
+        assertEquals("Select All", 0, results.size());
     }
 
     @Test
@@ -202,20 +241,21 @@ public abstract class DAOTest<BaseObject extends Keyable> {
         assertTrue(exists);
 
         exists = dao.exists(testObject3);
-        assertFalse(exists);
+        assertEquals(testObject3.getObjectKey(),false,exists);
+
     }
 
     @Test
     public void testCount() throws Exception {
         rawSave(object1,object2,object3,object4);
 
-        int count = dao.count(TestObject1.class.getName());
+        int count = dao.count(testObject1Table);
         assertEquals(3, count);
 
-        count = dao.count(TestObject2.class.getName());
+        count = dao.count(testObject2Table);
         assertEquals(1, count);
 
-        count = dao.count(TransientObject.class.getName());
+        count = dao.count(Query.safeTable(TransientObject.class));
         assertEquals(0, count);
     }
 
@@ -226,9 +266,4 @@ public abstract class DAOTest<BaseObject extends Keyable> {
         rawSave(Arrays.asList(objects));
     }
 
-    @Before
-    public abstract void setUp();
-
-    @After
-    public abstract void tearDown();
 }

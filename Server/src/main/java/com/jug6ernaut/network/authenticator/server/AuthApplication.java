@@ -13,13 +13,9 @@ import com.jug6ernaut.network.authenticator.server.endpoints.DataEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.MetaEndpoint;
 import com.jug6ernaut.network.authenticator.server.endpoints.PushEndpoint;
 import com.jug6ernaut.network.dao.DAO;
-import org.glassfish.hk2.api.DynamicConfiguration;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.jersey.internal.inject.Injections;
-import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import javax.inject.Inject;
 import javax.ws.rs.core.SecurityContext;
 import java.util.logging.Logger;
 
@@ -33,8 +29,23 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
 
     private static final Logger logger = Logger.getLogger(AuthApplication.class.getSimpleName());
 
-    @Inject
-    public AuthApplication(ServiceLocator serviceLocator){
+    public AuthApplication(T t, String encryptionKey){
+        reg(AuthenticationEndpoint.class);
+        reg(DataEndpoint.class);
+        reg(PushEndpoint.class);
+        reg(MetaEndpoint.class);
+        reg(CredentialBodyHandler.class);  // insures passwords are not sent back
+        reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
+        reg(SecurityFilter.class);
+        reg(ResponseFilter.class);
+//        reg(GZIPReaderInterceptor.class);
+
+        register(new MyBinder(t, encryptionKey));
+
+        property("jersey.config.workers.legacyOrdering", true);
+    }
+
+    public AuthApplication(Class<T> daoClass,String encryptionKey){
 
         reg(AuthenticationEndpoint.class);
         reg(DataEndpoint.class);
@@ -44,51 +55,48 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
         reg(SecurityFilter.class);
         reg(ResponseFilter.class);
-        reg(GZIPReaderInterceptor.class);
+//        reg(GZIPReaderInterceptor.class);
 
-        DynamicConfiguration dc = Injections.getConfiguration(serviceLocator);
-        bind(dc,getDAO(),"somekey");
+        register(new MyBinder(daoClass,encryptionKey));
 
-        property("jersey.config.workers.legacyOrdering",true);
+        property("jersey.config.workers.legacyOrdering", true);
     }
 
-    public abstract Class<T> getDAO();
+
+    private class MyBinder extends AbstractBinder{
+        Class<T> clazz;
+        T t;
+        String encryptionKey;
+
+        public MyBinder(T dao, String encryptionKey){
+            this.t = dao;
+            this.encryptionKey = encryptionKey;
+        }
+
+        public MyBinder(Class<T> daoClass, String encryptionKey){
+            clazz = daoClass;
+            this.encryptionKey = encryptionKey;
+        }
+
+        @Override
+        protected void configure() {
+            try {
+                if(t == null)
+                    t = clazz.newInstance();
+                DAOManager manager = new DAOManager(t);
+                bind(manager).to(DAOManager.class);
+                bind(new KeyManager(manager,encryptionKey)).to(KeyManager.class);
+                bind(UserContext.class).to(SecurityContext.class);
+                bind(Session.class).to(Session.class);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void reg(Class<?> clazz){
         //logger.info("Registering: " + clazz.getSimpleName());
         this.register(clazz);
-    }
-
-    public void bind(DynamicConfiguration dc, Class<T> daoClass, String encryptionKey){
-        try {
-            T t = (T) Class.forName(daoClass.getName()).newInstance();
-            DAOManager manager = new DAOManager(t);
-            Injections.addBinding(
-                    Injections.newBinder(manager).to(DAOManager.class),
-                    dc);
-            Injections.addBinding(
-                    Injections.newBinder(new KeyManager(manager,encryptionKey)).to(KeyManager.class),
-                    dc);
-        } catch (Exception e) {
-            logger.severe("Failed to register DAO");
-        }
-        try {
-            Injections.addBinding(
-                    Injections.newBinder(UserContext.class).to(SecurityContext.class).in(RequestScoped.class),
-                    dc);
-        } catch (Exception e) {
-            logger.severe("Failed to register UserContext");
-        }
-        try {
-            Injections.addBinding(
-                    Injections.newBinder(Session.class).to(Session.class),
-                    dc);
-        } catch (Exception e) {
-            logger.severe("Failed to register UserContext");
-        }
-
-        // commits changes
-        dc.commit();
     }
 
     private void isReg(Object o){

@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface DAO {
     public List<TransientObject> query(Query query) throws DAOException; // Object, returns different types
-    public Collection<TransientObject> get(String... keys) throws DAOException;
+    public Collection<TransientObject> get(String type, String... keys) throws DAOException;
     public void save(TransientObject... objects) throws DAOException;
     public void delete(TransientObject... objects) throws DAOException;
     public boolean exists(TransientObject... objects);

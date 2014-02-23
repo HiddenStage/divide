@@ -31,14 +31,14 @@ public class DataEndpoint {
     DAOManager dao;
 
     @POST
-    @Path("/get")
+    @Path("/get/{objectType}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(Collection<String> keys) {
+    public Response get( @PathParam("objectType") String objectType, Collection<String> keys) {
         try { logger.info("get: " + keys);
             return Response
                     .ok()
-                    .entity(dao.get(ObjectUtils.c2v(keys)))
+                    .entity(dao.get(objectType,ObjectUtils.c2v(keys)))
                     .build();
         }catch (DAO.DAOException e) {
             return ResponseUtils.fromDAOExpection(e);
