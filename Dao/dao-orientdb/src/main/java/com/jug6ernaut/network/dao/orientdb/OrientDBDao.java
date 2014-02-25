@@ -24,19 +24,25 @@ import java.util.List;
  */
 public class OrientDBDao implements DAO{
 
+    public static final String DEFAULT_CONFIG = "memory:default";
+
     ODatabaseDocument db;
 
     public OrientDBDao(){
-        this.db = new ODatabaseDocumentTx("memory:unique!").create();
+        this.db = new ODatabaseDocumentTx(DEFAULT_CONFIG);
+        if(this.db.exists()){
+            db.open("admin","admin");
+        } else {
+            db.create();
+        }
     }
 
     public OrientDBDao(ODatabaseDocument db){
-        this();
+        this.db = db;
     }
 
     private void checkDb(){
         ODatabaseRecordThreadLocal.INSTANCE.set(db);
-
     }
 
     @Override
@@ -70,7 +76,6 @@ public class OrientDBDao implements DAO{
         }catch (Exception e){
             transaction.rollback();
             transaction.close();
-            e.printStackTrace();
         }
         return list;
     }
@@ -172,14 +177,11 @@ public class OrientDBDao implements DAO{
     @Override
     public int count(String objectType) {
         checkDb();
-
         try {
             return (int) db.countClass(objectType);
         }catch (java.lang.IllegalArgumentException e){
-            e.printStackTrace();
             return 0;
         }
-//        return ((Long)((ODocument)db.query(new OSQLSynchQuery<ODocument>("SELECT COUNT(*) as count FROM ODocumentWrapper WHERE meta_data.object_type = "  + objectType)).get(0)).field("count")).intValue();
     }
 
     @Override

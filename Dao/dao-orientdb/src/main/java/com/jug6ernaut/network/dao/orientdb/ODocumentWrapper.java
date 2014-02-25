@@ -2,8 +2,6 @@ package com.jug6ernaut.network.dao.orientdb;
 
 import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
-import com.jug6ernaut.network.shared.web.transitory.query.Query;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -37,11 +35,11 @@ public class ODocumentWrapper extends ODocument {
 
     public <B extends TransientObject> ODocumentWrapper(B b){
         super();
-        ODatabaseRecordThreadLocal.INSTANCE.set(getDatabase());
 
-        String className = Query.safeTable(b.getClass());
+        String className = b.getObjectType();
         this.setAllowChainedAccess(true);
         this.setLazyLoad(false);
+
 
         // dirty unreliable hack to add HighLanderIndexFactory to the list.
         if(!OIndexes.getIndexTypes().contains(ID))
@@ -75,6 +73,8 @@ public class ODocumentWrapper extends ODocument {
         field("user_data", user);
         field("meta_data", meta);
         super.setClassNameIfExists(className);
+
+        System.out.println("DB: " + getDatabase().getName() + " : " + this.getClassName() + " : " + getDatabase().getClusterIdByName(className));
     }
 
     public String getKey(){

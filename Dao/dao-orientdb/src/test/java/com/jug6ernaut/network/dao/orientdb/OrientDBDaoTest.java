@@ -5,6 +5,8 @@ import com.jug6ernaut.network.dao.Keyable;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import org.junit.After;
+import org.junit.Before;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class OrientDBDaoTest extends DAOTest<OrientDBDaoTest.KeyedODocumentWrapp
     ODatabaseDocument db;
 
     public OrientDBDaoTest() {
-        super(new OrientDBDao(new ODatabaseDocumentTx("memory:unique!").<ODatabaseDocument>create()));
+        super(null);
     }
 
     @Override
@@ -31,13 +33,19 @@ public class OrientDBDaoTest extends DAOTest<OrientDBDaoTest.KeyedODocumentWrapp
         }
     }
 
-    @Override
+    @Before
     public void setUp() {
-        db = new ODatabaseDocumentTx("memory:unique!").create();
+        db = new ODatabaseDocumentTx(OrientDBDao.DEFAULT_CONFIG);
+        if(db.exists()){
+            db.open("admin","admin");
+        } else {
+            db.create();
+        }
         dao = new OrientDBDao(db);
+        super.setUp();
     }
 
-    @Override
+    @After
     public void tearDown() {
         db.drop();
         db.close();

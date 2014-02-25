@@ -2,13 +2,16 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 
 import com.jug6ernaut.network.authenticator.server.AbstractTest;
 import com.jug6ernaut.network.authenticator.server.TestUtils;
+import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
 import com.jug6ernaut.network.shared.web.transitory.EncryptedEntity;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.jug6ernaut.network.shared.web.transitory.TransientObject;
+import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.junit.Test;
 
 import java.security.PublicKey;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,9 +22,7 @@ public class PushEndpointTest extends AbstractTest {
 
     @Test
     public void testRegister() throws Exception {
-        Credentials user = TestUtils.getTestUser();
-        ODatabaseRecordThreadLocal.INSTANCE.set(container.db);
-        container.dao.save(user);
+        Credentials user = AuthenticationEndpointTest.signUpUser(this);
         PublicKey key = AuthenticationEndpointTest.getPublicKey(this);
 
         EncryptedEntity.Writter entity = new EncryptedEntity.Writter(key);
@@ -32,6 +33,11 @@ public class PushEndpointTest extends AbstractTest {
                 .header(ContainerRequest.AUTHORIZATION, "CUSTOM " + user.getAuthToken())
                 .buildPost(TestUtils.toEntity(entity)).invoke().getStatus();
         assertEquals(200,statusCode);
+
+        Collection<TransientObject> list = container.dao.query(new QueryBuilder().select().from(Credentials.class).build());
+        TransientObject o = ObjectUtils.get1stOrNull(list);
+        user = TestUtils.convert(o,Credentials.class);
+        assertEquals("whatwhat", user.getPushMessagingKey());
     }
 //
 //    @Test

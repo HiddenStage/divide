@@ -37,10 +37,10 @@ public abstract class DAOTest<BaseObject extends Keyable> {
                                               "key2","2",
                                               "key3","value3");
 
-    BaseObject object1 = toBaseObject(testObject1);
-    BaseObject object2 = toBaseObject(testObject2);
-    BaseObject object3 = toBaseObject(testObject3);
-    BaseObject object4 = toBaseObject(testObject4);
+    BaseObject object1;
+    BaseObject object2;
+    BaseObject object3;
+    BaseObject object4;
 
     String testObject1Table = Query.safeTable(TestObject1.class);
     String testObject2Table = Query.safeTable(TestObject2.class);
@@ -51,10 +51,15 @@ public abstract class DAOTest<BaseObject extends Keyable> {
     }
 
     @Before
-    public abstract void setUp();
+    public void setUp(){
+        object1 = toBaseObject(testObject1);
+        object2 = toBaseObject(testObject2);
+        object3 = toBaseObject(testObject3);
+        object4 = toBaseObject(testObject4);
+    }
 
     @After
-    public abstract void tearDown();
+    public void tearDown(){};
 
     @Test
     public void testQuery() throws Exception {

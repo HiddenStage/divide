@@ -7,6 +7,8 @@ import com.googlecode.objectify.annotation.Entity;
 import com.jug6ernaut.network.dao.DAOTest;
 import com.jug6ernaut.network.dao.Keyable;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
+import org.junit.After;
+import org.junit.Before;
 
 import java.util.List;
 
@@ -37,14 +39,16 @@ public class ObjectifyDAOTest extends DAOTest<ObjectifyDAOTest.KeyedOfyObject> {
         }
     }
 
-    @Override
+    @Before
     public void setUp() {
         helper.setUp();
+        super.setUp();
     }
 
-    @Override
+    @After
     public void tearDown() {
         helper.tearDown();
+        super.tearDown();
     }
 
     @Entity

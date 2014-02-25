@@ -22,13 +22,8 @@ public class TestUtils {
 
     public static final String KEY = "saywhatwhat";
 
-    private static int count = 0;
-    private static synchronized int getCount(){
-        return count++;
-    }
-
     public static class TestWrapper{
-        public ODatabaseRecord db;
+        private ODatabaseRecord db;
         public DAO dao;
         public AuthApplication app;
         public long time;
@@ -44,7 +39,12 @@ public class TestUtils {
     public static TestWrapper setUp(){
         TestWrapper container = new TestWrapper();
         container.time = System.nanoTime();
-        container.db = new ODatabaseDocumentTx("memory:"+getCount()).create();
+        container.db = new ODatabaseDocumentTx(OrientDBDao.DEFAULT_CONFIG);
+        if(container.db.exists()){
+            container.db.open("admin","admin");
+        } else {
+            container.db.create();
+        }
         container.dao = new OrientDBDao((ODatabaseDocument) container.db);
         try {
             container.dao.query(new QueryBuilder().delete().from(Credentials.class).build());

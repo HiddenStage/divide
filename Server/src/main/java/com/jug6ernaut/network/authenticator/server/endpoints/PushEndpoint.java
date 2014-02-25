@@ -3,7 +3,6 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
-import com.jug6ernaut.network.authenticator.server.AuthApplication;
 import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
@@ -34,15 +33,8 @@ public class PushEndpoint {
 
     Logger logger = Logger.getLogger(PushEndpoint.class.getName());
 
-    @Context
-    DAOManager dao;
-
-    @Context
-    AuthApplication app;
-
-    @Context
-    KeyManager keyManager;
-
+    @Context DAOManager dao;
+    @Context KeyManager keyManager;
 
     /*
     currently failing as the decryption key is probably different
@@ -51,22 +43,18 @@ public class PushEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(@Context Session session,EncryptedEntity.Reader entity){
         try{
-            logger.info("App: " + app);
             Credentials credentials = session.getUser();
             entity.setKey(keyManager.getPrivateKey());
             String token = entity.get("token");
 
-//            String token = entity.getPlainText(Crypto.get().getPrivate());
             credentials.setPushMessagingKey(token);
-            logger.info("Before: " + getUserByEmail(dao,credentials.getEmailAddress()));
             dao.save(credentials);
-            logger.info("After: " + getUserByEmail(dao,credentials.getEmailAddress()));
         } catch (DAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         } catch (Exception e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
-            return Response.serverError().build();
+            return Response.serverError().entity("Shit").build();
         }
 
         return Response.ok().build();
