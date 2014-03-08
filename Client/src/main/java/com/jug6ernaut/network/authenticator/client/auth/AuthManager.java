@@ -43,7 +43,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private BackendUser user;
     private AuthUtils authUtils;
     private AccountInformation accountInfo;
-    private static LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
+    private LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
 
     public AuthManager(Backend backend) {
         super(backend);
@@ -346,7 +346,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             }
 
             logger.debug("Login Creds: " + loginCreds);
-            GenericResponse<ValidCredentials> g = new GenericResponse<>(ValidCredentials.class,getWebService().login(loginCreds));
+            GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class,getWebService().login(loginCreds));
             ServerResponse<ValidCredentials> response = ServerResponse.from(g);
 //            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
             BackendUser user = null;
