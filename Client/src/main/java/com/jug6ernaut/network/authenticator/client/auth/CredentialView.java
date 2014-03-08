@@ -1,14 +1,15 @@
 package com.jug6ernaut.network.authenticator.client.auth;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.jug6ernaut.android.utilites.DisplayUtils;
 import com.jug6ernaut.network.authenticator.client.BackendUser;
 
 /**
@@ -41,7 +42,7 @@ public class CredentialView extends RelativeLayout {
         userNameField = new EditText(context); userNameField.setId(6);
 
         // email setup
-        int padding = DisplayUtils.convertDpToPixel(10, context);
+        int padding = convertDpToPixel(10, context);
         emailField.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         emailField.setPadding(padding, padding, padding, padding);
         emailField.setHint("email...");
@@ -94,7 +95,7 @@ public class CredentialView extends RelativeLayout {
         lp6.addRule(ABOVE,emailField.getId());
         lp6.addRule(CENTER_HORIZONTAL);
         titleView.setLayoutParams(lp6);
-        titleView.setPadding(0,0,0,DisplayUtils.convertDpToPixel(80, context));
+        titleView.setPadding(0,0,0,convertDpToPixel(80, context));
 
         addView( emailField );
         addView( passwordField );
@@ -174,5 +175,12 @@ public class CredentialView extends RelativeLayout {
                 }
             }
         }.execute();
+    }
+
+    private static int convertDpToPixel(float dp,Context context){
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        int px = (int) (dp * (metrics.densityDpi / 160f));
+        return px;
     }
 }
