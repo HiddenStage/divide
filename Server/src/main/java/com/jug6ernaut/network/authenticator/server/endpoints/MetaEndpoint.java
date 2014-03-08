@@ -21,12 +21,10 @@ public class MetaEndpoint {
     public static final String VERSION = "V1.0";
 
         Logger logger = Logger.getLogger(MetaEndpoint.class.getName());
- 
-        @Context
-        DAOManager dao;
 
-        @Context
-        AuthApplication app;
+        @Context DAOManager dao;
+
+        @Context AuthApplication app;
 
 
         /*
