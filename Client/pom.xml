@@ -85,14 +85,6 @@
             <artifactId>rxjava-android</artifactId>
             <version>0.17.0-RC6</version>
         </dependency>
-
-        <dependency>
-            <groupId>eu.chainfire</groupId>
-            <artifactId>libsuperuser</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>aar</type>
-        </dependency>
-
         <dependency>
             <groupId>com.jug6ernaut.network</groupId>
             <artifactId>authenticator-server</artifactId>
