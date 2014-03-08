@@ -1,8 +1,8 @@
 package com.jug6ernaut.network.dao.ibox;
 
 import com.google.gson.*;
+import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
-import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 
 import java.lang.reflect.Type;

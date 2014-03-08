@@ -68,7 +68,6 @@ public final class AuthenticationEndpoint{
             toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getKey(), toSave));
             toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
 
-//            session.setup(new UserContext(null,toSave));
             context.setSecurityContext(new UserContext(context.getUriInfo(),toSave));
             dao.save(toSave);
 
@@ -176,7 +175,7 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateAccount(@PathParam("token") String token) {
         try{
-            Query q = new QueryBuilder().select(null).from(Credentials.class).where("validation", OPERAND.EQ, token).build();
+            Query q = new QueryBuilder().select().from(Credentials.class).where("validation", OPERAND.EQ, token).build();
 
             TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
             if (to != null) {

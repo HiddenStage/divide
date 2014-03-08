@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.widget.Toast;
 import com.jug6ernaut.android.logging.ALogger;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.android.utilites.DeviceWake;
 import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.BackendServices;
 import com.jug6ernaut.network.authenticator.client.push.PushEvent;
@@ -24,7 +23,6 @@ public class MyApplication extends Application {
     private static Logger logger;
     private SharedPreferences prefs;
     private Handler handler = new Handler();
-    DeviceWake dw;
 
     @Override
     public void onCreate(){
@@ -33,16 +31,12 @@ public class MyApplication extends Application {
         logger = Logger.getLogger(MyApplication.class);
 
         Backend b = Backend.init(this,getUrl(prefs));
-//        b.registerPush("");
         BackendServices.addPushListener(listener);
-
-        dw = new DeviceWake(this);
-        dw.attain().setTimeout(1000*60);
     }
 
     @Override
     public void onTerminate() {
-        dw.release();
+
     }
 
     public void reinitialize(){

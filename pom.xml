@@ -33,10 +33,10 @@
             <id>dev</id>
             <modules>
                 <module>Shared</module>
-                <module>Client</module>
+                <module>Dao</module>
                 <module>Server</module>
 
-                <module>Dao</module>
+                <module>Client</module>
 
                 <module>Server/sample</module>
                 <module>Client/sample</module>
@@ -57,12 +57,15 @@
     </profiles>
 
   <properties>
-    <app.version>0.5.0</app.version>
+      <github.global.server>github</github.global.server>
+
+
+      <app.version>0.5.0</app.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
 
     <!-- Compilation -->
-    <java.version>1.7</java.version>
+    <java.version>1.6</java.version>
 
     <!-- Dependencies -->
     <android.version>4.4_r1</android.version>
@@ -94,5 +97,48 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.9</version>
+                <configuration>
+                    <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+                    <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+                    <outputDirectory>${user.dir}/target/mvn-repo</outputDirectory> <!-- matches distribution management repository url above -->
+                    <branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
+                    <includes><include>**/*</include></includes>
+                    <repositoryName>mvn-repo</repositoryName>      <!-- github repo name -->
+                    <repositoryOwner>jug6ernaut</repositoryOwner>    <!-- github username  -->
+                    <merge>true</merge>
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${user.dir}/target/mvn-‌​repo</altDeploymentRepository>                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 
 </project>

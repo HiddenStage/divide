@@ -142,7 +142,7 @@ public class SecurityFilter implements ContainerRequestFilter {
                 TransientObject temp = ObjectUtils.get1stOrNull(dao.query(q));
                 if (temp != null) {
                     ServerCredentials creds = new ServerCredentials(temp);
-                    creds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(),creds)); // assign new token
+//                    creds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(),creds)); // assign new token
                     return new UserContext(request.getUriInfo(), new ServerCredentials(creds));
                 } else {
                     System.err.println(dao.query(new QueryBuilder().select().from(Credentials.class).build()));

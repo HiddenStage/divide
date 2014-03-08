@@ -30,23 +30,16 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
     private static final Logger logger = Logger.getLogger(AuthApplication.class.getSimpleName());
 
     public AuthApplication(T t, String encryptionKey){
-        reg(AuthenticationEndpoint.class);
-        reg(DataEndpoint.class);
-        reg(PushEndpoint.class);
-        reg(MetaEndpoint.class);
-        reg(CredentialBodyHandler.class);  // insures passwords are not sent back
-        reg(GsonMessageBodyHandler.class); // serialize all objects with GSON
-        reg(SecurityFilter.class);
-        reg(ResponseFilter.class);
-//        reg(GZIPReaderInterceptor.class);
-
-        register(new MyBinder(t, encryptionKey));
-
-        property("jersey.config.workers.legacyOrdering", true);
+        this(new MyBinder<T>(t, encryptionKey));
     }
 
     public AuthApplication(Class<T> daoClass,String encryptionKey){
+        this(new MyBinder<T>(daoClass,encryptionKey));
+    }
 
+    private AuthApplication(MyBinder binder){
+        logger.finest("STARTING: " + getClass().getSimpleName());
+        logger.info("DAO: " + binder.getDAOName());
         reg(AuthenticationEndpoint.class);
         reg(DataEndpoint.class);
         reg(PushEndpoint.class);
@@ -57,16 +50,16 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         reg(ResponseFilter.class);
 //        reg(GZIPReaderInterceptor.class);
 
-        register(new MyBinder(daoClass,encryptionKey));
+        register(binder);
 
         property("jersey.config.workers.legacyOrdering", true);
     }
 
 
-    private class MyBinder extends AbstractBinder{
-        Class<T> clazz;
-        T t;
-        String encryptionKey;
+    private static class MyBinder<T extends DAO> extends AbstractBinder{
+        private Class<T> clazz;
+        private T t;
+        private String encryptionKey;
 
         public MyBinder(T dao, String encryptionKey){
             this.t = dao;
@@ -81,6 +74,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
         @Override
         protected void configure() {
             try {
+                System.out.println("Class: " + clazz + " : " + t);
                 if(t == null)
                     t = clazz.newInstance();
                 DAOManager manager = new DAOManager(t);
@@ -91,6 +85,13 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
             }catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        public String getDAOName(){
+            if(t != null)
+                return t.getClass().getSimpleName();
+            else
+                return clazz.getSimpleName();
         }
     }
 

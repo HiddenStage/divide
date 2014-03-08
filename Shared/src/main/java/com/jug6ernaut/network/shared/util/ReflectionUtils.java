@@ -1,4 +1,4 @@
-package com.jug6ernaut.network.shared.util;
+package com.jug6ernaut.android.utilites;
 
 import java.lang.reflect.*;
 

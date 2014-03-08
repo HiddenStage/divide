@@ -104,7 +104,10 @@ public class Query {
         sb.append(clauses.get(0).getCoded());
         for(int x=1;x<clauses.size();x++){
             Clause c = clauses.get(x);
-            sb.append(" " + c.getPreOperator() + " " + c.getCoded());
+            sb.append(" ");
+            sb.append(c.getPreOperator());
+            sb.append(" ");
+            sb.append(c.getCoded());
         }
         return sb.toString();
     }
