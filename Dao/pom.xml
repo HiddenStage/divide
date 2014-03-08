@@ -15,7 +15,7 @@
         <module>common</module>
         <!--<module>dao-appengine</module>-->
         <module>dao-orientdb</module>
-        <module>dao-iboxdb</module>
+        <!--<module>dao-iboxdb</module>-->
     </modules>
 
     <dependencies>
