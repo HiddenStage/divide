@@ -11,9 +11,16 @@ import retrofit.Profiler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static retrofit.Profiler.RequestInformation;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,6 +37,10 @@ public abstract class AbstractWebManager<T> {
     protected Backend backend;
     T t;
 
+    PublishSubject<Boolean> connectionEventPublisher = PublishSubject.create();
+    PublishSubject<RequestObject> requestEventPublisher = PublishSubject.create();
+
+
     protected AbstractWebManager(Backend backend){
         this.backend = backend;
         initAdapter();
@@ -41,11 +52,26 @@ public abstract class AbstractWebManager<T> {
         }
     }
 
+    public static class RequestObject{
+        public final RequestInformation info;
+        public final long l;
+        public final int i;
+        public final Object o;
+
+        private RequestObject(RequestInformation info,long l, int i, Object o){
+            this.info = info;
+            this.l = l;
+            this.i = i;
+            this.o = o;
+        }
+    }
+
     private void initAdapter(){
 
         if(restAdapter == null){
             RestAdapter.Builder builder = new RestAdapter.Builder();
             builder.setClient( new OkClient( backend.client ) )
+                    .setEndpoint(backend.serverUrl)
                     .setLogLevel(RestAdapter.LogLevel.FULL)
                     .setLog(new RestAdapter.Log() {
                         @Override
@@ -53,7 +79,6 @@ public abstract class AbstractWebManager<T> {
                             retrologger.debug(s);
                         }
                     })
-                    .setServer(backend.serverUrl)
                     .setRequestInterceptor(new RequestInterceptor() {
                         @Override
                         public void intercept(RequestFacade requestFacade) {
@@ -68,8 +93,8 @@ public abstract class AbstractWebManager<T> {
 
                         @Override
                         public void afterCall(RequestInformation requestInformation, long l, int i, Object o) {
-                            retrologger.error("afterCall(" + requestInformation.getRelativePath() + ":"+requestInformation.getMethod() + ": " + i);
-                            onError(i);
+                            retrologger.error("afterCall(" + requestInformation.getRelativePath() + ":" + requestInformation.getMethod() + ": " + i + " : " + o);
+                            requestEventPublisher.onNext(new RequestObject(requestInformation,l,i,o));
                         }
                     });
 //                    .setErrorHandler(new ErrorHandler() {
@@ -91,8 +116,11 @@ public abstract class AbstractWebManager<T> {
         return t;
     }
 
-    protected int onError(int statusCode){
-        return statusCode;
+    public final void addRequestInterceptor(Observer<RequestObject> observer){
+        Subscription subscription = requestEventPublisher
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
     }
 
     protected RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){

@@ -27,23 +27,18 @@ public class Backend {
     private DataManager dataManager;
     private PushManager pushManager;
     protected static OkHttpClient client = new OkHttpClient();
-    static {
-//        client.set
-    }
     public Application app;
     public String serverUrl;
     public AccountInformation accountInformation;
 
-    static {
-        PRNGFixes.apply();
-    }
+    static { PRNGFixes.apply(); }
 
     private Backend(final Application application, final String serverUrl) {
         this.app = application;
         this.serverUrl = serverUrl;
         this.accountInformation = new AccountInformation(application);
 //        checkManifest(application);
-        checkSetup(application);
+        //checkSetup(application);
 
         authManager = new AuthManager(this);
         dataManager = new DataManager(this);
@@ -90,12 +85,6 @@ public class Backend {
             e.printStackTrace();
         }
     }
-
-    /*
-    Class c = Class.forName("com.startpage.mobile.R$string");
-    Field field = c.getDeclaredField("text_" + num);
-    int resId = (int)field.get(null);
-     */
 
     private static void checkManifest(Context context) {
         PackageManager packageManager = context.getPackageManager();
