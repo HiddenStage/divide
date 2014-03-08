@@ -48,19 +48,7 @@
             <!--<version>1.0-SNAPSHOT</version>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.robolectric</groupId>
-            <artifactId>robolectric</artifactId>
-            <version>2.2</version>
-        </dependency>
 
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.google.android</groupId>
@@ -78,12 +66,27 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-            <version>0.17.0-RC6</version>
+            <version>0.16.1</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.17.0-RC6</version>
+            <version>0.16.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.robolectric</groupId>
+            <artifactId>robolectric</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jug6ernaut.network</groupId>
@@ -102,7 +105,6 @@
             <groupId>com.jug6ernaut.network</groupId>
             <artifactId>authenticator-dao-orientdb</artifactId>
             <version>${app.version}</version>
-            <!--<type>test-jar</type>-->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -143,7 +145,6 @@
                 <configuration>
                     <sdk>
                         <platform>${android.platform}</platform>
-                        <path>${android.sdk.path}</path>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
