@@ -18,9 +18,10 @@ import com.jug6ernaut.network.authenticator.client.auth.AuthActivity;
 import com.jug6ernaut.network.authenticator.client.auth.LoginEvent;
 import com.jug6ernaut.network.authenticator.client.auth.LoginListener;
 import com.jug6ernaut.network.authenticator.client.auth.LoginState;
-import com.jug6ernaut.network.authenticator.client.data.CountObject;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
-import com.jug6ernaut.network.shared.web.transitory.query.*;
+import com.jug6ernaut.network.shared.web.transitory.query.OPERAND;
+import com.jug6ernaut.network.shared.web.transitory.query.Query;
+import com.jug6ernaut.network.shared.web.transitory.query.QueryBuilder;
 import rx.util.functions.Action1;
 
 import java.util.ArrayList;
@@ -35,10 +36,6 @@ public class MyActivity extends Activity {
     private BackendObjectAdaper adapter;
     private BackendUser user;
 
-    @InjectView(R.id.loginButton)          Button login;
-    @InjectView(R.id.clearSavedUserButton) Button clear;
-    @InjectView(R.id.getObjects)           Button getObjects;
-    @InjectView(R.id.addObject)            Button addObject;
     @InjectView(R.id.cachedUserTV)         TextView savedUserTV;
     @InjectView(R.id.loggedInUserTV)       TextView loggedInUserTV;
     @InjectView(R.id.urlTV)                TextView urlTV;
@@ -160,26 +157,6 @@ public class MyActivity extends Activity {
                                    logger.debug("",throwable);
                                }
                            });
-
-        final Query countQuery = new QueryBuilder()
-                .select(SelectOperation.COUNT)
-                .from(BackendObject.class)
-                .limit(10).build();
-
-        BackendServices.remote()
-                .query(CountObject.class, countQuery)
-                .subscribe(new Action1<Collection<CountObject>>() {
-                               @Override
-                               public void call(Collection<CountObject> objects) {
-
-                               }
-                           }, new Action1<Throwable>() {
-                               @Override
-                               public void call(Throwable throwable) {
-                                   logger.debug("",throwable);
-                               }
-                           });
-
     }
 
     private void setUser(BackendUser user){
