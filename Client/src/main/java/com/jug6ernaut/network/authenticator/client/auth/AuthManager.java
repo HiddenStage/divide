@@ -66,21 +66,6 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     }
 
     @Override
-    public int onError(int status){
-        switch (status) {
-            case 401: {
-                logger.error("UNAUTHORIZED Recieved");
-                Account account = getStoredAccount();
-                if (account != null) { //TODO verify this works
-                    if(getUser()!=null) authUtils.invalidateToken(accountInfo.getFullAccessTokenType(),getUser().getAuthToken());
-                    recoverFromOneTimeToken(authUtils.getPassword(account));
-                }
-            }
-        }
-        return status;
-    }
-
-    @Override
     public RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){
         if (getUser() != null) {
             requestFacade.addHeader("Authorization", "CUSTOM " + getUser().getAuthToken());

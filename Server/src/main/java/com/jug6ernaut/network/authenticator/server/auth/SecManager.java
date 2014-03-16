@@ -7,23 +7,26 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by williamwebb on 1/12/14.
  */
-public class KeyManager {
+public class SecManager {
 
     DAOManager dao;
     private String encryptionKey;
 
-    public KeyManager(DAOManager dao, String encryptionKey){
+    public SecManager(DAOManager dao, String encryptionKey){
         this.dao = dao;
         this.encryptionKey = encryptionKey;
     };
 
 
     private KeyPair cachedKeys = null;
-    private KeyPair getKeys(){
+    private synchronized KeyPair getKeys(){
         if(cachedKeys!=null) return cachedKeys;
 
         cachedKeys = dao.keys(null);
@@ -53,5 +56,18 @@ public class KeyManager {
 
     public String getKey(){
         return encryptionKey;
+    }
+
+    private List<String> safePaths = new ArrayList<String>(Arrays.asList(
+            "",
+            "/"
+    ));
+
+    public List<String> getSafePaths(){
+        return safePaths;
+    }
+
+    public void addSafePath(String path){
+        safePaths.add(path);
     }
 }

@@ -17,7 +17,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static retrofit.Profiler.RequestInformation;
@@ -32,9 +34,10 @@ public abstract class AbstractWebManager<T> {
 
 //    private static Logger logger = Logger.getLogger(AbstractWebManager.class);
     private static Logger retrologger = Logger.getLogger("Retrofit");
-    private static Boolean connectionReceiverRegistered = false;
-    private static RestAdapter restAdapter;
+    private Boolean connectionReceiverRegistered = false;
+    private RestAdapter restAdapter;
     protected Backend backend;
+    Map<Backend,AbstractWebManager> webManagers = new HashMap<Backend,AbstractWebManager>();
     T t;
 
     PublishSubject<Boolean> connectionEventPublisher = PublishSubject.create();
@@ -67,8 +70,7 @@ public abstract class AbstractWebManager<T> {
     }
 
     private void initAdapter(){
-
-        if(restAdapter == null){
+        if(!webManagers.containsKey(backend)){
             RestAdapter.Builder builder = new RestAdapter.Builder();
             builder.setClient( new OkClient( backend.client ) )
                     .setEndpoint(backend.serverUrl)
@@ -104,6 +106,7 @@ public abstract class AbstractWebManager<T> {
 //                        }
 //                    });
             restAdapter = builder.build();
+            webManagers.put(backend,this);
         }
 
         Class<T> type = getType();
@@ -139,7 +142,7 @@ public abstract class AbstractWebManager<T> {
         }
     }
 
-    private static final List<ConnectionListner> listeners = new CopyOnWriteArrayList<ConnectionListner>();
+    private final List<ConnectionListner> listeners = new CopyOnWriteArrayList<ConnectionListner>();
     public void addConnectionListener(ConnectionListner listener){
         listeners.add(listener);
     }

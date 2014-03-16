@@ -1,6 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
-import com.jug6ernaut.network.authenticator.server.AbstractTest;
+import com.jug6ernaut.network.authenticator.server.ServerTest;
 import com.jug6ernaut.network.authenticator.server.TestUtils;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by williamwebb on 11/16/13.
  */
-public class PushEndpointTest extends AbstractTest {
+public class PushEndpointTest extends ServerTest {
 
     private Response registerToken(Credentials user, PublicKey key, JerseyTest test){
         EncryptedEntity.Writter entity = new EncryptedEntity.Writter(key);
@@ -58,11 +58,11 @@ public class PushEndpointTest extends AbstractTest {
 
         Response tokenResponse =  registerToken(user, key, this);
 
-//        String newAuthToken = tokenResponse.getHeaderString("Authorization");
+        String newAuthToken = tokenResponse.getHeaderString("Authorization");
 
         Response response = target("/push")
                 .request()
-                .header(ContainerRequest.AUTHORIZATION, "CUSTOM " + user.getAuthToken())
+                .header(ContainerRequest.AUTHORIZATION, "CUSTOM " + newAuthToken)
                 .delete();
         int statusCode = response.getStatus();
         assertEquals(200,statusCode);

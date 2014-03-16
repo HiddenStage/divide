@@ -1,6 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
-import com.jug6ernaut.network.authenticator.server.AbstractTest;
+import com.jug6ernaut.network.authenticator.server.ServerTest;
 import com.jug6ernaut.network.authenticator.server.TestUtils;
 import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.web.transitory.Credentials;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by williamwebb on 11/16/13.
  */
-public class AuthenticationEndpointTest extends AbstractTest {
+public class AuthenticationEndpointTest extends ServerTest {
 
     @Test
     public void testGetPublicKey() throws Exception{
@@ -51,7 +51,8 @@ public class AuthenticationEndpointTest extends AbstractTest {
         Credentials user = signUpUser(this);
 
         // set password for login attempt
-        user.setPassword("somePassword");
+        System.out.println("User1:" + TestUtils.getTestUser());
+        user.setPassword(TestUtils.getTestUser().getPassword());
         user.encryptPassword(getPublicKey(this));
         target("/auth").request().put(TestUtils.toEntity(user), String.class);
     }

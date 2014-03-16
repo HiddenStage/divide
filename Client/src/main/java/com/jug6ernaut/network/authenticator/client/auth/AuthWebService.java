@@ -45,7 +45,7 @@ public interface AuthWebService {
     public void getUser(@Path("token")String authToken, Callback<ValidCredentials> callback);
 
     @POST("/auth/user/data")
-    public void sendUserData(@Body Credentials credentials);
+    public Response sendUserData(@Body Credentials credentials);
 
     @POST("/auth/user/data")
     public void sendUserData(@Body Credentials credentials, Callback<String> callback);

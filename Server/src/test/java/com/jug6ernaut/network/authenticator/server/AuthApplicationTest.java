@@ -18,7 +18,7 @@ import static junit.framework.Assert.assertTrue;
 /**
  * Created by williamwebb on 2/13/14.
  */
-public class AuthApplicationTest extends AbstractTest {
+public class AuthApplicationTest extends ServerTest {
 
     // sanity test
     @Test

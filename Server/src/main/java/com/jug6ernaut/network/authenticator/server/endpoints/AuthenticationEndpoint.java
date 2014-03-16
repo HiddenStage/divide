@@ -1,6 +1,6 @@
 package com.jug6ernaut.network.authenticator.server.endpoints;
 
-import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
+import com.jug6ernaut.network.authenticator.server.auth.SecManager;
 import com.jug6ernaut.network.authenticator.server.auth.UserContext;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.ServerCredentials;
@@ -35,7 +35,7 @@ public final class AuthenticationEndpoint{
     Logger logger = Logger.getLogger(AuthenticationEndpoint.class.getName());
 
     @Context DAOManager dao;
-    @Context KeyManager keyManager;
+    @Context SecManager keyManager;
 
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
 

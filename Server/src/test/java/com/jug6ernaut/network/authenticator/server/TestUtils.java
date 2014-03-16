@@ -56,7 +56,7 @@ public class TestUtils {
         return container;
     }
 
-    public static Credentials getTestUser() throws Exception {
+    public static Credentials getTestUser() {
         Credentials c = new Credentials("someUsername","someEmail","somePassword");
         FilePermissions fp = c.getFilePermissions();
         fp.setReadable(true, FilePermissions.Level.WORLD);

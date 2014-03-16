@@ -89,6 +89,12 @@
             <artifactId>grizzly-webserver</artifactId>
             <version>1.9.59</version>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>1.4.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -73,8 +73,17 @@ public class WebContainerFactory implements TestContainerFactory {
 
     private static int count = 0;
     private static synchronized int getCount(){
-        return count++;
+        if(incrementPort)
+            return count++;
+        else
+            return count;
     }
+    private static boolean incrementPort = true;
+
+    public void enableEncrementPort(boolean incrementPort){
+        WebContainerFactory.incrementPort = incrementPort;
+    }
+
 
     @Override
     public TestContainer create(URI baseUri, ApplicationHandler application) throws IllegalArgumentException {

@@ -3,7 +3,7 @@ package com.jug6ernaut.network.authenticator.server.endpoints;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
-import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
+import com.jug6ernaut.network.authenticator.server.auth.SecManager;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.Session;
 import com.jug6ernaut.network.dao.DAO;
@@ -34,7 +34,7 @@ public class PushEndpoint {
     Logger logger = Logger.getLogger(PushEndpoint.class.getName());
 
     @Context DAOManager dao;
-    @Context KeyManager keyManager;
+    @Context SecManager keyManager;
 
     /*
     currently failing as the decryption key is probably different

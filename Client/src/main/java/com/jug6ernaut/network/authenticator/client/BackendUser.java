@@ -32,10 +32,11 @@ public final class BackendUser extends Credentials {
     private static final String ANONYMOUS_KEY = "anonymous_key";
 
     static {
-        if(authManager==null) authManager = Backend.get().getAuthManager();
+        authManager = Backend.get().getAuthManager();
     }
 
     public BackendUser(){
+//        authManager = Backend.get().getAuthManager();
     }
 
     public BackendUser(String username, String email, String password){

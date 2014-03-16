@@ -1,9 +1,6 @@
 package com.jug6ernaut.network.authenticator.server;
 
-import com.jug6ernaut.network.authenticator.server.auth.KeyManager;
-import com.jug6ernaut.network.authenticator.server.auth.ResponseFilter;
-import com.jug6ernaut.network.authenticator.server.auth.SecurityFilter;
-import com.jug6ernaut.network.authenticator.server.auth.UserContext;
+import com.jug6ernaut.network.authenticator.server.auth.*;
 import com.jug6ernaut.network.authenticator.server.dao.CredentialBodyHandler;
 import com.jug6ernaut.network.authenticator.server.dao.DAOManager;
 import com.jug6ernaut.network.authenticator.server.dao.GsonMessageBodyHandler;
@@ -79,7 +76,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
                     t = clazz.newInstance();
                 DAOManager manager = new DAOManager(t);
                 bind(manager).to(DAOManager.class);
-                bind(new KeyManager(manager,encryptionKey)).to(KeyManager.class);
+                bind(new SecManager(manager,encryptionKey)).to(SecManager.class);
                 bind(UserContext.class).to(SecurityContext.class);
                 bind(Session.class).to(Session.class);
             }catch (Exception e) {

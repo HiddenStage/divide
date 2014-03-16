@@ -8,8 +8,12 @@ import com.jug6ernaut.network.dao.orientdb.OrientDBDao;
  */
 public class TestApplication extends AuthApplication {
 
-    public TestApplication(){ super(OrientDBDao.class, TestUtils.KEY);}
+    public TestApplication(){
+        super(OrientDBDao.class, TestUtils.KEY);
+        register(TestEndpoint.class);
+    }
     public TestApplication(DAO dao) {
         super(dao, TestUtils.KEY);
+        register(TestEndpoint.class);
     }
 }

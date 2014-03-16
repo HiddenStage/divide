@@ -11,7 +11,7 @@ import javax.ws.rs.core.Application;
 /**
  * Created by williamwebb on 2/20/14.
  */
-public abstract class AbstractTest extends JerseyTest {
+public abstract class ServerTest extends JerseyTest {
     protected TestUtils.TestWrapper container;
 
     @Override
