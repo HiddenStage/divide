@@ -14,8 +14,8 @@ public class SomeApplication extends AuthApplication<OrientDBDao> {
     }
     
     public SomeApplication() {
-        // dao class
-        super(OrientDBDao.class, "someKeyForSynchronousEncryption");
+        // dao instance
+        super(new OrientDBDao(), "someKeyForSynchronousEncryption");
     }
 }
 ```
