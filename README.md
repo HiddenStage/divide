@@ -1,9 +1,10 @@
 Backend
 ===========
 
-Open Source Parse Alternative. Providing a background/database agnostic server and android client.
+Client/Server bootstrapping framework. Providing a background/database agnostic server and android client.
 
 #### Server
+Built on Jersey, can be deployed to any J2EE server that supports javax.ws.rs.core.Application. DAO implementations are independant and can be written/plugged in for the situation.
 
 ```java
 public class SomeApplication extends AuthApplication<OrientDBDao> {
