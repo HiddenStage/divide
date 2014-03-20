@@ -116,7 +116,7 @@ public class TransientObject {
     }
 
     protected final <O> O meta_get(Class<O> clazz, MetaKey key){
-        canRead();
+//        canRead();
 
         if(clazz.equals(String.class))
             return (O) meta_data.get(key.KEY);

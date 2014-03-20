@@ -71,8 +71,10 @@ public class ObjectManager {
                 if(!so.getType().equals(type))
                     throw new IllegalStateException(so.getErrorMessage());
             }
-            if (!query.getFrom().equals(type.getName())){
-                throw new IllegalStateException("Can not return a different type then what is queried");
+            if (!query.getFrom().equals(Query.safeTable(type))){
+                throw new IllegalStateException("Can not return a different type then what is queried!\n" +
+                        "Expected: " + query.getFrom() + "\n" +
+                        "Actual: " + Query.safeTable(type));
             }
             return dataManager.query(type,query);
 //            return new Querier(dataManager,type,query);

@@ -68,7 +68,7 @@ public class DataEndpoint {
     @Path("/save")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(Collection<TransientObject> objects) {
+    public Response save(Collection<ServerObject> objects) {
         try { logger.info("save: " + objects);
             dao.save(ObjectUtils.c2v(objects));
 
@@ -93,6 +93,26 @@ public class DataEndpoint {
         }catch (Exception e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return Response.serverError().build();
+        }
+    }
+
+
+    private static class ServerObject extends TransientObject{
+
+        private ServerObject() {
+            super(TransientObject.class);
+        }
+
+        @Override
+        protected Credentials getLoggedInUser(){
+            return new Credentials("","",""){
+
+                @Override
+                protected boolean isSystemUser(){
+                    return true;
+                }
+
+            };
         }
     }
 

@@ -26,10 +26,11 @@ public class Backend {
     private AuthManager authManager;
     private DataManager dataManager;
     private PushManager pushManager;
-    protected static OkHttpClient client = new OkHttpClient();
+    protected OkHttpClient client = new OkHttpClient();
     public Application app;
     public String serverUrl;
     public AccountInformation accountInformation;
+    public Long id = System.currentTimeMillis();
 
     static { PRNGFixes.apply(); }
 
@@ -38,7 +39,7 @@ public class Backend {
         this.serverUrl = serverUrl;
         this.accountInformation = new AccountInformation(application);
 //        checkManifest(application);
-        //checkSetup(application);
+        checkSetup(application);
 
         authManager = new AuthManager(this);
         dataManager = new DataManager(this);

@@ -36,10 +36,12 @@ public class BackendServices {
     }
 
     public static ObjectManager.RemoteStorage remote(){
+        init();
         return dataService.objectManager.remote();
     }
 
     public static LocalStorage local(){
+        init();
         return dataService.objectManager.local();
     }
 

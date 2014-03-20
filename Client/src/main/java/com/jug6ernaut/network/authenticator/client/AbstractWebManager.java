@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import com.google.gson.Gson;
 import com.jug6ernaut.android.logging.Logger;
 import retrofit.Profiler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
+import retrofit.converter.GsonConverter;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,12 +34,12 @@ import static retrofit.Profiler.RequestInformation;
  */
 public abstract class AbstractWebManager<T> {
 
-//    private static Logger logger = Logger.getLogger(AbstractWebManager.class);
+    private static Logger logger = Logger.getLogger(AbstractWebManager.class);
     private static Logger retrologger = Logger.getLogger("Retrofit");
     private Boolean connectionReceiverRegistered = false;
     private RestAdapter restAdapter;
     protected Backend backend;
-    Map<Backend,AbstractWebManager> webManagers = new HashMap<Backend,AbstractWebManager>();
+    static final Map<Long,AbstractWebManager> webManagers = new HashMap<Long,AbstractWebManager>();
     T t;
 
     PublishSubject<Boolean> connectionEventPublisher = PublishSubject.create();
@@ -70,7 +72,8 @@ public abstract class AbstractWebManager<T> {
     }
 
     private void initAdapter(){
-        if(!webManagers.containsKey(backend)){
+        if(!webManagers.containsKey(backend.id)){
+            logger.debug("Creating new RestAdapter for: " + backend.id);
             RestAdapter.Builder builder = new RestAdapter.Builder();
             builder.setClient( new OkClient( backend.client ) )
                     .setEndpoint(backend.serverUrl)
@@ -81,6 +84,7 @@ public abstract class AbstractWebManager<T> {
                             retrologger.debug(s);
                         }
                     })
+                    .setConverter(new GsonConverter(new Gson()))
                     .setRequestInterceptor(new RequestInterceptor() {
                         @Override
                         public void intercept(RequestFacade requestFacade) {
@@ -106,7 +110,9 @@ public abstract class AbstractWebManager<T> {
 //                        }
 //                    });
             restAdapter = builder.build();
-            webManagers.put(backend,this);
+            webManagers.put(backend.id,this);
+        } else {
+            restAdapter = webManagers.get(backend.id).restAdapter;
         }
 
         Class<T> type = getType();
