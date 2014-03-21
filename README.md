@@ -9,14 +9,16 @@ Built on Jersey, can be deployed to any J2EE server that supports javax.ws.rs.co
 ```java
 public class SomeApplication extends AuthApplication<OrientDBDao> {
 
+    private String encryptionKey = "someKeyForSynchronousEncryption";
+
     public SomeApplication() {
     	// dao class
-        super(OrientDBDao.class, "someKeyForSynchronousEncryption");
+        super(OrientDBDao.class, encryptionKey);
     }
     
     public SomeApplication() {
         // dao instance
-        super(new OrientDBDao(), "someKeyForSynchronousEncryption");
+        super(new OrientDBDao(), encryptionKey);
     }
 }
 ```
