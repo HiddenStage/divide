@@ -7,6 +7,8 @@ import com.jug6ernaut.network.authenticator.client.*;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.LoginCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.SignUpCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.ValidCredentials;
+import com.jug6ernaut.network.authenticator.client.data.GenericResponse;
+import com.jug6ernaut.network.authenticator.client.data.ServerResponse;
 import com.jug6ernaut.network.authenticator.client.http.Status;
 import com.jug6ernaut.network.shared.util.Crypto;
 import com.jug6ernaut.network.shared.util.ObjectUtils;
@@ -53,8 +55,8 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         this.addConnectionListener(new ConnectionListner() {
             @Override
             public void onConnectionChange(boolean connected) {
-                if(connected){
-                    new Thread(){
+                if (connected) {
+                    new Thread() {
                         @Override
                         public void run() {
                             loadCachedUser();

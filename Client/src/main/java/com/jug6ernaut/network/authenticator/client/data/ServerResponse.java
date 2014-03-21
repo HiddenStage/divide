@@ -1,4 +1,4 @@
-package com.jug6ernaut.network.authenticator.client;
+package com.jug6ernaut.network.authenticator.client.data;
 
 import com.jug6ernaut.network.authenticator.client.http.Status;
 import retrofit.client.Response;

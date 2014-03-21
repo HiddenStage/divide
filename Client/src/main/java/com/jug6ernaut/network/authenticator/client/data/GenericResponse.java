@@ -1,4 +1,4 @@
-package com.jug6ernaut.network.authenticator.client;
+package com.jug6ernaut.network.authenticator.client.data;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;

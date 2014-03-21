@@ -1,4 +1,4 @@
-package com.jug6ernaut.network.authenticator.client;
+package com.jug6ernaut.network.authenticator.client.data;
 
 /**
  * Created with IntelliJ IDEA.
