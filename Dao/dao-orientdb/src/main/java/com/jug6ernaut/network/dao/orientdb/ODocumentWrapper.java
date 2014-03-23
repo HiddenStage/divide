@@ -1,6 +1,6 @@
 package com.jug6ernaut.network.dao.orientdb;
 
-import com.jug6ernaut.android.utilites.ReflectionUtils;
+import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.jug6ernaut.network.shared.web.transitory.TransientObject;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;

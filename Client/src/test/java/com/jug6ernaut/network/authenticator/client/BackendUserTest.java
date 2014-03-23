@@ -2,9 +2,9 @@ package com.jug6ernaut.network.authenticator.client;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.auth.AuthUtils;
+import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;

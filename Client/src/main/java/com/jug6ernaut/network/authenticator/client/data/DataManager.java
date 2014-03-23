@@ -54,7 +54,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
             @Override
             public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
                 try {
-                    observer.onNext(convertRequest(getArrayType(type),getWebService().get(type.getName(),objects)));
+                    observer.onNext(convertRequest(getArrayType(type), getWebService().get(Query.safeTable(type), objects)));
                     observer.onCompleted();
                 } catch (Exception e) {
                     observer.onError(e);
@@ -85,7 +85,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
     }
 
     public <B extends BackendObject> Observable<Integer> count(final Class<B> type){
-        return getWebService().count(type.getName());
+        return getWebService().count(Query.safeTable(type));
     }
 
     private <B extends BackendObject> Observable<Collection<B>> processRequest(final Class<B[]> type,final Response response){

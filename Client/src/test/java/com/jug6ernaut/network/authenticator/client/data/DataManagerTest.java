@@ -2,7 +2,6 @@ package com.jug6ernaut.network.authenticator.client.data;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.network.authenticator.client.Backend;
 import com.jug6ernaut.network.authenticator.client.BackendObject;
 import com.jug6ernaut.network.authenticator.client.BackendServices;
@@ -11,6 +10,7 @@ import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.auth.AuthUtils;
 import com.jug6ernaut.network.authenticator.client.auth.SignUpResponse;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.SignUpCredentials;
+import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;

@@ -1,24 +1,19 @@
 //package com.jug6ernaut.network.authenticator.client;
 //
-//import com.jug6ernaut.android.logging.ALogger;
 //import com.jug6ernaut.network.shared.web.transitory.FilePermissions;
-//import junit.framework.TestCase;
 //import org.junit.Before;
 //import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.robolectric.Robolectric;
-//import org.robolectric.RobolectricTestRunner;
+//
+//import static org.junit.Assert.assertEquals;
 //
 ///**
 //* Created by williamwebb on 11/23/13.
 //*/
-//@RunWith(RobolectricTestRunner.class)
-//public class BackendObjectTest extends TestCase {
+//public class BackendObjectTest {
 //
 //    @Before
 //    public void setUp() throws Exception {
-//        Backend.init(Robolectric.application,"");
-//        ALogger.init(Robolectric.application, "", false);
+////        super.setUp();
 //    }
 //
 //    @Test

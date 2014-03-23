@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.android.utilites.ReflectionUtils;
 import com.jug6ernaut.network.authenticator.client.auth.AccountInformation;
 import com.jug6ernaut.network.authenticator.client.auth.AuthManager;
 import com.jug6ernaut.network.authenticator.client.data.DataManager;
 import com.jug6ernaut.network.authenticator.client.push.PushManager;
 import com.jug6ernaut.network.authenticator.client.security.PRNGFixes;
+import com.jug6ernaut.network.shared.util.ReflectionUtils;
 import com.squareup.okhttp.OkHttpClient;
 
 /**
@@ -79,7 +79,7 @@ public class Backend {
 
     private static void checkSetup(Context context){
         try{
-            int accountTypeId = ReflectionUtils.getFinalStatic(Class.forName(context.getPackageName() + ".R$string"),"accountType",Integer.class);
+            int accountTypeId = ReflectionUtils.getFinalStatic(Class.forName(context.getPackageName() + ".R$string"), "accountType", Integer.class);
             String accountType = context.getResources().getString(accountTypeId);
             if(!context.getPackageName().equals(accountType)) throw new ConfigurationException("Missing or invalid R.string.accountType. Should match packageName");
         } catch (Exception e){

@@ -3,7 +3,9 @@ package com.jug6ernaut.network.authenticator.client.auth;
 import android.accounts.Account;
 import com.google.gson.Gson;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.network.authenticator.client.*;
+import com.jug6ernaut.network.authenticator.client.AbstractWebManager;
+import com.jug6ernaut.network.authenticator.client.Backend;
+import com.jug6ernaut.network.authenticator.client.BackendUser;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.LoginCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.SignUpCredentials;
 import com.jug6ernaut.network.authenticator.client.auth.credentials.ValidCredentials;
@@ -22,10 +24,10 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -52,19 +54,19 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         accountInfo = backend.accountInformation;
         authUtils = AuthUtils.get(backend.app, accountInfo.getAccountType());
 
-        this.addConnectionListener(new ConnectionListner() {
+        this.addConnectionListener(new ConnectionListener() {
             @Override
-            public void onConnectionChange(boolean connected) {
-                if (connected) {
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            loadCachedUser();
-                        }
-                    }.start();
-                }
+            public void onEvent(boolean connected) {
+                new Thread(){
+                    @Override
+                    public void run(){
+                        loadCachedUser();
+
+                    }
+                };
             }
         });
+
     }
 
     @Override
@@ -409,7 +411,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
                 return Subscriptions.empty();
             }
-        }).subscribeOn(Schedulers.threadPoolForIO());
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

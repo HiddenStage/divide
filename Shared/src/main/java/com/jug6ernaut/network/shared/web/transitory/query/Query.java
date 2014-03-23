@@ -60,7 +60,9 @@ public class Query {
                     sql = "SELECT * FROM " + from;
 
                     if(!where.isEmpty()){
-                        sql += buildWhere(where);
+                        if(!where.isEmpty()){
+                            sql += buildWhere(where);
+                        }
                     }
 
                     if(limit != null){

@@ -20,9 +20,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static retrofit.Profiler.RequestInformation;
 
@@ -103,12 +101,7 @@ public abstract class AbstractWebManager<T> {
                             requestEventPublisher.onNext(new RequestObject(requestInformation,l,i,o));
                         }
                     });
-//                    .setErrorHandler(new ErrorHandler() {
-//                        @Override
-//                        public Throwable handleError(RetrofitError retrofitError) {
-//                            return onError(retrofitError.getResponse().getStatus());
-//                        }
-//                    });
+
             restAdapter = builder.build();
             webManagers.put(backend.id,this);
         } else {
@@ -138,23 +131,30 @@ public abstract class AbstractWebManager<T> {
 
     protected abstract Class<T> getType();
 
-    public static interface ConnectionListner{
-        public void onConnectionChange(boolean connected);
+    public static abstract class ConnectionListener{
+
+        public abstract void onEvent(boolean connected);
+
+        protected Observer<Boolean> getObserver(){ return connectionObserver; }
+
+        private Observer<Boolean> connectionObserver = new Observer<Boolean>() {
+
+            @Override public void onCompleted() { }
+
+            @Override public void onError(Throwable throwable) { }
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+                onEvent(aBoolean);
+            }
+        };
     }
 
-    private void fireConnectionChange(final boolean connected){
-        for(ConnectionListner listner : listeners){
-            listner.onConnectionChange(connected);
-        }
-    }
-
-    private final List<ConnectionListner> listeners = new CopyOnWriteArrayList<ConnectionListner>();
-    public void addConnectionListener(ConnectionListner listener){
-        listeners.add(listener);
-    }
-
-    public void removeConnectionListener(ConnectionListner listener){
-        listeners.remove(listener);
+    public void addConnectionListener(ConnectionListener listener){
+        Subscription subscription = connectionEventPublisher
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listener.getObserver());
     }
 
     private BroadcastReceiver CONNECTION_RECIEVER = new BroadcastReceiver() {
@@ -166,12 +166,12 @@ public abstract class AbstractWebManager<T> {
 
             if (activeNetInfo != null && activeNetInfo.getState() == NetworkInfo.State.CONNECTED) {
                 retrologger.debug("Network " + activeNetInfo.getTypeName() + " connected");
-                fireConnectionChange(true);
+                connectionEventPublisher.onNext(true);
             }
 
             if (intent.getExtras().getBoolean(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
                 retrologger.debug("There's no network connectivity");
-                fireConnectionChange(false);
+                connectionEventPublisher.onNext(false);
             }
         }
     };
