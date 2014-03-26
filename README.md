@@ -1,10 +1,12 @@
-Backend
+Divide.io
 ===========
 
-Client/Server bootstrapping framework. Providing a background/database agnostic server and android client.
+Divide.io is an open source BaaS. It provides tools to easily, securely, and efficiently communicate between your app and a server. It handles data storage, user registration & management, and push notifications.
+
+Deploy anywhere. Use any database you want. Never get locked into a platform.
 
 #### Server
-Built on Jersey, can be deployed to any J2EE server that supports javax.ws.rs.core.Application. DAO implementations are independant and can be written/plugged in for the situation.
+Built on Jersey, it can be deployed to any J2EE server that supports javax.ws.rs.core.Application. DAO implementations are independant and can be written/plugged in for the situation.
 
 ```java
 public class SomeApplication extends AuthApplication<OrientDBDao> {
@@ -23,7 +25,7 @@ public class SomeApplication extends AuthApplication<OrientDBDao> {
 }
 ```
 
-#### Client(android)
+#### Client (Android)
 
 ```java
 public class MyApplication extends Application {
@@ -35,7 +37,7 @@ public class MyApplication extends Application {
 }
 ```
 
-#### Create and Save Object
+#### Create and Save an Object
 
 ```java
 BackendObject object = new BackendObject();
@@ -43,7 +45,7 @@ BackendObject object = new BackendObject();
 // add values, will be serialized with GSON
 object.put("somePrimative1",1);          // int
 object.put("somePrimative2",1L);         // long
-object.put("somePrimative3","whatwhat"); // String
+object.put("somePrimative3","Some string"); // String
 object.put("someObject",new Object());   // Some POJO...ect
 
 // store remotely async
