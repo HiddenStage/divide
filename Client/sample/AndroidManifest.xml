@@ -24,8 +24,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.jug6ernaut.network.authenticator.client.auth.AuthActivity" />
-        <service android:name="com.jug6ernaut.network.authenticator.client.auth.AuthService">
+        <activity android:name="io.divide.client.auth.AuthActivity" />
+        <service android:name="io.divide.client.auth.AuthService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -40,11 +40,11 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.jug6ernaut.network.authenticator.client" />
+                <category android:name="io.divide.client" />
             </intent-filter>
         </receiver>
 
-        <service android:name="com.jug6ernaut.network.authenticator.client.push.PushManager$PushReceiver" />
+        <service android:name="io.divide.client.push.PushManager$PushReceiver" />
 
     </application>
 

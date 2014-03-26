@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.jug6ernaut.network</groupId>
+        <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
         <version>0.5.0</version>
         <relativePath>../pom.xml</relativePath>
@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-shared</artifactId>
             <version>${app.version}</version>
         </dependency>
@@ -88,26 +88,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
             <version>0.5.0</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
             <version>0.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-dao-orientdb</artifactId>
             <version>${app.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-dao-common</artifactId>
             <version>${app.version}</version>
             <scope>test</scope>

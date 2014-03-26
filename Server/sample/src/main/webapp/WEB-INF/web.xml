@@ -10,7 +10,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.jug6ernaut.network.authenticator.server.sample.SomeApplication</param-value>
+            <param-value>io.divide.server.sample.SomeApplication</param-value>
         </init-param>
         <init-param>
             <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>

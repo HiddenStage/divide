@@ -1,1 +1,1 @@
-com.jug6ernaut.network.authenticator.server.auth.EnforcePathProcessor
+io.divide.server.auth.EnforcePathProcessor

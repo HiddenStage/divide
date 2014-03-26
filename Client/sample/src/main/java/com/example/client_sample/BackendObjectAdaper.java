@@ -9,7 +9,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.network.authenticator.client.BackendObject;
+import io.divide.client.BackendObject;
 
 import java.util.List;
 

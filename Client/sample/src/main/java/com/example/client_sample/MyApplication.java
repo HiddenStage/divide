@@ -7,10 +7,10 @@ import android.os.Handler;
 import android.widget.Toast;
 import com.jug6ernaut.android.logging.ALogger;
 import com.jug6ernaut.android.logging.Logger;
-import com.jug6ernaut.network.authenticator.client.Backend;
-import com.jug6ernaut.network.authenticator.client.BackendServices;
-import com.jug6ernaut.network.authenticator.client.push.PushEvent;
-import com.jug6ernaut.network.authenticator.client.push.PushListener;
+import io.divide.client.Backend;
+import io.divide.client.BackendServices;
+import io.divide.client.push.PushEvent;
+import io.divide.client.push.PushListener;
 
 /**
  * Created with IntelliJ IDEA.

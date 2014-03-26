@@ -21,7 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import com.jug6ernaut.network.authenticator.client.push.PushManager;
+import io.divide.client.push.PushManager;
 
 /**
  * {@link BroadcastReceiver} that receives GCM messages and delivers them to
