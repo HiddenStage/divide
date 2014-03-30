@@ -22,7 +22,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jug6ernaut.network</groupId>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
             <version>${app.version}</version>
         </dependency>
