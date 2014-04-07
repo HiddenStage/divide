@@ -6,6 +6,7 @@ import io.divide.client.Backend;
 import io.divide.client.BackendObject;
 import io.divide.client.BackendServices;
 import io.divide.client.ClientTest;
+import io.divide.client.auth.AccountInformation;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.AuthUtils;
 import io.divide.client.auth.SignUpResponse;
@@ -27,6 +28,7 @@ public class DataManagerTest extends ClientTest {
     @MockitoAnnotations.Mock
     AccountManager accountManager;
     Backend backend;
+    AccountInformation accountInfo;
     AuthManager authManager;
 
     @Override
@@ -37,12 +39,13 @@ public class DataManagerTest extends ClientTest {
 
         backend = Backend.init(Robolectric.application, url());
         authManager = backend.getAuthManager();
+        accountInfo = backend.getConfig().accountInformation;
 
-        AuthUtils utils = AuthUtils.get(Robolectric.application,backend.accountInformation.getAccountType());
+        AuthUtils utils = AuthUtils.get(Robolectric.application,accountInfo.getAccountType());
         ReflectionUtils.setObjectField(utils, "mAccountManager", accountManager);
         ReflectionUtils.setObjectField(authManager,"authUtils",utils);
 
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         authManager.logout();
     }
@@ -59,7 +62,7 @@ public class DataManagerTest extends ClientTest {
 
     @Test
     public void testSend() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         SignUpResponse response = authManager.signUp(new SignUpCredentials("name", "email", ""));
         assertEquals(response.get().getUsername(),"name");

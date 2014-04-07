@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
+import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
-import io.divide.client.auth.*;
+import io.divide.client.auth.AccountInformation;
+import io.divide.client.auth.AuthActivity;
+import io.divide.client.auth.AuthManager;
+import io.divide.client.auth.RecoveryResponse;
 import io.divide.client.auth.credentials.LoginCredentials;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
 
@@ -29,24 +32,23 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
     private static final Logger logger = Logger.getLogger(BackendAuthenticator.class);
     private final Context mContext;
     private final Handler handler = new Handler();
-    private AuthUtils authUtils;
-    private AccountInformation accountInformation;
-    List<String> tokenTypes;
+//    private AuthUtils authUtils;
+//    List<String> tokenTypes;
+
+    @Inject Backend backend;
+    @Inject AuthManager authManager;
 
     public BackendAuthenticator(Context context) {
         super(context);
         // I hate you! Google - set mContext as protected!
         this.mContext = context;
-        this.accountInformation = Backend.get().accountInformation;
-        authUtils = AuthUtils.get(context, accountInformation.getAccountType());
-        tokenTypes = Arrays.asList(accountInformation.getFullAccessTokenType(),accountInformation.getReadAccessTokenType());
     }
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
         logger.debug("> addAccount: " + accountType + " : " + authTokenType + " : " + (requiredFeatures==null?"null":Arrays.asList(requiredFeatures)) + " : " + options);
 
-        if (authUtils.getAccounts().size() > 0) {
+        if (authManager.getAuthUtils().getAccounts().size() > 0) {
             final Bundle result = new Bundle();
             result.putInt(AccountManager.KEY_ERROR_CODE, ERROR_CODE_ONE_ACCOUNT_ALLOWED);
             result.putString(AccountManager.KEY_ERROR_MESSAGE, "Only one account allowed");
@@ -73,11 +75,13 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
         logger.debug("> getAuthToken("+account+"): " + authTokenType);
 
+        AccountInformation accountInformation = authManager.getAccountInfo();
+
         // If the caller requested an authToken type we don't support, then
         // return an error
         if (!authTokenType.equals(accountInformation.getFullAccessTokenType()) && !authTokenType.equals(accountInformation.getReadAccessTokenType())) {
             final Bundle result = new Bundle();
-            result.putString(AccountManager.KEY_ERROR_MESSAGE, "invalid authTokenType[" + tokenTypes +"] : " + authTokenType);
+            result.putString(AccountManager.KEY_ERROR_MESSAGE, "invalid authTokenType : " + authTokenType);
 
             return result;
         }
@@ -100,8 +104,7 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
                     LoginCredentials loginCredentials = new LoginCredentials(account.name,password);
                     loginCredentials.setEncrypted(true);
 
-                    AuthManager manager = Backend.get().getAuthManager();
-                    RecoveryResponse recoveryResponse = manager.recoverFromOneTimeToken(password);
+                    RecoveryResponse recoveryResponse = authManager.recoverFromOneTimeToken(password);
 
                     if(recoveryResponse.getStatus().isSuccess()){
                         BackendUser user = recoveryResponse.get();
@@ -139,6 +142,8 @@ public class BackendAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public String getAuthTokenLabel(String authTokenType) {
+        AccountInformation accountInformation = authManager.getAccountInfo();
+
         if (accountInformation.getFullAccessTokenType().equals(authTokenType))
             return accountInformation.getFullAccessTokenLabel();
         else if (accountInformation.getReadAccessTokenType().equals(authTokenType))

@@ -1,8 +1,9 @@
 package io.divide.client.data;
 
-import io.divide.client.*;
+import com.google.inject.Inject;
+import io.divide.client.BackendObject;
+import io.divide.client.BackendUser;
 import io.divide.client.cache.LocalStorage;
-import io.divide.client.cache.LocalStorageIBoxDb;
 import io.divide.shared.web.transitory.query.Query;
 import io.divide.shared.web.transitory.query.SelectOperation;
 import rx.Observable;
@@ -15,13 +16,10 @@ import java.util.Collection;
  */
 public class ObjectManager {
 
-    private static DataManager dataManager;
-    private static LocalStorage localStorage;
+    @Inject DataManager dataManager;
+    @Inject LocalStorage localStorage;
 
-    public ObjectManager(Backend backend){
-        dataManager = backend.getDataManager();
-        localStorage = new LocalStorageIBoxDb(backend.app);
-    }
+    public ObjectManager(){ }
 
     public LocalStorage local(){
         return localStorage;
@@ -31,8 +29,8 @@ public class ObjectManager {
         return remote;
     }
 
-    private static RemoteStorage remote = new RemoteStorage();
-    public static class RemoteStorage{
+    private RemoteStorage remote = new RemoteStorage();
+    public class RemoteStorage{
 
         private RemoteStorage(){};
 

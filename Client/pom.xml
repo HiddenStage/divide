@@ -65,6 +65,12 @@
             <artifactId>rxjava-android</artifactId>
             <version>0.17.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.roboguice</groupId>
+            <artifactId>roboguice</artifactId>
+            <version>3.0b-experimental</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.robolectric</groupId>
@@ -79,7 +85,6 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
-
 
         <dependency>
             <groupId>junit</groupId>

@@ -3,6 +3,8 @@ package io.divide.client;
 import org.junit.Test;
 import org.robolectric.Robolectric;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by williamwebb on 2/27/14.
  */

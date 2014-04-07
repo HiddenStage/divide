@@ -1,9 +1,10 @@
 package io.divide.client.data;
 
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
 import io.divide.client.AbstractWebManager;
-import io.divide.client.Backend;
+import io.divide.client.BackendConfig;
 import io.divide.client.BackendObject;
 import io.divide.shared.web.transitory.TransientObject;
 import io.divide.shared.web.transitory.query.Query;
@@ -33,8 +34,9 @@ public class DataManager extends AbstractWebManager<DataWebService> {
 
     private static Logger logger = Logger.getLogger(DataManager.class);
 
-    public DataManager(Backend backend) {
-        super(backend);
+    @Inject
+    public DataManager(BackendConfig config) {
+        super(config);
     }
 
     @Override

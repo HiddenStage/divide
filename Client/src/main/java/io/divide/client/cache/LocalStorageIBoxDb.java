@@ -1,6 +1,7 @@
 package io.divide.client.cache;
 
 import android.content.Context;
+import com.google.inject.Inject;
 import io.divide.client.BackendObject;
 import io.divide.shared.web.transitory.query.Clause;
 import io.divide.shared.web.transitory.query.Query;
@@ -25,6 +26,7 @@ public class LocalStorageIBoxDb implements LocalStorage {
     DB db;
     AutoBox box;
 
+    @Inject
     public LocalStorageIBoxDb(Context context){
         db = new DB(1,context.getFilesDir().getPath().toString());
         db.ensureTable(Wrapper.class, "Wrapper","Key","Table");

@@ -1,6 +1,8 @@
 package io.divide.client;
 
 import android.accounts.Account;
+import android.app.Application;
+import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.SignInResponse;
@@ -26,13 +28,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public final class BackendUser extends Credentials {
 
     private static Logger logger = Logger.getLogger(BackendUser.class);
-    private static AuthManager authManager;
+    @Inject private static AuthManager authManager;
+    @Inject private static Application app;
 
     private static final String ANONYMOUS_KEY = "anonymous_key";
 
-    static {
-        authManager = Backend.get().getAuthManager();
-    }
 
     public BackendUser(){
 //        authManager = Backend.get().getAuthManager();
@@ -56,7 +56,7 @@ public final class BackendUser extends Credentials {
     }
 
     public static ServerResponse<BackendUser> getAnonymousUser(){
-        String id = UserUtils.getDeviceIdUnique(Backend.get().app);
+        String id = UserUtils.getDeviceIdUnique(app);
         ServerResponse<BackendUser> response;
 
         response = signIn(id, id);

@@ -2,9 +2,10 @@ package io.divide.client.auth;
 
 import android.accounts.Account;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
 import io.divide.client.AbstractWebManager;
-import io.divide.client.Backend;
+import io.divide.client.BackendConfig;
 import io.divide.client.BackendUser;
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
@@ -49,10 +50,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private AccountInformation accountInfo;
     private LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
 
-    public AuthManager(Backend backend) {
-        super(backend);
-        accountInfo = backend.accountInformation;
-        authUtils = AuthUtils.get(backend.app, accountInfo.getAccountType());
+    @Inject
+    public AuthManager(BackendConfig config) {
+        super(config);
+        accountInfo = config.accountInformation;
+        authUtils = AuthUtils.get(config.app, accountInfo.getAccountType());
 
         this.addConnectionListener(new ConnectionListener() {
             @Override
@@ -71,26 +73,36 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     @Override
     public RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){
+        System.out.println("onRequest("+CURRENT_STATE+"): " + getUser());
+
         if (getUser() != null) {
             requestFacade.addHeader("Authorization", "CUSTOM " + getUser().getAuthToken());
         } else {
-            logger.warn("no auth key: " + getUser());
+            logger.warn(config.id + " no auth key: " + getUser());
         }
         return requestFacade;
     }
 
     private BackendUser loadCachedUser(){
-        if(user != null) return user;
+        if(getUser() != null) return getUser();
 
         Account account = getStoredAccount();
         if(account != null){
             loginStoredUserASync(account);
-            return user;
+            return getUser();
         }
         else {
             logger.warn("No Stored user.");
             return null;
         }
+    }
+
+    public AuthUtils getAuthUtils(){
+        return authUtils;
+    }
+
+    public AccountInformation getAccountInfo(){
+        return accountInfo;
     }
 
     public Account getStoredAccount(){
@@ -115,7 +127,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         synchronized (CURRENT_STATE){
             if(CURRENT_STATE.equals(LOGGED_IN) || CURRENT_STATE.equals(LOGGING_IN)) return;
             logger.debug("loginStoredUserASync: " + account);
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
             try {
                 String token = authUtils.blockingGetAuthToken(account,accountInfo.getFullAccessTokenType());
                 if(token!=null){
@@ -125,7 +137,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
                 } else {
                     logger.error("Login error, null token");
                 }
-                CURRENT_STATE = LOGGED_OUT;
+                setLoginState(LOGGED_OUT);
             } catch (Exception e) {
                 logger.error("Failed to get Token",e);
             }
@@ -133,7 +145,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     }
 
     public ValidCredentials getRemoteUserFromToken(String authToken){
-        CURRENT_STATE = LOGGING_IN;
+        setLoginState(LOGGING_IN);
         return getWebService().getUser(authToken);
     }
 
@@ -141,7 +153,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         try {
             logger.debug("recoverFromOneTimeToken(" + token + ")");
 
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
             Response response = getWebService().recoverFromOneTimeToken(token);
 
             String body = IOUtils.toString(response.getBody().in());
@@ -155,6 +167,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             return new RecoveryResponse(setUser(credentials), Status.SUCCESS_OK, "");
         } catch (Exception e) {
             logger.error("recoverFromOneTimeToken Failure(" + token + ")", e);
+            setLoginState(LOGGED_OUT);
             return new RecoveryResponse(null, Status.SERVER_ERROR_INTERNAL, e.getLocalizedMessage());
         }
 
@@ -162,7 +175,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     private void getRemoteUserFromTokenAsync(String authToken) {
         try {
-            CURRENT_STATE = LoginState.LOGGING_IN;
+            setLoginState(LoginState.LOGGING_IN);
             getWebService().getUser(authToken, new Callback<ValidCredentials>() {
                 @Override
                 public void success(final ValidCredentials webUser, Response response) {
@@ -171,6 +184,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
                 @Override
                 public void failure(RetrofitError retrofitError) {
+                    setLoginState(LOGGED_OUT);
 //                    ignore here, this is handled in AbstractWebManager
 //                    if (retrofitError != null){
 //                        logger.error("Failed to get User!", retrofitError);
@@ -179,6 +193,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
                 }
             });
         } catch (Exception e) {
+            setLoginState(LOGGED_OUT);
             logger.error(e);
         }
     }
@@ -196,25 +211,26 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             String userName = accountList.get(0).name;
             logger.debug("logout: " + userName);
             authUtils.removeAccount(userName);
-            if(backend.getPushManager().isRegistered()){
-                backend.getPushManager().setEnablePush(false,"");
-            }
+//            if(config.getPushManager().isRegistered()){
+//                config.getPushManager().setEnablePush(false,"");
+//            }
             user = null;
         }
-        CURRENT_STATE = LoginState.LOGGED_OUT;
+        setLoginState(LoginState.LOGGED_OUT);
     }
 
     private BackendUser setUser(ValidCredentials returned){
-        logger.debug("setUser: " + returned);
-        this.user = BackendUser.from(returned);
-        logger.debug("user: " + user);
-        CURRENT_STATE = LOGGED_IN;
+        logger.debug(config.id + " setUser");
+        user = BackendUser.from(returned);
+        logger.debug("setUser: " + getUser());
 
         if(returned!=null)
             storeOrUpdateAccount(returned);
 
         fireLoginListeners();
-        return user;
+        setLoginState(LOGGED_IN);
+
+        return getUser();
     }
 
     private void storeOrUpdateAccount(Credentials validCredentials){
@@ -269,7 +285,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     public SignUpResponse signUp(SignUpCredentials loginCreds){
         logger.debug("signUp(" + loginCreds + ")");
         try {
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
             PublicKey key = Crypto.pubKeyFromBytes(getWebService().getPublicKey());
 
             loginCreds.encryptPassword(key);
@@ -293,7 +309,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     public Observable<BackendUser> signUpASync(final SignUpCredentials signInCreds){
         logger.debug("signUpASync("+signInCreds+")");
         try {
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
 
             return getWebService().getPublicKeyA().flatMap(new Func1<byte[], Observable<SignUpCredentials>>() {
                 @Override
@@ -327,7 +343,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     public SignInResponse login(final LoginCredentials loginCreds){
         logger.debug("login("+loginCreds+")");
         try{
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
             if(!loginCreds.isEncrypted()){
                 PublicKey key = Crypto.pubKeyFromBytes(getWebService().getPublicKey());
 
@@ -346,7 +362,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             return new SignInResponse(user,response.getStatus(),response.getError());
         }catch (Exception e){
             logger.error("Login Failure("+loginCreds.getEmailAddress()+")",e);
-            CURRENT_STATE = LOGGED_OUT;
+            setLoginState(LOGGED_OUT);
             return new SignInResponse(null, Status.SERVER_ERROR_INTERNAL,e.getLocalizedMessage());
         }
     }
@@ -354,7 +370,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     public Observable<BackendUser> loginASync(final LoginCredentials loginCreds){
         logger.debug("loginASync("+loginCreds+")");
         try{
-            CURRENT_STATE = LOGGING_IN;
+            setLoginState(LOGGING_IN);
 
             return getWebService().getPublicKeyA().flatMap(new Func1<byte[], Observable<LoginCredentials>>() {
                 @Override
@@ -383,7 +399,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
         }catch (Exception e){
             logger.error("Failed to SignIn("+loginCreds.getEmailAddress()+")",e);
-            CURRENT_STATE = LOGGED_OUT;
+            setLoginState(LOGGED_OUT);
             return Observable.error(e);
 //
         }
@@ -391,6 +407,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     public void sendUserData(BackendUser user){
         getWebService().sendUserData(user);
+    }
+
+    private void setLoginState(LoginState state){
+        logger.debug("Changing State("+config.id+"): " + state);
+        CURRENT_STATE = state;
     }
 
     public void sendUserData(BackendUser user, Callback<String> callback){
@@ -428,7 +449,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
                 .subscribe(listener);
         listener.setSubscription(subscription);
         if(getUser()!=null){
-            loginEvent.user = user;
+            loginEvent.user = getUser();
             loginEvent.state = CURRENT_STATE;
             listener.onNext(loginEvent);
         }
@@ -436,7 +457,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     private LoginEvent loginEvent = new LoginEvent();
     private void fireLoginListeners(){
-        loginEvent.user = user;
+        loginEvent.user = getUser();
         loginEvent.state = CURRENT_STATE;
         loginEventPublisher.onNext(loginEvent);
     }

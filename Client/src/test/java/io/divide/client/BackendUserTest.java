@@ -2,6 +2,7 @@ package io.divide.client;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import io.divide.client.auth.AccountInformation;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.AuthUtils;
 import io.divide.shared.util.ReflectionUtils;
@@ -18,6 +19,7 @@ public class BackendUserTest extends ClientTest{
 
     @MockitoAnnotations.Mock AccountManager accountManager;
     Backend backend;
+    AccountInformation accountInfo;
     AuthManager authManager;
 
     @Override
@@ -28,12 +30,13 @@ public class BackendUserTest extends ClientTest{
 
         backend = Backend.init(Robolectric.application, url());
         authManager = backend.getAuthManager();
-
-        AuthUtils utils = AuthUtils.get(Robolectric.application,backend.accountInformation.getAccountType());
+        accountInfo = backend.getConfig().accountInformation;
+        
+        AuthUtils utils = AuthUtils.get(Robolectric.application,accountInfo.getAccountType());
         ReflectionUtils.setObjectField(utils, "mAccountManager", accountManager);
         ReflectionUtils.setObjectField(authManager,"authUtils",utils);
 
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         authManager.logout();
     }

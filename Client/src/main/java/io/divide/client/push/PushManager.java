@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
+import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
 import io.divide.client.AbstractWebManager;
-import io.divide.client.Backend;
+import io.divide.client.BackendConfig;
+import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.LoginEvent;
 import io.divide.client.auth.LoginListener;
 import io.divide.shared.event.EventManager;
@@ -24,14 +26,14 @@ import java.util.Set;
  */
 public class PushManager extends AbstractWebManager<PushWebService> {
     private static Logger logger = Logger.getLogger(PushManager.class);
-    private Backend backend;
     private static PushManager pushManager;
     private static EventManager eventManager = EventManager.get();
     private String senderId;
+    @Inject private AuthManager authManager;
 
-    public PushManager(Backend backend) {
-        super(backend);
-        this.backend = backend;
+    @Inject
+    public PushManager(BackendConfig config) {
+        super(config);
         this.pushManager = this;
     }
 
@@ -43,20 +45,20 @@ public class PushManager extends AbstractWebManager<PushWebService> {
     public void setEnablePush(boolean enable, String senderId){
         if(enable){
             this.senderId = senderId;
-            backend.getAuthManager().addLoginListener(loginListener);
+            authManager.addLoginListener(loginListener);
         } else {
             if(loginListener != null) loginListener.unsubscribe();
             this.senderId = null;
-            if(isRegistered(backend.app)){
+            if(isRegistered(config.app)){
                 unregister();
-                GCMRegistrar.unregister(backend.app);
+                GCMRegistrar.unregister(config.app);
             }
         }
         this.senderId = senderId;
     }
 
     public boolean isRegistered(){
-        return isRegistered(backend.app);
+        return isRegistered(config.app);
     }
 
     private LoginListener loginListener = new LoginListener() {
@@ -71,9 +73,9 @@ public class PushManager extends AbstractWebManager<PushWebService> {
 
     boolean register(String token){
         try {
-            EncryptedEntity.Writter entity = new EncryptedEntity.Writter(backend.getAuthManager().getServerKey());
+            EncryptedEntity.Writter entity = new EncryptedEntity.Writter(authManager.getServerKey());
             entity.put("token",token);
-//            entity.setCipherText(token,backend.getAuthManager().getServerKey() );
+//            entity.setCipherText(token,config.getAuthManager().getServerKey() );
 
             getWebService().register(entity);
             return true;
@@ -94,7 +96,7 @@ public class PushManager extends AbstractWebManager<PushWebService> {
     }
 
     private void register4Push(){
-        Context context = backend.app;
+        Context context = config.app;
         GCMRegistrar.checkDevice(context);
         GCMRegistrar.checkManifest(context);
         final String regId = GCMRegistrar.getRegistrationId(context);

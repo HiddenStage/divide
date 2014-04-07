@@ -36,7 +36,7 @@ public abstract class AbstractWebManager<T> {
     private static Logger retrologger = Logger.getLogger("Retrofit");
     private Boolean connectionReceiverRegistered = false;
     private RestAdapter restAdapter;
-    protected Backend backend;
+    protected BackendConfig config;
     static final Map<Long,AbstractWebManager> webManagers = new HashMap<Long,AbstractWebManager>();
     T t;
 
@@ -44,12 +44,12 @@ public abstract class AbstractWebManager<T> {
     PublishSubject<RequestObject> requestEventPublisher = PublishSubject.create();
 
 
-    protected AbstractWebManager(Backend backend){
-        this.backend = backend;
+    protected AbstractWebManager(BackendConfig config){
+        this.config = config;
         initAdapter();
         synchronized (connectionReceiverRegistered){
             if(!connectionReceiverRegistered){
-                backend.app.registerReceiver(CONNECTION_RECIEVER, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+                config.app.registerReceiver(CONNECTION_RECIEVER, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
                 connectionReceiverRegistered = true;
             }
         }
@@ -70,11 +70,11 @@ public abstract class AbstractWebManager<T> {
     }
 
     private void initAdapter(){
-        if(!webManagers.containsKey(backend.id)){
-            logger.debug("Creating new RestAdapter for: " + backend.id);
+        if(!webManagers.containsKey(config.id)){
+            logger.debug("Creating new RestAdapter for: " + config.id);
             RestAdapter.Builder builder = new RestAdapter.Builder();
-            builder.setClient( new OkClient( backend.client ) )
-                    .setEndpoint(backend.serverUrl)
+            builder.setClient( new OkClient( config.client ) )
+                    .setEndpoint(config.serverUrl)
                     .setLogLevel(RestAdapter.LogLevel.FULL)
                     .setLog(new RestAdapter.Log() {
                         @Override
@@ -103,9 +103,9 @@ public abstract class AbstractWebManager<T> {
                     });
 
             restAdapter = builder.build();
-            webManagers.put(backend.id,this);
+            webManagers.put(config.id,this);
         } else {
-            restAdapter = webManagers.get(backend.id).restAdapter;
+            restAdapter = webManagers.get(config.id).restAdapter;
         }
 
         Class<T> type = getType();

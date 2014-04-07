@@ -3,6 +3,7 @@ package io.divide.client.auth;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import io.divide.client.Backend;
+import io.divide.client.BackendConfig;
 import io.divide.client.BackendUser;
 import io.divide.client.ClientTest;
 import io.divide.client.auth.credentials.LoginCredentials;
@@ -24,6 +25,8 @@ public class AuthManagerTest extends ClientTest {
 
     @Mock AccountManager accountManager;
     Backend backend;
+    BackendConfig config;
+    AccountInformation accountInfo;
     AuthManager authManager;
 
     @Override
@@ -33,13 +36,15 @@ public class AuthManagerTest extends ClientTest {
         MockitoAnnotations.initMocks(this);
 
         backend = Backend.init(Robolectric.application, url());
+        config = backend.getConfig();
+        accountInfo = config.accountInformation;
         authManager = backend.getAuthManager();
 
-        AuthUtils utils = AuthUtils.get(Robolectric.application,backend.accountInformation.getAccountType());
+        AuthUtils utils = AuthUtils.get(Robolectric.application,accountInfo.getAccountType());
         ReflectionUtils.setObjectField(utils, "mAccountManager", accountManager);
         ReflectionUtils.setObjectField(authManager,"authUtils",utils);
 
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         authManager.logout();
     }
@@ -61,7 +66,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testGetRemoteUserFromToken() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         SignUpResponse response = authManager.signUp(new SignUpCredentials("name", "email", ""));
         BackendUser user = response.get();
@@ -73,7 +78,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testRecoverFromOneTimeToken() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         SignUpResponse response = authManager.signUp(new SignUpCredentials("name", "email", ""));
         BackendUser user = response.get();
@@ -100,7 +105,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testSignUp() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         SignUpResponse response = authManager.signUp(new SignUpCredentials("name", "email", ""));
         assertEquals(response.get().getUsername(),"name");
@@ -108,7 +113,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testSignUpASync() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
         BackendUser user = authManager.signUpASync(new SignUpCredentials("name", "email", "")).toBlockingObservable().single();
         assertEquals(user.getUsername(),"name");
@@ -116,7 +121,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testLogin() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
         SignUpCredentials signUpCredentials = new SignUpCredentials("name", "email", "");
         String unEncryptedPW = signUpCredentials.getPassword();
         BackendUser signInUser = authManager.signUp(signUpCredentials).get();
@@ -128,7 +133,7 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testLoginASync() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
         SignUpCredentials signUpCredentials = new SignUpCredentials("name", "email", "");
         String unEncryptedPW = signUpCredentials.getPassword();
         BackendUser signInUser = authManager.signUp(signUpCredentials).get();
@@ -141,13 +146,15 @@ public class AuthManagerTest extends ClientTest {
 
     @Test
     public void testSendGetUserData() throws Exception {
-        when(accountManager.getAccountsByType(backend.accountInformation.getAccountType())).thenReturn(new Account[]{new Account("email", backend.accountInformation.getAccountType())});
+        when(accountManager.getAccountsByType(accountInfo.getAccountType())).thenReturn(new Account[]{new Account("email", accountInfo.getAccountType())});
 
-        SignUpResponse response = authManager.signUp(new SignUpCredentials("name", "email", ""));
-        BackendUser user = response.get();
-        user.put("key","value");
+        BackendUser user = authManager.signUp(new SignUpCredentials("name", "email", "")).get();
+        user.put("key", "value");
+        System.out.println("BEFORE_USER: " + authManager.getUser());
+        System.out.println("BEFORE_ID: " + config.id);
+//        user.save();
         authManager.sendUserData(user);
-        user.logout();
+//        user.logout();
 
         user = authManager.login(new LoginCredentials("email", "")).get();
 
