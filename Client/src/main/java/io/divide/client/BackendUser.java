@@ -2,6 +2,7 @@ package io.divide.client;
 
 import android.accounts.Account;
 import android.app.Application;
+import android.content.Context;
 import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
 import io.divide.client.auth.AuthManager;
@@ -14,8 +15,6 @@ import io.divide.client.data.Callback;
 import io.divide.client.data.ServerResponse;
 import io.divide.client.security.UserUtils;
 import io.divide.shared.web.transitory.Credentials;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.Observable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -33,16 +32,23 @@ public final class BackendUser extends Credentials {
 
     private static final String ANONYMOUS_KEY = "anonymous_key";
 
-
-    public BackendUser(){
-//        authManager = Backend.get().getAuthManager();
-    }
+    public BackendUser(){ }
 
     public BackendUser(String username, String email, String password){
         this();
         this.setUsername(username);
         this.setEmailAddress(email);
         this.setPassword(password);
+    }
+
+    private static AuthManager getAM(){
+        if(authManager==null) throw new RuntimeException("Backend not initialized!");
+        return authManager;
+    }
+
+    private static Context getApp(){
+        if(app==null) throw new RuntimeException("Backend not initialized!");
+        return app;
     }
 
     public static BackendUser from(ValidCredentials credentials){
@@ -52,11 +58,11 @@ public final class BackendUser extends Credentials {
     }
 
     public static BackendUser getUser(){
-        return authManager.getUser();
+        return getAM().getUser();
     }
 
     public static ServerResponse<BackendUser> getAnonymousUser(){
-        String id = UserUtils.getDeviceIdUnique(app);
+        String id = UserUtils.getDeviceIdUnique(getApp());
         ServerResponse<BackendUser> response;
 
         response = signIn(id, id);
@@ -68,12 +74,11 @@ public final class BackendUser extends Credentials {
                 user.saveASync();
             }
         }
-
         return response;
     }
 
     public static Account getStoredAccount(){
-        return authManager.getStoredAccount();
+        return getAM().getStoredAccount();
     }
 
     protected final Credentials getLoggedInUser(){
@@ -96,11 +101,11 @@ public final class BackendUser extends Credentials {
     }
 
     public static BackendUser fromToken(String token){
-        return from(authManager.getRemoteUserFromToken(token));
+        return from(getAM().getRemoteUserFromToken(token).toBlockingObservable().first());
     }
 
     public static SignInResponse signIn(LoginCredentials loginCredentials){
-        return authManager.login(loginCredentials);
+        return getAM().login(loginCredentials);
     }
 
     public static SignInResponse signIn(String email, String password){
@@ -108,7 +113,7 @@ public final class BackendUser extends Credentials {
     }
 
     public static SignUpResponse signUp(SignUpCredentials signUpCredentials){
-        return authManager.signUp(signUpCredentials);
+        return getAM().signUp(signUpCredentials);
     }
 
     public static SignUpResponse signUp(String username, String email, String password){
@@ -116,12 +121,12 @@ public final class BackendUser extends Credentials {
     }
 
     public static Observable<BackendUser> logInInBackground(String email, String password){
-        return authManager.loginASync(new LoginCredentials(email,password));
-//        authManager.loginASync(new LoginCredentials(email,password),callback);
+        return getAM().loginASync(new LoginCredentials(email, password));
+//        getAM().loginASync(new LoginCredentials(email,password),callback);
     }
 
     public static void logout(){
-        authManager.logout();
+        getAM().logout();
     }
 
     public void	requestPasswordReset(String email){
@@ -133,24 +138,12 @@ public final class BackendUser extends Credentials {
 
     public Observable<BackendUser> signUpA(){
         SignUpCredentials creds = new SignUpCredentials(getUsername(),getEmailAddress(),getPassword());
-        return authManager.signUpASync(creds);
-//        authManager.signUpASync(creds,new Callback<BackendUser>() {
-//            @Override
-//            public void onResult(BackendUser backendUser) {
-//                initFrom(backendUser);
-//                callback.onResult(BackendUser.this);
-//            }
-//
-//            @Override
-//            public void onError(Exception t) {
-//                callback.onError(t);
-//            }
-//        });
+        return getAM().signUpASync(creds);
     }
 
     public boolean signUp(){
         SignUpCredentials creds = new SignUpCredentials(getUsername(),getEmailAddress(),getPassword());
-        SignUpResponse response = authManager.signUp(creds);
+        SignUpResponse response = getAM().signUp(creds);
         if(response.getStatus().isSuccess()){
             this.initFrom(response.get());
             return true;
@@ -158,38 +151,20 @@ public final class BackendUser extends Credentials {
     }
 
     private void save(BackendUser object){
-        authManager.sendUserData(object);
+        getAM().sendUserData(object).subscribe();
     }
 
-    private void saveASync(BackendUser user, retrofit.Callback<String> callback){
-        authManager.sendUserData(user,callback);
+    private Observable<Void> saveASync(BackendUser user){
+        return getAM().sendUserData(user);
     }
 
     public void save(){
         save(this);
     }
 
-    public void saveASync(){
-        saveASync(this, new retrofit.Callback<String>() {
-            @Override
-            public void success(String s, Response response) {
-                logger.debug("User update Success");
-            }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                logger.error("User update Failed.", retrofitError);
-            }
-        });
+    public Observable<Void> saveASync(){
+        return saveASync(this);
     }
-
-    public void saveASync(retrofit.Callback<String> callback){
-        saveASync(this, callback);
-    }
-
-//    public ObjectManager getObjectManager(){
-//        return objectManager;
-//    }
 
     @Override
     public String toString() {

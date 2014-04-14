@@ -147,8 +147,8 @@ public class MyActivity extends Activity {
                                    objectList.addAll(objects);
                                    adapter.notifyDataSetChanged();
 
-                                   BackendServices.local().save(objects);
-                                   List<BackendObject> col = BackendServices.local().query(BackendObject.class, q);
+                                   BackendServices.local().save((BackendObject[]) objects.toArray());
+                                   List<BackendObject> col = BackendServices.local().query(q);
                                    for (BackendObject o : col) logger.debug(o);
                                }
                            }, new Action1<Throwable>() {

@@ -1,6 +1,6 @@
 package io.divide.server.dao;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.event.Event;
 import io.divide.shared.event.EventManager;
 import io.divide.shared.util.ObjectUtils;
@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 9/22/13
  * Time: 11:25 AM
  */
-public final class DAOManager implements DAO {
+public final class DAOManager implements ServerDAO {
 
     public static final String ACTION_QUERY = "action_query";
     public static final String ACTION_GET = "action_get";
@@ -26,53 +26,53 @@ public final class DAOManager implements DAO {
     public static final String ACTION_EXISTS = "action_exists";
 
     private EventManager eventManager = EventManager.get();
-    private DAO dao;
+    private ServerDAO serverDao;
 
-    public DAOManager(DAO dao){
-        this.dao = dao;
+    public DAOManager(ServerDAO serverDao){
+        this.serverDao = serverDao;
     }
 
     @Override
     public List<TransientObject> query(Query query) throws DAOException {
-        List<TransientObject> results = dao.query(query);
+        List<TransientObject> results = serverDao.query(query);
         eventManager.fire(new QUERY_EVENT(results));
         return results;
     }
 
     @Override
     public Collection<TransientObject> get(String objectType, String... keys) throws DAOException {
-        Collection<TransientObject> results = dao.get(objectType,keys);
+        Collection<TransientObject> results = serverDao.get(objectType,keys);
         eventManager.fire(new GET_EVENT(results));
         return results;
     }
 
     @Override
     public void save(TransientObject... objects) throws DAOException {
-        dao.save(objects);
+        serverDao.save(objects);
         eventManager.fire(new SAVE_EVENT(objects));
     }
 
     @Override
     public void delete(TransientObject... objects) throws DAOException {
-        dao.delete(objects);
+        serverDao.delete(objects);
         eventManager.fire(new DELETE_EVENT(objects));
     }
 
     @Override
     public boolean exists(TransientObject... objects) {
-        boolean exists = dao.exists(objects);
+        boolean exists = serverDao.exists(objects);
         eventManager.fire(new EXISTS_EVENT(objects));
         return exists;
     }
 
     @Override
     public int count(String objectType) {
-        return dao.count(objectType);
+        return serverDao.count(objectType);
     }
 
     @Override
     public KeyPair keys(KeyPair keys) {
-        return dao.keys(keys);
+        return serverDao.keys(keys);
     }
 
     public static final class QUERY_EVENT extends Event {

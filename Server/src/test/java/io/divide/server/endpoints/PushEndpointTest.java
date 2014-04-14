@@ -44,7 +44,7 @@ public class PushEndpointTest extends ServerTest {
 
         registerToken(user,key,this);
 
-        Collection<TransientObject> list = container.dao.query(new QueryBuilder().select().from(Credentials.class).build());
+        Collection<TransientObject> list = container.serverDao.query(new QueryBuilder().select().from(Credentials.class).build());
         TransientObject o = ObjectUtils.get1stOrNull(list);
         user = TestUtils.convert(o,Credentials.class);
         assertNotNull(user);
@@ -66,7 +66,7 @@ public class PushEndpointTest extends ServerTest {
                 .delete();
         int statusCode = response.getStatus();
         assertEquals(200,statusCode);
-        Collection<TransientObject> list = container.dao.get(Query.safeTable(Credentials.class),user.getObjectKey());
+        Collection<TransientObject> list = container.serverDao.get(Query.safeTable(Credentials.class),user.getObjectKey());
         TransientObject o = ObjectUtils.get1stOrNull(list);
         user = TestUtils.convert(o,Credentials.class);
         assertNotNull(user);

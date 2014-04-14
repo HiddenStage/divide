@@ -3,7 +3,7 @@ package io.divide.server.endpoints;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.Session;
 import io.divide.server.utils.ResponseUtils;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.Credentials;
 import io.divide.shared.web.transitory.TransientObject;
@@ -40,7 +40,7 @@ public class DataEndpoint {
                     .ok()
                     .entity(dao.get(objectType,ObjectUtils.c2v(keys)))
                     .build();
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             return ResponseUtils.fromDAOExpection(e);
         }
     }
@@ -59,7 +59,7 @@ public class DataEndpoint {
                     .ok()
                     .entity(dao.query(query))
                     .build();
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             return ResponseUtils.fromDAOExpection(e);
         }
     }
@@ -75,7 +75,7 @@ public class DataEndpoint {
             return Response
                     .ok()
                     .build();
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             return ResponseUtils.fromDAOExpection(e);
         }
     }

@@ -1,6 +1,6 @@
 package io.divide.server;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.dao.orientdb.OrientDBDao;
 
 /**
@@ -12,8 +12,8 @@ public class TestApplication extends AuthApplication {
         super(OrientDBDao.class, TestUtils.KEY);
         register(TestEndpoint.class);
     }
-    public TestApplication(DAO dao) {
-        super(dao, TestUtils.KEY);
+    public TestApplication(ServerDAO serverDao) {
+        super(serverDao, TestUtils.KEY);
         register(TestEndpoint.class);
     }
 }

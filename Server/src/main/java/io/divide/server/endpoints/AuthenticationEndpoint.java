@@ -5,7 +5,7 @@ import io.divide.server.auth.UserContext;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
 import io.divide.server.dao.Session;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.Credentials;
@@ -64,8 +64,8 @@ public final class AuthenticationEndpoint{
                         "Decrypted: " + de + "\n" +
                         "Hashed:    " + ha);
             toSave.setPassword(ha); //hash the password for storage
-            toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), toSave));
-            toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getKey(), toSave));
+            toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
+            toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
             toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
 
             context.setSecurityContext(new UserContext(context.getUriInfo(),toSave));
@@ -75,7 +75,7 @@ public final class AuthenticationEndpoint{
 
             logger.info("SignUp Successful. Returning: " + toSave);
             return ok(toSave);
-        } catch (DAO.DAOException e) {
+        } catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         } catch (Exception e) {
@@ -129,17 +129,17 @@ public final class AuthenticationEndpoint{
                 context.setSecurityContext(new UserContext(context.getUriInfo(),dbCreds));
 //                session.
 //                // check if token is expired, if so return/set new
-                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(keyManager.getKey(),dbCreds.getAuthToken());
+                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(keyManager.getSymmetricKey(),dbCreds.getAuthToken());
                 if (c.getTime().getTime() > token.expirationDate) {
                     logger.info("Updating ExpireDate");
-                    dbCreds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), dbCreds));
+                    dbCreds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), dbCreds));
                     dao.save(dbCreds);
                 }
 
                 logger.info("Login Successful. Returning: " + dbCreds);
                 return ok(dbCreds);
             }
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         } catch (Exception e) {
@@ -189,7 +189,7 @@ public final class AuthenticationEndpoint{
                         .build();
             }
 
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             return fromDAOExpection(e);
         }
     }
@@ -200,7 +200,7 @@ public final class AuthenticationEndpoint{
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
             logger.fine("getUserFromToken");
-            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getKey(),token);
+            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getSymmetricKey(),token);
             if(authToken.isExpired()) return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
 
             Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
@@ -214,7 +214,7 @@ public final class AuthenticationEndpoint{
             } else {
                 return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
             }
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
@@ -234,15 +234,15 @@ public final class AuthenticationEndpoint{
             if(to!=null){
                 ServerCredentials sc = new ServerCredentials(to);
                 logger.info("Successfully recoverFromOneTimeToken: " + sc);
-                sc.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getKey(), sc));
-                sc.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getKey(), sc));
+                sc.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), sc));
+                sc.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), sc));
                 context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
                 dao.save(sc);
                 return Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
             } else {
                 return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
             }
-        }catch (DAO.DAOException e) {
+        }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
@@ -302,7 +302,7 @@ public final class AuthenticationEndpoint{
             user.putAll(credentials.getUserData());
             dao.save(user);
             return Response.ok().build();
-        } catch (DAO.DAOException e) {
+        } catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         }
@@ -391,14 +391,14 @@ public final class AuthenticationEndpoint{
 //        }
 //    }
 
-    public static Credentials getUserByEmail(DAO dao, String email) throws DAO.DAOException {
+    public static Credentials getUserByEmail(ServerDAO serverDao, String email) throws ServerDAO.DAOException {
         Query query = new QueryBuilder()
                 .select()
                 .from(Credentials.class)
                 .where(Credentials.EMAIL_KEY,OPERAND.EQ,email)
                 .build();
 
-        TransientObject to = ObjectUtils.get1stOrNull(dao.query(query));
+        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
         if(to==null){
             return null;
         } else {
@@ -406,14 +406,14 @@ public final class AuthenticationEndpoint{
         }
     }
 
-    public static Credentials getUserById(DAO dao, String userId) throws DAO.DAOException {
+    public static Credentials getUserById(ServerDAO serverDao, String userId) throws ServerDAO.DAOException {
         Query query = new QueryBuilder()
                 .select()
                 .from(Credentials.class)
                 .where(Credentials.OWNER_ID_KEY,OPERAND.EQ,userId)
                 .build();
 
-        TransientObject to = ObjectUtils.get1stOrNull(dao.query(query));
+        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
         if(to==null){
             return null;
         } else {
@@ -428,5 +428,7 @@ public final class AuthenticationEndpoint{
         }
         return plainText;
     }
+
+
 
 }

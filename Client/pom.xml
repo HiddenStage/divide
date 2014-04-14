@@ -58,12 +58,12 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-            <version>0.17.1</version>
+            <version>0.17.5</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.17.1</version>
+            <version>0.17.5</version>
         </dependency>
         <dependency>
             <groupId>org.roboguice</groupId>

@@ -3,7 +3,7 @@ package io.divide.client.data;
 import com.google.inject.Inject;
 import io.divide.client.BackendObject;
 import io.divide.client.BackendUser;
-import io.divide.client.cache.LocalStorage;
+import io.divide.shared.server.DAO;
 import io.divide.shared.web.transitory.query.Query;
 import io.divide.shared.web.transitory.query.SelectOperation;
 import rx.Observable;
@@ -17,11 +17,11 @@ import java.util.Collection;
 public class ObjectManager {
 
     @Inject DataManager dataManager;
-    @Inject LocalStorage localStorage;
+    @Inject DAO<BackendObject,BackendObject> localStorage;
 
     public ObjectManager(){ }
 
-    public LocalStorage local(){
+    public DAO<BackendObject,BackendObject> local(){
         return localStorage;
     }
 

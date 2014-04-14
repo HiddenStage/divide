@@ -1,6 +1,6 @@
 package io.divide.server.utils;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.web.transitory.Credentials;
 
 import javax.ws.rs.core.Response;
@@ -20,7 +20,7 @@ public class ResponseUtils {
                 .build();
     }
 
-    public static Response fromDAOExpection(DAO.DAOException exception){
+    public static Response fromDAOExpection(ServerDAO.DAOException exception){
         return Response
                 .status(exception.getStatusCode())
                 .build();

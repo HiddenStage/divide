@@ -1,6 +1,6 @@
 package io.divide.server;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
@@ -28,7 +28,7 @@ public abstract class ServerTest extends JerseyTest {
     }
 
     @After
-    public void tearDown() throws DAO.DAOException {
+    public void tearDown() throws ServerDAO.DAOException {
         container.tearDown();
     }
 }

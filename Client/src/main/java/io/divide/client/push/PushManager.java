@@ -7,7 +7,7 @@ import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
 import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
-import io.divide.client.AbstractWebManager;
+import io.divide.client.web.AbstractWebManager;
 import io.divide.client.BackendConfig;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.LoginEvent;

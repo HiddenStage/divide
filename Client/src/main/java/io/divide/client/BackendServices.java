@@ -2,10 +2,10 @@ package io.divide.client;
 
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.LoginListener;
-import io.divide.client.cache.LocalStorage;
 import io.divide.client.data.ObjectManager;
 import io.divide.client.push.PushListener;
 import io.divide.client.push.PushManager;
+import io.divide.shared.server.DAO;
 
 import javax.inject.Inject;
 
@@ -24,22 +24,32 @@ public class BackendServices {
     private BackendServices(){ }
 
     public static ObjectManager.RemoteStorage remote(){
+        checkIsInitialized(objectManager);
         return objectManager.remote();
     }
 
-    public static LocalStorage local(){
+    public static DAO<BackendObject,BackendObject> local(){
+        checkIsInitialized(objectManager);
         return objectManager.local();
     }
 
     public static void addLoginListener(LoginListener loginListener){
+        checkIsInitialized(authManager);
         authManager.addLoginListener(loginListener);
     }
 
     public static void addPushListener(PushListener listener){
+        checkIsInitialized(authManager);
         pushManager.addPushListener(listener);
     }
 
     public static void removePushListener(PushListener listener){
+        checkIsInitialized(pushManager);
         pushManager.removePushListener(listener);
+    }
+
+    private static void checkIsInitialized(Object o){
+        if( o == null )
+        throw new RuntimeException("Backend not initialized!");
     }
 }

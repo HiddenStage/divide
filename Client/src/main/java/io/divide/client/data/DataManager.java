@@ -3,7 +3,7 @@ package io.divide.client.data;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
-import io.divide.client.AbstractWebManager;
+import io.divide.client.web.AbstractWebManager;
 import io.divide.client.BackendConfig;
 import io.divide.client.BackendObject;
 import io.divide.shared.web.transitory.TransientObject;

@@ -9,7 +9,8 @@ import io.divide.server.endpoints.AuthenticationEndpoint;
 import io.divide.server.endpoints.DataEndpoint;
 import io.divide.server.endpoints.MetaEndpoint;
 import io.divide.server.endpoints.PushEndpoint;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
+import io.divide.server.auth.SecManager;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
  * Date: 8/19/13
  * Time: 5:39 PM
  */
-public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
+public abstract class AuthApplication<T extends ServerDAO> extends ResourceConfig {
 
     private static final Logger logger = Logger.getLogger(AuthApplication.class.getSimpleName());
 
@@ -53,7 +54,7 @@ public abstract class AuthApplication<T extends DAO> extends ResourceConfig {
     }
 
 
-    private static class MyBinder<T extends DAO> extends AbstractBinder{
+    private static class MyBinder<T extends ServerDAO> extends AbstractBinder{
         private Class<T> clazz;
         private T t;
         private String encryptionKey;

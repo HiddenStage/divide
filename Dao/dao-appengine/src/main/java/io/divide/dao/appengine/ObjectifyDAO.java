@@ -2,7 +2,7 @@ package io.divide.dao.appengine;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.LoadType;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.util.Crypto;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.TransientObject;
@@ -23,7 +23,7 @@ import static io.divide.dao.appengine.OfyService.ofy;
  * Time: 4:50 PM
  */
 
-public class ObjectifyDAO implements DAO {
+public class ObjectifyDAO implements ServerDAO {
     Logger logger = Logger.getLogger(String.valueOf(ObjectifyDAO.class));
     Random RANDOM = new Random();
 

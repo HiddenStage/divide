@@ -3,10 +3,10 @@ package io.divide.server.endpoints;
 import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
+import io.divide.dao.ServerDAO;
 import io.divide.server.auth.SecManager;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.Session;
-import io.divide.dao.DAO;
 import io.divide.shared.Constants;
 import io.divide.shared.web.transitory.Credentials;
 import io.divide.shared.web.transitory.EncryptedEntity;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static io.divide.server.utils.ResponseUtils.fromDAOExpection;
+import static io.divide.shared.server.DAO.DAOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -48,7 +49,7 @@ public class PushEndpoint {
 
             credentials.setPushMessagingKey(entity.get("token"));
             dao.save(credentials);
-        } catch (DAO.DAOException e) {
+        } catch (DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         } catch (Exception e) {
@@ -65,7 +66,7 @@ public class PushEndpoint {
             Credentials credentials = session.getUser();
             credentials.setPushMessagingKey("");
             dao.save(credentials);
-        } catch (DAO.DAOException e) {
+        } catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
         }
@@ -86,7 +87,7 @@ public class PushEndpoint {
         }
     }
 
-    private String sendMessageToDevice(String email, String input) throws DAO.DAOException, IOException {
+    private String sendMessageToDevice(String email, String input) throws ServerDAO.DAOException, IOException {
 
         Credentials user = getUserByEmail(dao,email);
 
@@ -99,12 +100,12 @@ public class PushEndpoint {
         return result.toString();
     }
 
-    private Credentials getUserByEmail(DAO dao, String email) throws DAO.DAOException {
-        return AuthenticationEndpoint.getUserByEmail(dao,email);
+    private Credentials getUserByEmail(ServerDAO serverDao, String email) throws ServerDAO.DAOException {
+        return AuthenticationEndpoint.getUserByEmail(serverDao,email);
     }
 
-    private Credentials getUserById(DAO dao, String userId) throws DAO.DAOException {
-        return AuthenticationEndpoint.getUserById(dao,userId);
+    private Credentials getUserById(ServerDAO serverDao, String userId) throws ServerDAO.DAOException {
+        return AuthenticationEndpoint.getUserById(serverDao,userId);
     }
 
 }

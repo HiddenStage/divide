@@ -1,10 +1,8 @@
 package io.divide.client.auth;
 
 import android.accounts.Account;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.jug6ernaut.android.logging.Logger;
-import io.divide.client.AbstractWebManager;
 import io.divide.client.BackendConfig;
 import io.divide.client.BackendUser;
 import io.divide.client.auth.credentials.LoginCredentials;
@@ -13,22 +11,20 @@ import io.divide.client.auth.credentials.ValidCredentials;
 import io.divide.client.data.GenericResponse;
 import io.divide.client.data.ServerResponse;
 import io.divide.client.http.Status;
+import io.divide.client.web.AbstractWebManager;
+import io.divide.client.web.ConnectionListener;
+import io.divide.client.web.OnRequestInterceptor;
 import io.divide.shared.util.Crypto;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.Credentials;
-import org.apache.commons.io.IOUtils;
-import retrofit.Callback;
 import retrofit.RequestInterceptor;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
-import rx.subscriptions.Subscriptions;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -69,18 +65,19 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             }
         });
 
-    }
+        this.addRequestInterceptor(new OnRequestInterceptor() {
+            @Override
+            public RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade) {
+                System.out.println("onRequest("+CURRENT_STATE+"): " + getUser());
 
-    @Override
-    public RequestInterceptor.RequestFacade onRequest(RequestInterceptor.RequestFacade requestFacade){
-        System.out.println("onRequest("+CURRENT_STATE+"): " + getUser());
-
-        if (getUser() != null) {
-            requestFacade.addHeader("Authorization", "CUSTOM " + getUser().getAuthToken());
-        } else {
-            logger.warn(config.id + " no auth key: " + getUser());
-        }
-        return requestFacade;
+                if (getUser() != null) {
+                    requestFacade.addHeader("Authorization", "CUSTOM " + getUser().getAuthToken());
+                } else {
+                    logger.warn("No auth key: " + getUser());
+                }
+                return requestFacade;
+            }
+        });
     }
 
     private BackendUser loadCachedUser(){
@@ -144,9 +141,9 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
-    public ValidCredentials getRemoteUserFromToken(String authToken){
+    public Observable<ValidCredentials> getRemoteUserFromToken(String authToken){
         setLoginState(LOGGING_IN);
-        return getWebService().getUser(authToken);
+        return getWebService().getUserFromAuthToken(authToken);
     }
 
     public RecoveryResponse recoverFromOneTimeToken(String token){
@@ -154,17 +151,19 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             logger.debug("recoverFromOneTimeToken(" + token + ")");
 
             setLoginState(LOGGING_IN);
-            Response response = getWebService().recoverFromOneTimeToken(token);
+            ValidCredentials credentials = getWebService().getUserFromRecoveryToken(token).toBlockingObservable().first();
 
-            String body = IOUtils.toString(response.getBody().in());
+            if(credentials != null){
+                Account account = authUtils.getAccount(credentials.getEmailAddress());
 
-            ValidCredentials credentials = new Gson().fromJson(body,ValidCredentials.class);
-//            String newRecoveryToken = response.getHeaders().get(0).getValue();
-
-            Account account = authUtils.getAccount(credentials.getEmailAddress());
-
-            authUtils.setPassword(account, credentials.getRecoveryToken());
-            return new RecoveryResponse(setUser(credentials), Status.SUCCESS_OK, "");
+                authUtils.setPassword(account, credentials.getRecoveryToken());
+                setLoginState(LOGGED_IN);
+                return new RecoveryResponse(setUser(credentials), Status.SUCCESS_OK, "");
+            } else {
+                logger.error("recoverFromOneTimeToken Failure(): " + credentials);
+                setLoginState(LOGGED_OUT);
+                return new RecoveryResponse(null, Status.SERVER_ERROR_INTERNAL, "");
+            }
         } catch (Exception e) {
             logger.error("recoverFromOneTimeToken Failure(" + token + ")", e);
             setLoginState(LOGGED_OUT);
@@ -176,22 +175,18 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private void getRemoteUserFromTokenAsync(String authToken) {
         try {
             setLoginState(LoginState.LOGGING_IN);
-            getWebService().getUser(authToken, new Callback<ValidCredentials>() {
+            getWebService().getUserFromAuthToken(authToken).subscribe(new Action1<ValidCredentials>() {
                 @Override
-                public void success(final ValidCredentials webUser, Response response) {
-                    setUser(webUser);
-                }
+                public void call(ValidCredentials validCredentials) {
 
+                }
+            }, new Action1<Throwable>() {
                 @Override
-                public void failure(RetrofitError retrofitError) {
+                public void call(Throwable throwable) {
                     setLoginState(LOGGED_OUT);
-//                    ignore here, this is handled in AbstractWebManager
-//                    if (retrofitError != null){
-//                        logger.error("Failed to get User!", retrofitError);
-//                    }
-//                    else logger.error("Failed to get user...");
                 }
             });
+
         } catch (Exception e) {
             setLoginState(LOGGED_OUT);
             logger.error(e);
@@ -294,9 +289,12 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class, getWebService().userSignUp(loginCreds));
             ServerResponse<ValidCredentials> response = ServerResponse.from(g);
 //            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
-            BackendUser user = null;
+
+            BackendUser user;
             if (response.getStatus().isSuccess()) {
-                user = setUser(g.getBody());
+                user = setUser(response.get());
+            } else {
+                return new SignUpResponse(null, Status.SERVER_ERROR_INTERNAL, " null user returned");
             }
 
             return new SignUpResponse(user, response.getStatus(), response.getError());
@@ -353,10 +351,14 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             logger.debug("Login Creds: " + loginCreds);
             GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class,getWebService().login(loginCreds));
             ServerResponse<ValidCredentials> response = ServerResponse.from(g);
-//            SignInResponse response = RetrofitUtils.retrofitToServerResponse(SignInResponse.class,getWebService().login(loginCreds));
-            BackendUser user = null;
+
+            BackendUser user;
             if(response.getStatus().isSuccess()){
-                user = setUser(g.getBody());
+                user = setUser(response.get());
+            } else {
+                logger.error("Login Failure("+loginCreds.getEmailAddress()+"): " + response.getStatus().getCode() + " " + response.getError());
+                setLoginState(LOGGED_OUT);
+                return new SignInResponse(null, Status.SERVER_ERROR_INTERNAL,"Login failed");
             }
 
             return new SignInResponse(user,response.getStatus(),response.getError());
@@ -405,32 +407,20 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
-    public void sendUserData(BackendUser user){
-        getWebService().sendUserData(user);
-    }
-
     private void setLoginState(LoginState state){
         logger.debug("Changing State("+config.id+"): " + state);
         CURRENT_STATE = state;
     }
 
-    public void sendUserData(BackendUser user, Callback<String> callback){
-        getWebService().sendUserData(user,callback);
+    public Observable<Void> sendUserData(BackendUser user){
+        return getWebService().sendUserData(user);
     }
 
     public Observable<BackendUser> getUserData(){
-        return Observable.create(new Observable.OnSubscribeFunc<BackendUser>() {
+        return getWebService().getUserData().map(new Func1<ValidCredentials, BackendUser>() {
             @Override
-            public Subscription onSubscribe(Observer<? super BackendUser> observer) {
-                try {
-                    setUser(getWebService().getUserData());
-                    observer.onNext(getUser());
-                    observer.onCompleted();
-                } catch (Exception e) {
-                    observer.onError(e);
-                }
-
-                return Subscriptions.empty();
+            public BackendUser call(ValidCredentials validCredentials) {
+                return setUser(validCredentials);
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }

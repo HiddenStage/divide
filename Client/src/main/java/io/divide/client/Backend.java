@@ -54,16 +54,22 @@ public class Backend {
     }
 
     public static void inject(Object o){
+        if(!initialized) throw new RuntimeException("Backend must be initialized!");
         injector.injectMembers(o);
     }
 
     public static synchronized Backend init(final Application context, final String serverUrl) {
-
+        if(initialized) throw new RuntimeException("Backend already initialized!");
         RoboGuice.setBaseApplicationInjector(
                 context,
                 RoboGuice.DEFAULT_STAGE,
                 RoboGuice.newDefaultRoboModule(context),
-                new BackendModule(new BackendConfig(context, serverUrl, System.currentTimeMillis())));
+                ( !BackendConfig.isIsMockMode() ?
+                 new BackendModule(new BackendConfig(context, serverUrl, System.currentTimeMillis()))
+                :
+                 new MockBackendModule(new BackendConfig(context, serverUrl, System.currentTimeMillis()))
+                )
+        );
 
         return injector.getInstance(Backend.class);
     }

@@ -3,7 +3,7 @@ package io.divide.server;
 import io.divide.server.auth.SecManager;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.web.transitory.Credentials;
 import io.divide.shared.web.transitory.query.QueryBuilder;
@@ -52,8 +52,8 @@ public class TestEndpoint {
 //        String de = toSave.getPassword();
         String ha = BCrypt.hashpw(toSave.getPassword(), BCrypt.gensalt(10));
         toSave.setPassword(ha); //hash the password for storage
-        toSave.setAuthToken(AuthTokenUtils.getNewToken(securityManager.getKey(), toSave));
-        toSave.setRecoveryToken(AuthTokenUtils.getNewToken(securityManager.getKey(), toSave));
+        toSave.setAuthToken(AuthTokenUtils.getNewToken(securityManager.getSymmetricKey(), toSave));
+        toSave.setRecoveryToken(AuthTokenUtils.getNewToken(securityManager.getSymmetricKey(), toSave));
         toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
 
         dao.save(toSave);
@@ -67,7 +67,7 @@ public class TestEndpoint {
 
         try {
             dao.query(new QueryBuilder().delete().from(Credentials.class).build());
-        } catch (DAO.DAOException e) {
+        } catch (ServerDAO.DAOException e) {
             e.printStackTrace();
         }
 

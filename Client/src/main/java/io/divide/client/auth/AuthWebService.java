@@ -4,7 +4,6 @@ import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
 import io.divide.client.auth.credentials.ValidCredentials;
 import io.divide.shared.web.transitory.Credentials;
-import retrofit.Callback;
 import retrofit.client.Response;
 import retrofit.http.*;
 import rx.Observable;
@@ -19,8 +18,7 @@ public interface AuthWebService {
 
     @POST("/auth")
     public Response userSignUp(@Body SignUpCredentials credentials);
-//    @POST("/auth")
-//    public void userSignUp(@Body SignUpCredentials credentials, Callback<ValidCredentials> callback);
+
     @POST("/auth")
     public Observable<ValidCredentials> userSignUpA(@Body SignUpCredentials credentials);
 
@@ -36,23 +34,15 @@ public interface AuthWebService {
     public byte[] getPublicKey();
 
     @GET("/auth/from/{token}")
-    public ValidCredentials getUser(@Path("token")String authToken);
+    public Observable<ValidCredentials> getUserFromAuthToken(@Path("token")String authToken);
 
     @GET("/auth/recover/{token}")
-    public Response recoverFromOneTimeToken(@Path("token")String authToken);
-
-    @GET("/auth/from/{token}")
-    public void getUser(@Path("token")String authToken, Callback<ValidCredentials> callback);
+    public Observable<ValidCredentials> getUserFromRecoveryToken(@Path("token")String authToken);
 
     @POST("/auth/user/data")
-    public Response sendUserData(@Body Credentials credentials);
-
-    @POST("/auth/user/data")
-    public void sendUserData(@Body Credentials credentials, Callback<String> callback);
+    public Observable<Void> sendUserData(@Body Credentials credentials);
 
     @GET("/auth/user/data")
-    public void getUserData(Callback<ValidCredentials> callback);
+    public Observable<ValidCredentials> getUserData();
 
-    @GET("/auth/user/data")
-    public ValidCredentials getUserData();
 }

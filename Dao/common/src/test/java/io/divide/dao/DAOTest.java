@@ -2,6 +2,7 @@ package io.divide.dao;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.divide.shared.server.DAO;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.TransientObject;
 import io.divide.shared.web.transitory.query.OPERAND;

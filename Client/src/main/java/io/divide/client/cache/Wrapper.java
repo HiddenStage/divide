@@ -1,12 +1,11 @@
 package io.divide.client.cache;
 
 import com.google.gson.*;
-import io.divide.client.BackendObject;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.util.ReflectionUtils;
 import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.Query;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -22,11 +21,12 @@ public class Wrapper extends HashMap<String, Object> {
 
     public Wrapper(){}
 
-    public <B extends BackendObject> Wrapper(B b){
+    public <B extends TransientObject> Wrapper(B b){
         Key(b.getObjectKey());
-        Table(Query.safeTable(b.getClass()));
+        Table(b.getObjectType());
         recursiveSave("user_data","", b.getUserData());
         recursiveSave("meta_data","", b.getMetaData());
+        System.out.println(this);
     }
 
     public String Key() {
@@ -130,14 +130,18 @@ public class Wrapper extends HashMap<String, Object> {
         return "";
     }
 
-    public <B extends BackendObject> B toObject(Class<B> type){
+    public <B extends TransientObject> B toObject(Class<B> type){
         try {
-            B b = type.newInstance();
+            Constructor<B> constructor;
+            constructor = type.getDeclaredConstructor();
+            constructor.setAccessible(true);
+
+            B b = constructor.newInstance();
+
             Map user_data = (Map) ReflectionUtils.getObjectField(b, TransientObject.USER_DATA);
             Map meta_data = (Map) ReflectionUtils.getObjectField(b, TransientObject.META_DATA);
             user_data.clear();
             meta_data.clear();
-
 
             recursiveLoad("user_data",user_data);
             recursiveLoad("meta_data",meta_data);
@@ -178,8 +182,7 @@ public class Wrapper extends HashMap<String, Object> {
         }
     }
 
-    private static class ClassTypeConverter
-            implements JsonSerializer<Class>, JsonDeserializer<Class> {
+    private static class ClassTypeConverter implements JsonSerializer<Class>, JsonDeserializer<Class> {
         @Override
         public JsonElement serialize(Class src, Type srcType, JsonSerializationContext context) {
             return new JsonPrimitive(src.getName());
@@ -196,117 +199,11 @@ public class Wrapper extends HashMap<String, Object> {
         }
     }
 
-//    private FileInfo recursiveSave(String root, String current, Object object){
-//        String currentPath;
-//        if(current!=null && current.length()>0){
-//            currentPath = root + "." + current;
-//        } else currentPath = root;
-//        if(DEBUG) System.out.println("recursiveSave: " + currentPath);
-//        if(isMap(object)){
-//            Map m = (Map)object;
-//            Manifest manifest = new Manifest();
-//            Set<Map.Entry> objects = m.entrySet();
-//            for(Map.Entry e : objects){
-//                FileInfo coded = recursiveSave(currentPath, String.valueOf(e.getKey()), e.getValue());
-//                manifest.files.add(coded);
-//            }
-//            put("x." + currentPath,manifest.toString());
-//            if(DEBUG) System.out.println("manifest["+"x." + currentPath+"] " + manifest.toString());
-//            return new FileInfo('x',null,current);
-//        }
-//        else if(isCollection(object)){
-//            Collection c = (Collection)object;
-//            Manifest manifest = new Manifest();
-//            int count = 0;
-//            for(Object e : c){
-//                FileInfo coded = recursiveSave(currentPath, String.valueOf(count++), e);
-//                manifest.files.add(coded);
-//            }
-//            put("c." + currentPath,manifest.toString());
-//            if(DEBUG) System.out.println("manifest["+"x." + currentPath+"] " + manifest.toString());
-//            return new FileInfo('c',null,current);
-//
-//
-////            Object[] array = ((Collection) object).toArray(new Object[0]);
-////            if(DEBUG) System.out.println("SaveC["+currentPath+"=" + array +"]");
-////            put(currentPath, array);
-////
-////            return new FileInfo('c',object.getClass(),current);
-//        }
-//        else if(isArray(object)){
-//            Object[] array = (Object[]) object;
-//            put(currentPath, array);
-//
-//            return new FileInfo('a',object.getClass(),current);
-//        }
-//        else {
-//            if(DEBUG) System.out.println("Save["+currentPath+"=" + object +"]");
-//            put(currentPath, object);
-//
-//            return new FileInfo('n',null,current);
-//        }
-//    }
-//
-//    private void recursiveLoad(String currentPath, Map<String,Object> map){
-//        if(DEBUG) System.out.println("recursiveLoad: " + currentPath);
-//
-//        String json = (String) get("x." + currentPath);
-//        Manifest manifest = Manifest.fromString(json);
-//        if(DEBUG) System.out.println("Files: " + ObjectUtils.v2c(manifest));
-//
-//        for(FileInfo file : manifest.files) {
-//            String path = file.path;
-//            switch (file.type){
-//                case 'x' : {
-//                    recursiveLoad(currentPath + "." + path, map);
-//                }break;
-//                case 'a' : {
-//                    if(DEBUG) System.out.println("Loada["+currentPath+"."+path+"]");
-//                    Class type = file.clazz;
-//                    Object[] raw = (Object[]) get(currentPath+"."+path);
-//                    Object o = type.cast(raw);
-//                    map.put(path,o);
-//                }break;
-//                case 'c' : {
-//                    if(DEBUG) System.out.println("Loadc["+currentPath+"."+path+"]");
-//                    Class type = file.clazz;
-//                    Collection collection;
-//                    try {
-//                        collection = (Collection) type.newInstance();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    Manifest collectionManifest = Manifest.fromString((String) get(currentPath+"."+path));
-//                    for(FileInfo cFile : collectionManifest.files){
-//                        switch (cFile.type){
-//                            case 'x' : {
-//                                Map innerMap = new HashMap();
-//                                recursiveLoad(currentPath + "." + path, innerMap);
-//                                collection.add(innerMap);
-//                            } break;
-//                            case 'a' : {
-//
-//                            } break;
-//                            case 'c' : {
-//
-//                            } break;
-//                            case 'n' : {
-//                                collection.add()
-//                            } break;
-//                        }
-//                    }
-//
-//                    Object[] raw = (Object[]) get(currentPath+"."+path);
-//                    Object o = type.cast( v2c(raw) );
-//                    map.put(path,o);
-//                }break;
-//                case 'n' : {
-//                    if(DEBUG) System.out.println("Loadn["+currentPath+"."+path+"]");
-//                    Object raw = get(currentPath+"."+path);
-//                    map.put(path,raw);
-//                }
-//            }
-//        }
-//    }
+    @Override
+    public String toString(){
+        return "Wrapper{" +
+                "Table='" + Table() + '\'' +
+                "Key='" +   Key() + '\'' +
+                '}';    }
 
 }

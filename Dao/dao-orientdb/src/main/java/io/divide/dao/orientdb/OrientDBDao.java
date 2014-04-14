@@ -1,6 +1,6 @@
 package io.divide.dao.orientdb;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.web.transitory.TransientObject;
 import io.divide.shared.web.transitory.query.OPERAND;
 import io.divide.shared.web.transitory.query.Query;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by williamwebb on 2/14/14.
  */
-public class OrientDBDao implements DAO{
+public class OrientDBDao implements ServerDAO {
 
     public static final String DEFAULT_CONFIG = "memory:default";
 
@@ -46,7 +46,7 @@ public class OrientDBDao implements DAO{
     }
 
     @Override
-    public List<TransientObject> query(Query query) throws DAO.DAOException {
+    public List<TransientObject> query(Query query) throws DAOException {
         checkDb();
         List<TransientObject> list = new ArrayList<TransientObject>();
 

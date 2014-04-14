@@ -14,6 +14,7 @@ public class BackendConfig {
     public long id;
     public OkHttpClient client;
     public AccountInformation accountInformation;
+    private static boolean isMockMode = false;
 
     public BackendConfig(Application application, String url, long id){
         this.app = application;
@@ -23,4 +24,12 @@ public class BackendConfig {
         this.accountInformation = new AccountInformation(application);
     };
 
+    public static boolean isIsMockMode() {
+        return isMockMode;
+    }
+
+
+    public static void setIsMockMode(boolean isMockMode) {
+        BackendConfig.isMockMode = isMockMode;
+    }
 }

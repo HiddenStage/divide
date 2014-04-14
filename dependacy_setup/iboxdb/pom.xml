@@ -26,10 +26,10 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <file>iBoxDB-1.5.2.jar</file>
+                            <file>iBoxDB-1.7.0.jar</file>
                             <groupId>iboxdb</groupId>
                             <artifactId>iboxdb</artifactId>
-                            <version>1.5.2</version>
+                            <version>1.7.0</version>
                             <packaging>jar</packaging>
                         </configuration>
                     </execution>

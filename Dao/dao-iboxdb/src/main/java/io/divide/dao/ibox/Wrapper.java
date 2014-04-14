@@ -136,7 +136,6 @@ public class Wrapper extends HashMap<String, Object> {
             user_data.clear();
             meta_data.clear();
 
-
             recursiveLoad("user_data",user_data);
             recursiveLoad("meta_data",meta_data);
 

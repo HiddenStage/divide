@@ -1,6 +1,6 @@
 package io.divide.server;
 
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.web.transitory.Credentials;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.test.spi.TestContainer;
@@ -35,7 +35,7 @@ public class AuthServerHelper {
         }
     }
 
-    public void setUp(String url) throws DAO.DAOException {
+    public void setUp(String url) throws ServerDAO.DAOException {
         TestService service = buildTestService(url);
         service.setup();
     }

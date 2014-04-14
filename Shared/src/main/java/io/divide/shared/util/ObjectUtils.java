@@ -30,7 +30,7 @@ public class ObjectUtils {
     }
 
     public static <T> T get1stOrNull(Collection<T> objects){
-        return (objects!=null && objects.size() == 1)? (T) objects.toArray()[0] : null;
+        return (objects!=null && objects.size() == 1) ? c2v(objects)[0] : null;
     }
 
     public static Class<?> getType(Class<?> clazz){

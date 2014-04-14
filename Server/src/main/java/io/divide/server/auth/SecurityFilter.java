@@ -40,7 +40,7 @@ package io.divide.server.auth;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
 import io.divide.server.dao.Session;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.web.transitory.Credentials;
@@ -65,7 +65,8 @@ public class SecurityFilter implements ContainerRequestFilter {
 
     @Context DAOManager dao;
 
-    @Context SecManager securityManager;
+    @Context
+    SecManager securityManager;
 
     public SecurityFilter() {}
 
@@ -117,7 +118,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 
         // TODO verify
         try {
-            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(securityManager.getKey(),token);
+            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(securityManager.getSymmetricKey(),token);
             if(authToken.isExpired()){
                 return abort(request,"Auth Token Expired");
             }
@@ -132,14 +133,14 @@ public class SecurityFilter implements ContainerRequestFilter {
                 TransientObject temp = ObjectUtils.get1stOrNull(dao.query(q));
                 if (temp != null) {
                     ServerCredentials creds = new ServerCredentials(temp);
-//                    creds.setAuthToken(AuthTokenUtils.getNewToken(securityManager.getKey(),creds)); // assign new token
+//                    creds.setAuthToken(AuthTokenUtils.getNewToken(securityManager.getSymmetricKey(),creds)); // assign new token
                     return new UserContext(request.getUriInfo(), new ServerCredentials(creds));
                 } else {
 //                    System.err.println("IN DB: " + dao.query(new QueryBuilder().select().from(Credentials.class).build()));
                     request.abortWith(notAuthReponse("Invalid authentication token"));
                     return abort(request, "Invalid authentication token");
                 }
-            } catch (DAO.DAOException e) {
+            } catch (ServerDAO.DAOException e) {
                 log.severe("Authentication Failed("+e.getStatusCode()+") " + e.getMessage());
                 e.printStackTrace();
                 return abort(request, "Invalid authentication token");

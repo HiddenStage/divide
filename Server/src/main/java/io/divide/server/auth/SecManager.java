@@ -1,6 +1,7 @@
 package io.divide.server.auth;
 
-import io.divide.server.dao.DAOManager;
+import io.divide.dao.ServerDAO;
+import io.divide.shared.server.KeyManager;
 import io.divide.shared.util.Crypto;
 
 import java.security.KeyPair;
@@ -14,16 +15,15 @@ import java.util.List;
 /**
  * Created by williamwebb on 1/12/14.
  */
-public class SecManager {
+public class SecManager implements KeyManager {
 
-    DAOManager dao;
+    ServerDAO dao;
     private String encryptionKey;
 
-    public SecManager(DAOManager dao, String encryptionKey){
+    public SecManager(ServerDAO dao, String encryptionKey){
         this.dao = dao;
         this.encryptionKey = encryptionKey;
     };
-
 
     private KeyPair cachedKeys = null;
     private synchronized KeyPair getKeys(){
@@ -54,7 +54,7 @@ public class SecManager {
         return getKeys().getPrivate();
     }
 
-    public String getKey(){
+    public String getSymmetricKey(){
         return encryptionKey;
     }
 

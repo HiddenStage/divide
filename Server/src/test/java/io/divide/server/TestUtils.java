@@ -1,7 +1,7 @@
 package io.divide.server;
 
 import com.google.gson.Gson;
-import io.divide.dao.DAO;
+import io.divide.dao.ServerDAO;
 import io.divide.dao.orientdb.OrientDBDao;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.web.transitory.Credentials;
@@ -24,13 +24,13 @@ public class TestUtils {
 
     public static class TestWrapper{
         private ODatabaseRecord db;
-        public DAO dao;
+        public ServerDAO serverDao;
         public AuthApplication app;
         public long time;
 
-        public void tearDown() throws DAO.DAOException {
+        public void tearDown() throws ServerDAO.DAOException {
 //            db.release();
-            dao.query(new QueryBuilder().delete().from(Credentials.class).build());
+            serverDao.query(new QueryBuilder().delete().from(Credentials.class).build());
             db.drop();
             db.close();
         }
@@ -45,13 +45,13 @@ public class TestUtils {
         } else {
             container.db.create();
         }
-        container.dao = new OrientDBDao((ODatabaseDocument) container.db);
+        container.serverDao = new OrientDBDao((ODatabaseDocument) container.db);
         try {
-            container.dao.query(new QueryBuilder().delete().from(Credentials.class).build());
-        } catch (DAO.DAOException e) {
+            container.serverDao.query(new QueryBuilder().delete().from(Credentials.class).build());
+        } catch (ServerDAO.DAOException e) {
             e.printStackTrace();
         }
-        container.app = new TestApplication(container.dao);
+        container.app = new TestApplication(container.serverDao);
 
         return container;
     }
