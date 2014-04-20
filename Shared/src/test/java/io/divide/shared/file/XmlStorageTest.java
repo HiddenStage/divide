@@ -17,6 +17,9 @@ public class XmlStorageTest {
         XmlStorage storage = new XmlStorage(new File("storage"), Storage.MODE_WORLD_READABLE);
         assertTrue(storage.edit().putString("key1", "someString").commit());
         assertEquals("someString",storage.getString("key1",null));
+
+        storage = new XmlStorage(new File("storage"), Storage.MODE_WORLD_READABLE);
+        assertEquals("someString",storage.getString("key1",null));
     }
 
 }
