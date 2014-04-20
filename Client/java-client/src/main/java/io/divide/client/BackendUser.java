@@ -118,7 +118,10 @@ public final class BackendUser extends Credentials {
 
     public static Observable<BackendUser> logInInBackground(String email, String password){
         return getAM().loginASync(new LoginCredentials(email, password));
-//        getAM().loginASync(new LoginCredentials(email,password),callback);
+    }
+
+    public static Observable<BackendUser> signUpInBackground(String username, String email, String password){
+        return getAM().signUpASync(new SignUpCredentials(username, email, password));
     }
 
     public static void logout(){
