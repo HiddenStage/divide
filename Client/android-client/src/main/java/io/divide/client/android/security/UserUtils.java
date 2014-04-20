@@ -6,6 +6,7 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import io.divide.client.BackendUser;
 import rx.Observable;
+import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
 /**
@@ -17,10 +18,9 @@ public class UserUtils {
     public static Observable<BackendUser> getAnonymousUser(Context context){
         final String id = UserUtils.getDeviceIdUnique(context);
 
-        return BackendUser.logInInBackground(id,id).flatMap(new Func1<BackendUser, Observable<BackendUser>>() {
+        return BackendUser.logInInBackground(id,id).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends BackendUser>>() {
             @Override
-            public Observable<BackendUser> call(BackendUser user) {
-                if(user != null) return Observable.from(user);
+            public Observable<? extends BackendUser> call(OnErrorThrowable onErrorThrowable) {
                 return BackendUser.signUpInBackground(id,id,id);
             }
         }).map(new Func1<BackendUser, BackendUser>() {

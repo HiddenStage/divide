@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -48,7 +49,15 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         super(config);
         this.accountStorage = accountStorage;
 
-        loadCachedUser().subscribe();
+        loadCachedUser().subscribe(new Action1<BackendUser>() {
+            @Override public void call(BackendUser user) { }
+        },new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                logger.error("Failed to login",throwable);
+
+            }
+        });
     }
 
     private Observable<BackendUser> loadCachedUser(){

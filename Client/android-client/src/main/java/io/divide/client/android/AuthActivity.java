@@ -1,6 +1,7 @@
 package io.divide.client.android;
 
-import android.accounts.AccountAuthenticatorActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import io.divide.client.BackendServices;
 import io.divide.client.BackendUser;
@@ -14,8 +15,10 @@ import io.divide.shared.logging.Logger;
  *
  * It sends back to the AuthUtils the result.
  */
-public class AuthActivity extends AccountAuthenticatorActivity {
+public class AuthActivity extends Activity {
     Logger logger = Logger.getLogger(AuthActivity.class);
+
+    public static final String TITLE_EXTRA = "title_extra_key";
 
     /**
      * Called when the activity is first created.
@@ -23,7 +26,9 @@ public class AuthActivity extends AccountAuthenticatorActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new CredentialView(this, "client-example"));
+        String title = this.getIntent().getStringExtra(TITLE_EXTRA);
+        if(title == null) title = getApplicationName(this);
+        setContentView(new CredentialView(this,title));
         BackendServices.addLoginListener(new LoginListener() {
             @Override
             public void onNext(BackendUser backendUser) {
@@ -32,6 +37,11 @@ public class AuthActivity extends AccountAuthenticatorActivity {
                 }
             }
         });
+    }
+
+    private static String getApplicationName(Context context) {
+        int stringId = context.getApplicationInfo().labelRes;
+        return context.getString(stringId);
     }
 
 }

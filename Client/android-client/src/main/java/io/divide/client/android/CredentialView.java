@@ -34,7 +34,7 @@ public class CredentialView extends RelativeLayout {
         super(context);
 
         this.context = context;
-        this.setBackgroundColor(Color.BLACK);
+//        this.setBackgroundColor(Color.BLACK);
 
         emailField = new EditText(context);    emailField.setId(1);
         passwordField = new EditText(context); passwordField.setId(2);
