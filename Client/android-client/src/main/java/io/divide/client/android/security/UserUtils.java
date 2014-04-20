@@ -5,7 +5,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import io.divide.client.BackendUser;
-import io.divide.client.data.ServerResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
 * Created by williamwebb on 3/20/14.
@@ -13,20 +14,23 @@ import io.divide.client.data.ServerResponse;
 public class UserUtils {
     private static final String ANONYMOUS_KEY = "anonymous_key";
 
-    public static ServerResponse<BackendUser> getAnonymousUser(Context context){
-        String id = UserUtils.getDeviceIdUnique(context);
-        ServerResponse<BackendUser> response;
+    public static Observable<BackendUser> getAnonymousUser(Context context){
+        final String id = UserUtils.getDeviceIdUnique(context);
 
-        response = BackendUser.signIn(id, id);
-        if(!response.getStatus().isSuccess()){
-            response = BackendUser.signUp(id, id, id);
-            if(response.getStatus().isSuccess()){
-                BackendUser user = response.get();
+        return BackendUser.logInInBackground(id,id).flatMap(new Func1<BackendUser, Observable<BackendUser>>() {
+            @Override
+            public Observable<BackendUser> call(BackendUser user) {
+                if(user != null) return Observable.from(user);
+                return BackendUser.signUpInBackground(id,id,id);
+            }
+        }).map(new Func1<BackendUser, BackendUser>() {
+            @Override
+            public BackendUser call(BackendUser user) {
                 user.put(ANONYMOUS_KEY,true);
                 user.saveASync();
+                return user;
             }
-        }
-        return response;
+        });
     }
 
     public static String getDeviceIdUnique(Context context)
