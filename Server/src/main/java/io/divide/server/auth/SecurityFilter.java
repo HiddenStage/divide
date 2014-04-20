@@ -120,10 +120,10 @@ public class SecurityFilter implements ContainerRequestFilter {
         try {
             AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(securityManager.getSymmetricKey(),token);
             if(authToken.isExpired()){
-                return abort(request,"Auth Token Expired");
+                return abort(request,"Auth Token Expired: " + System.currentTimeMillis() + " : " + authToken.expirationDate);
             }
         } catch (AuthenticationException e) {
-            return abort(request,"Auth Token Expired");
+            return abort(request,"Auth Token Expired: " + e.getMessage());
         }
 
         // Validate the extracted credentials

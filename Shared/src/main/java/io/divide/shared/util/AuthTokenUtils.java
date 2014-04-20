@@ -41,6 +41,7 @@ public class AuthTokenUtils {
                 userId = parts[1];
                 expirationDate = Long.parseLong(parts[2]);
             } catch (EncryptionOperationNotPossibleException e){
+                e.printStackTrace();
                 throw new AuthenticationException("Failed to create AuthToken",e);
             }
         }

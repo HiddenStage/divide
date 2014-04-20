@@ -19,7 +19,7 @@
             <id>client</id>
             <modules>
                 <module>Client</module>
-                <module>Client/sample</module>
+                <!--<module>Client/sample</module>-->
             </modules>
         </profile>
         <profile>
@@ -39,7 +39,7 @@
                 <module>Client</module>
 
                 <module>Server/sample</module>
-                <module>Client/sample</module>
+                <!--<module>Client/sample</module>-->
             </modules>
         </profile>
 
