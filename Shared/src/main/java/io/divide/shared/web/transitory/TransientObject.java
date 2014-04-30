@@ -128,6 +128,13 @@ public class TransientObject {
         return meta_data.remove(key.KEY) != null;
     }
 
+    public void put(String key, Object object, boolean serialize){
+        if(serialize)
+            put(key,gson.toJson(object));
+        else
+            put(key,object);
+    }
+
     public void put(String key, Object object) {
         canWrite();
 
@@ -153,6 +160,13 @@ public class TransientObject {
         user_data.putAll(map);
     }
 
+    public <O> O get(Class<O> clazz, String key, boolean deserialize){
+        if(deserialize)
+            return gson.fromJson(get(String.class,key),clazz);
+        else
+            return get(clazz,key);
+    }
+
     public <O> O get(Class<O> clazz, String key){
         canWrite();
         Object o = null;
@@ -165,12 +179,6 @@ public class TransientObject {
             System.out.println(o);
             return null;
         }
-
-//        if(isCollection(clazz)){
-//            return (O) v2c((Object[])user_data.get(key));
-//        } else {
-//            return (O) user_data.get(key);
-//        }
     }
 
     public final boolean remove(String key){
