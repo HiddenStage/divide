@@ -26,8 +26,7 @@ public abstract class ClientTest {
         MockitoAnnotations.initMocks(this);
         Logger.FORCE_LOGGING = true;
 
-        BackendConfig config = new BackendConfig(folder.getRoot().getPath(),url(),System.currentTimeMillis());
-        config.setIsMockMode(true);
+        BackendConfig config = new BackendConfig(folder.getRoot().getPath(),url(), MockBackendModule.class);
 
         backend = Backend.init(config);
         authManager = backend.getAuthManager();

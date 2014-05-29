@@ -2,8 +2,8 @@ package io.divide.client.web;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
+import io.divide.client.Config;
 import io.divide.shared.logging.Logger;
-import io.divide.client.BackendConfig;
 import retrofit.Profiler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -33,7 +33,7 @@ public abstract class AbstractWebManager<T> {
     private static Logger retrologger = Logger.getLogger("Retrofit");
     private static Boolean connectionReceiverRegistered = false;
     static final Map<Long,AbstractWebManager> webManagers = new HashMap<Long,AbstractWebManager>();
-    protected BackendConfig config;
+    protected Config config;
     private List<OnRequestInterceptor> requestInterceptors = new CopyOnWriteArrayList<OnRequestInterceptor>();
     private RestAdapter restAdapter;
     private T t;
@@ -44,7 +44,7 @@ public abstract class AbstractWebManager<T> {
     protected abstract Class<T> getType();
 
     @Inject
-    protected AbstractWebManager(BackendConfig config){
+    protected AbstractWebManager(Config config){
         this.config = config;
         initAdapter(config);
 
@@ -56,7 +56,7 @@ public abstract class AbstractWebManager<T> {
 //        }
     }
 
-    protected void initAdapter(BackendConfig config){
+    protected void initAdapter(Config config){
         Class<T> type = getType();
         if(type==null)throw new IllegalStateException("getType can not be null");
 
@@ -76,7 +76,7 @@ public abstract class AbstractWebManager<T> {
         return t;
     }
 
-    private RestAdapter createRestAdapter(BackendConfig config){
+    private RestAdapter createRestAdapter(Config config){
         RestAdapter.Builder builder = new RestAdapter.Builder();
         builder.setClient( new OkClient( config.client ) )
             .setEndpoint(config.serverUrl)

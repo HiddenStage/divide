@@ -2,8 +2,8 @@ package io.divide.client.data;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import io.divide.client.BackendConfig;
 import io.divide.client.BackendObject;
+import io.divide.client.Config;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.web.AbstractWebManager;
 import io.divide.shared.logging.Logger;
@@ -14,11 +14,8 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.Subscriptions;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -38,7 +35,7 @@ public class DataManager extends AbstractWebManager<DataWebService> {
     @Inject private AuthManager authManager;
 
     @Inject
-    public DataManager(BackendConfig config) {
+    public DataManager(Config config) {
         super(config);
     }
 
@@ -53,34 +50,30 @@ public class DataManager extends AbstractWebManager<DataWebService> {
     }
 
     public <B extends BackendObject> Observable<Collection<B>> get(final Class<B> type, final Collection<String> objects){
-        return Observable.create(new Observable.OnSubscribeFunc<Collection<B>>() {
+        return Observable.create(new Observable.OnSubscribe<Collection<B>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
+            public void call(Subscriber<? super Collection<B>> observer) {
                 try {
                     observer.onNext(convertRequest(getArrayType(type), getWebService().get(isLoggedIn(),Query.safeTable(type), objects)));
                     observer.onCompleted();
                 } catch (Exception e) {
                     observer.onError(e);
                 }
-
-                return Subscriptions.empty();
             }
         }).subscribeOn(Schedulers.io()).observeOn(config.observerOn());
 
     }
 
     public <B extends BackendObject> Observable<Collection<B>> query(final Class<B> type,final Query query){
-        return Observable.create(new Observable.OnSubscribeFunc<Collection<B>>() {
+        return Observable.create(new Observable.OnSubscribe<Collection<B>>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Collection<B>> observer) {
+            public void call(Subscriber<? super Collection<B>> observer) {
                 try {
                     observer.onNext(convertRequest(getArrayType(type),getWebService().query(isLoggedIn(),query)));
                     observer.onCompleted();
                 } catch (Exception e) {
                     observer.onError(e);
                 }
-
-                return Subscriptions.empty();
             }
         }).subscribeOn(Schedulers.io()).observeOn(config.observerOn());
     }

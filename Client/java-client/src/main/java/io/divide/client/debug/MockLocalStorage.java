@@ -1,7 +1,7 @@
 package io.divide.client.debug;
 
 import com.google.inject.Inject;
-import io.divide.client.BackendConfig;
+import io.divide.client.Config;
 import io.divide.client.cache.LocalStorageIBoxDb;
 import io.divide.shared.web.transitory.TransientObject;
 
@@ -13,7 +13,7 @@ import java.io.File;
 public class MockLocalStorage <T1 extends TransientObject,T2 extends TransientObject> extends LocalStorageIBoxDb<T1,T2> {
 
     @Inject
-    public MockLocalStorage(BackendConfig config){
+    public MockLocalStorage(Config config){
         super(getPath(config.fileSavePath));
     }
 

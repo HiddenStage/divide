@@ -5,7 +5,7 @@ import iBoxDB.LocalServer.AutoBox;
 import iBoxDB.LocalServer.DB;
 import iBoxDB.LocalServer.E.CommitExpection;
 import iBoxDB.LocalServer.IFunction;
-import io.divide.client.BackendConfig;
+import io.divide.client.Config;
 import io.divide.shared.server.DAO;
 import io.divide.shared.web.transitory.TransientObject;
 import io.divide.shared.web.transitory.query.Clause;
@@ -31,7 +31,7 @@ public class LocalStorageIBoxDb<T1 extends TransientObject,T2 extends TransientO
 //    }
 
     @Inject
-    public LocalStorageIBoxDb(BackendConfig config){
+    public LocalStorageIBoxDb(Config config){
         this(config.fileSavePath + "dbs");
     }
 

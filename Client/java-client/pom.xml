@@ -6,11 +6,11 @@
     <parent>
         <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>0.5.1</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>authenticator-client-java</artifactId>
-    <version>${app.version}</version>
+    <version>0.5.1</version>
 
     <dependencies>
         <dependency>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.squareup.retrofit</groupId>
             <artifactId>retrofit</artifactId>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp</groupId>
@@ -33,64 +33,28 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>com.jug6ernaut.android</groupId>-->
-            <!--<artifactId>alogger-base</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.google.android</groupId>-->
-            <!--<artifactId>android</artifactId>-->
-            <!--<version>4.1.1.4</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>iboxdb</groupId>
             <artifactId>iboxdb</artifactId>
             <version>1.5.2</version>
         </dependency>
-
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-core</artifactId>
-            <version>0.17.5</version>
+            <version>0.18.3</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.netflix.rxjava</groupId>-->
-            <!--<artifactId>rxjava-android</artifactId>-->
-            <!--<version>0.17.5</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.roboguice</groupId>-->
-            <!--<artifactId>roboguice</artifactId>-->
-            <!--<version>3.0b-experimental</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>3.0</version>
+            <version>4.0-beta</version>
             <classifier>no_aop</classifier>
         </dependency>
-
-
-        <!--<dependency>-->
-            <!--<groupId>org.robolectric</groupId>-->
-            <!--<artifactId>robolectric</artifactId>-->
-            <!--<version>2.2</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -100,14 +64,14 @@
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
-            <version>0.5.0</version>
+            <version>0.5.1</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
-            <version>0.5.0</version>
+            <version>0.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

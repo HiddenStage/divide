@@ -1,8 +1,8 @@
 package io.divide.client.auth;
 
 import com.google.inject.Inject;
-import io.divide.client.BackendConfig;
 import io.divide.client.BackendUser;
+import io.divide.client.Config;
 import io.divide.client.auth.credentials.LocalCredentials;
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
@@ -45,17 +45,17 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     PublishSubject<BackendUser> loginEventPublisher = PublishSubject.create();
 
     @Inject
-    public AuthManager(BackendConfig config, AccountStorage accountStorage) {
+    public AuthManager(Config config, AccountStorage accountStorage) {
         super(config);
         this.accountStorage = accountStorage;
 
-        loadCachedUser().subscribe(new Action1<BackendUser>() {
-            @Override public void call(BackendUser user) { }
-        },new Action1<Throwable>() {
+        loadCachedUser().subscribeOn(Schedulers.io()).subscribe(new Action1<BackendUser>() {
+            @Override
+            public void call(BackendUser user) { }
+        }, new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                logger.error("Failed to login",throwable);
-
+                logger.error("Failed to login", throwable);
             }
         });
     }

@@ -1,7 +1,7 @@
 package io.divide.client.debug.auth;
 
 import com.google.inject.Inject;
-import io.divide.client.BackendConfig;
+import io.divide.client.Config;
 import io.divide.client.auth.AccountStorage;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.AuthWebService;
@@ -19,7 +19,7 @@ public class MockAuthManager extends AuthManager {
     @Inject DAO<TransientObject,TransientObject> db;
 
     @Inject
-    public MockAuthManager(BackendConfig config, AccountStorage storage) throws NoSuchAlgorithmException {
+    public MockAuthManager(Config config, AccountStorage storage) throws NoSuchAlgorithmException {
         super(config,storage);
 
 //        mockAuthWebService = new MockAuthWebServer(this, db);
@@ -32,6 +32,6 @@ public class MockAuthManager extends AuthManager {
     }
 
     @Override
-    public void initAdapter(BackendConfig config){}
+    public void initAdapter(Config config){}
 
 }

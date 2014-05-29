@@ -6,11 +6,11 @@
     <parent>
         <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>authenticator-client-android</artifactId>
-    <version>${app.version}</version>
+    <version>0.5.1</version>
     <packaging>aar</packaging>
 
     <dependencies>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.17.5</version>
+            <version>0.18.3</version>
         </dependency>
     </dependencies>
 

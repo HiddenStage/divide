@@ -31,4 +31,13 @@ public class LocalCredentials {
     public void setRecoveryToken(String recoveryToken) {
         this.recoveryToken = recoveryToken;
     }
+
+    @Override
+    public String toString() {
+        return "LocalCredentials{" +
+                "emailAddress='" + emailAddress + '\'' +
+                ", authToken='" + authToken + '\'' +
+                ", recoveryToken='" + recoveryToken + '\'' +
+                '}';
+    }
 }

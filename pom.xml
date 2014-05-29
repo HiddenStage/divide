@@ -5,7 +5,7 @@
 
   <groupId>io.divide</groupId>
   <artifactId>parent</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
   <packaging>pom</packaging>
 
     <profiles>
@@ -60,7 +60,7 @@
       <github.global.server>github</github.global.server>
 
 
-      <app.version>0.5.0</app.version>
+    <app.version>0.5.1</app.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
 

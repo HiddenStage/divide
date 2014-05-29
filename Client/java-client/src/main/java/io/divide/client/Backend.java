@@ -16,18 +16,17 @@ public class Backend {
 
     private static boolean initialized = false;
     @Inject static private Injector injector;
-    @Inject private BackendConfig config;
+    @Inject private Config config;
     @Inject private AuthManager authManager;
     @Inject private DataManager dataManager;
 
-    @Inject
-    protected Backend() {}
+    @Inject protected Backend() {}
 
     public AuthManager getAuthManager() { return authManager; }
 
     public DataManager getDataManager() { return dataManager; }
 
-    public BackendConfig getConfig(){
+    public Config getConfig(){
         return config;
     }
 
@@ -36,15 +35,12 @@ public class Backend {
         injector.injectMembers(o);
     }
 
-    public static synchronized Backend  init(BackendConfig config) {
+    public static synchronized <BackendType extends Backend> BackendType init(Config<BackendType> config) {
         if(initialized) throw new RuntimeException("Backend already initialized!");
 
-        if(!config.isIsMockMode())
-            Guice.createInjector(new BackendModule(config));
-        else
-            Guice.createInjector(new MockBackendModule(config));
+        Guice.createInjector(config.getModule());
 
-        return injector.getInstance(Backend.class);
+        return injector.getInstance(config.getType());
     }
 
     protected Injector getInjector(BackendModule module){
