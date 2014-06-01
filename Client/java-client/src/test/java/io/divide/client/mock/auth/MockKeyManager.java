@@ -34,4 +34,9 @@ public class MockKeyManager implements KeyManager {
         return encryptionKey;
     }
 
+    @Override
+    public String getPushKey() {
+        return null;
+    }
+
 }

@@ -3,9 +3,9 @@ package io.divide.server.dao;
 import io.divide.dao.ServerDAO;
 import io.divide.shared.event.Event;
 import io.divide.shared.event.EventManager;
-import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.transitory.TransientObject;
 import io.divide.shared.transitory.query.Query;
+import io.divide.shared.util.ObjectUtils;
 
 import java.security.KeyPair;
 import java.util.Collection;
@@ -32,17 +32,24 @@ public final class DAOManager implements ServerDAO {
         this.serverDao = serverDao;
     }
 
+//    @Override
+//    public List<TransientObject> query(Query query) throws DAOException {
+//        List<TransientObject> results = serverDao.query(query);
+//        eventManager.fire(new QUERY_EVENT(results));
+//        return results;
+//    }
+
     @Override
-    public List<TransientObject> query(Query query) throws DAOException {
-        List<TransientObject> results = serverDao.query(query);
-        eventManager.fire(new QUERY_EVENT(results));
+    public <O extends TransientObject> Collection<O> get(String objectType, String... keys) throws DAOException {
+        Collection<O> results = serverDao.get(objectType,keys);
+        eventManager.fire(new GET_EVENT<O>(results));
         return results;
     }
 
     @Override
-    public Collection<TransientObject> get(String objectType, String... keys) throws DAOException {
-        Collection<TransientObject> results = serverDao.get(objectType,keys);
-        eventManager.fire(new GET_EVENT(results));
+    public <O extends TransientObject> List<O> query(Query query) throws DAOException {
+        List<O> results = serverDao.query(query);
+        eventManager.fire(new QUERY_EVENT<O>(results));
         return results;
     }
 
@@ -75,17 +82,17 @@ public final class DAOManager implements ServerDAO {
         return serverDao.keys(keys);
     }
 
-    public static final class QUERY_EVENT extends Event {
-        Collection<TransientObject> transientObjects;
-        protected QUERY_EVENT(Collection<TransientObject> transientObjects) {
+    public static final class QUERY_EVENT<T extends TransientObject> extends Event {
+        Collection<T> transientObjects;
+        protected QUERY_EVENT(Collection<T> transientObjects) {
             super(DAOManager.class);
             this.transientObjects = transientObjects;
         }
     }
 
-    public static final class GET_EVENT extends Event {
-        Collection<TransientObject> transientObjects;
-        protected GET_EVENT(Collection<TransientObject> transientObjects) {
+    public static final class GET_EVENT<T extends TransientObject> extends Event {
+        Collection<T> transientObjects;
+        protected GET_EVENT(Collection<T> transientObjects) {
             super(DAOManager.class);
             this.transientObjects = transientObjects;
         }

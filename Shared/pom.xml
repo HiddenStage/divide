@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>authenticator-shared</artifactId>
-    <version>${app.version}</version>
+    <version>0.5.1</version>
 
     <dependencies>
         <dependency>
