@@ -6,7 +6,7 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.annotation.Entity;
 import io.divide.dao.DAOTest;
 import io.divide.dao.Keyable;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 import org.junit.After;
 import org.junit.Before;
 

@@ -1,6 +1,6 @@
 package io.divide.shared.server;
 
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 
 /**
  * Created by williamwebb on 4/11/14.

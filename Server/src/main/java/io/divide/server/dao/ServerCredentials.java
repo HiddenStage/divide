@@ -1,8 +1,8 @@
 package io.divide.server.dao;
 
 import io.divide.shared.util.ReflectionUtils;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.TransientObject;
 
 import java.util.Map;
 

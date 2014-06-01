@@ -3,11 +3,11 @@ package io.divide.shared.server;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.util.ReflectionUtils;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.OPERAND;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.QueryBuilder;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.OPERAND;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.QueryBuilder;
 import org.apache.http.HttpStatus;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -54,7 +54,7 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
 
             dao.save(toSave);
 
-            return toSave;
+            return null;
     }
 
     /**

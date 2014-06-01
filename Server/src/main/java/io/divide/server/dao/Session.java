@@ -1,7 +1,7 @@
 package io.divide.server.dao;
 
 import io.divide.server.auth.UserContext;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;

@@ -1,10 +1,10 @@
 package io.divide.dao.orientdb;
 
 import io.divide.dao.ServerDAO;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.OPERAND;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.QueryBuilder;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.OPERAND;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.QueryBuilder;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;

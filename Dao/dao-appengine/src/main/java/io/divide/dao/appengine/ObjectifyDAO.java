@@ -5,8 +5,8 @@ import com.googlecode.objectify.cmd.LoadType;
 import io.divide.dao.ServerDAO;
 import io.divide.shared.util.Crypto;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.*;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.ws.rs.core.Response;

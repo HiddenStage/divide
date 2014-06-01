@@ -22,6 +22,8 @@ import java.util.logging.Logger;
  * User: williamwebb
  * Date: 8/19/13
  * Time: 5:39 PM
+ *
+ * Base server application.
  */
 public abstract class AuthApplication<T extends ServerDAO> extends ResourceConfig {
 

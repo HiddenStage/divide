@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import io.divide.client.BackendObject;
 import io.divide.client.BackendUser;
 import io.divide.shared.server.DAO;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.SelectOperation;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.SelectOperation;
 import rx.Observable;
 
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class ObjectManager {
             return objects;
         }
 
-        public <B extends BackendObject> Observable<String> save(B... objects){
+        public <B extends BackendObject> Observable<Void> save(B... objects){
             try{
                 BackendUser user;
                 if((user = BackendUser.getUser()) == null) throw new NotLoggedInException();
@@ -60,7 +60,6 @@ public class ObjectManager {
 
         public <B extends BackendObject> Observable<Collection<B>> load(Class<B> type, String... keys){
             return dataManager.get(type,Arrays.asList(keys));
-//            return new Loader(dataManager,type,keys);
         }
 
         public <B extends BackendObject> Observable<Collection<B>> query(Class<B> type, Query query){
@@ -75,7 +74,6 @@ public class ObjectManager {
                         "Actual: " + Query.safeTable(type));
             }
             return dataManager.query(type,query);
-//            return new Querier(dataManager,type,query);
         }
 
         public <B extends BackendObject> Observable<Integer> count(Class<B> type){

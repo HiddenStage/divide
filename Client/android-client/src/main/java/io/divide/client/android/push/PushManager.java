@@ -13,7 +13,7 @@ import io.divide.client.auth.LoginListener;
 import io.divide.client.web.AbstractWebManager;
 import io.divide.shared.event.EventManager;
 import io.divide.shared.logging.Logger;
-import io.divide.shared.web.transitory.EncryptedEntity;
+import io.divide.shared.transitory.EncryptedEntity;
 import retrofit.RetrofitError;
 
 import java.util.Set;

@@ -22,18 +22,42 @@ public class Backend {
 
     @Inject protected Backend() {}
 
+    /**
+     * Returns the AuthManager
+     * @return
+     */
+
     public AuthManager getAuthManager() { return authManager; }
 
+    /**
+     * Returns the DataManager
+     * @return
+     */
     public DataManager getDataManager() { return dataManager; }
 
+    /**
+     * Returns the config used by Divide.
+     * @return
+     */
     public Config getConfig(){
         return config;
     }
 
+    /**
+     * Used to inject objects managed by divide into an object.
+     * @param o object to be injected.
+     */
     public static void inject(Object o){
         if(!initialized) throw new RuntimeException("Backend must be initialized!");
         injector.injectMembers(o);
     }
+
+    /**
+     * Initialization point for divide. Returns an instance of the Divide object. Only one instance may exist at a time.
+     * @param config Configuration information for Divide. @see Config
+     * @param <BackendType> Specific type of Backend to return, for extentions on the Backend class.
+     * @return
+     */
 
     public static synchronized <BackendType extends Backend> BackendType init(Config<BackendType> config) {
         if(initialized) throw new RuntimeException("Backend already initialized!");

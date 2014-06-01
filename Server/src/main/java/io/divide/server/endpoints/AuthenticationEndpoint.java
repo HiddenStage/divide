@@ -1,18 +1,18 @@
 package io.divide.server.endpoints;
 
+import io.divide.dao.ServerDAO;
 import io.divide.server.auth.SecManager;
 import io.divide.server.auth.UserContext;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
 import io.divide.server.dao.Session;
-import io.divide.dao.ServerDAO;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.OPERAND;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.QueryBuilder;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.OPERAND;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.QueryBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -27,6 +27,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static io.divide.server.utils.DaoUtils.getUserByEmail;
+import static io.divide.server.utils.DaoUtils.getUserById;
 import static io.divide.server.utils.ResponseUtils.*;
 import static javax.ws.rs.core.Response.Status;
 
@@ -39,6 +41,8 @@ public final class AuthenticationEndpoint{
 
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
 
+//    AuthServerLogic<TransientObject> authServerLogic = new AuthServerLogic<TransientObject>(dao,keyManager);
+
     /*
      * Saves user credentials
      */
@@ -48,6 +52,7 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response userSignUp(@Context ContainerRequestContext context, Credentials credentials) {
         try{
+//            Credentials toSave = authServerLogic.userSignUp(credentials);
             if (getUserByEmail(dao,credentials.getEmailAddress())!=null){
                 return Response
                         .status(Status.CONFLICT)
@@ -311,16 +316,12 @@ public final class AuthenticationEndpoint{
     @PUT
     @Path("/user/data")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendUserData(@Context Session session) {
+    public Response sendUserData(@Context Session session, String userId) {
         try{
-            return ok(session.getUser());
+            return Response.ok(getUserById(dao,userId).getUserData()).build(); // ok(getUserById(dao,userId).getUserData());
         }catch (Exception e) {
             return errorResponse(e);
         }
-    }
-
-    private static Response errorResponse(Throwable error){
-        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(error).build();
     }
 
 //    public void sendEmail(EmailMessage emailMessage) throws MessagingException, UnsupportedEncodingException {
@@ -390,45 +391,5 @@ public final class AuthenticationEndpoint{
 //            return email.matches("[A-Z0-9._%+-][A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{3}");
 //        }
 //    }
-
-    public static Credentials getUserByEmail(ServerDAO serverDao, String email) throws ServerDAO.DAOException {
-        Query query = new QueryBuilder()
-                .select()
-                .from(Credentials.class)
-                .where(Credentials.EMAIL_KEY,OPERAND.EQ,email)
-                .build();
-
-        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
-        if(to==null){
-            return null;
-        } else {
-            return new ServerCredentials(to);
-        }
-    }
-
-    public static Credentials getUserById(ServerDAO serverDao, String userId) throws ServerDAO.DAOException {
-        Query query = new QueryBuilder()
-                .select()
-                .from(Credentials.class)
-                .where(Credentials.OWNER_ID_KEY,OPERAND.EQ,userId)
-                .build();
-
-        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
-        if(to==null){
-            return null;
-        } else {
-            return new ServerCredentials(to);
-        }
-    }
-
-    private String doHash(String plainText, int interations){
-        String salt = BCrypt.gensalt(20);
-        for(int x=0;x<interations;x++){
-            plainText = BCrypt.hashpw(plainText,salt);
-        }
-        return plainText;
-    }
-
-
 
 }

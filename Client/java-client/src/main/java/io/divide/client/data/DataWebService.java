@@ -1,7 +1,7 @@
 package io.divide.client.data;
 
 import io.divide.client.BackendObject;
-import io.divide.shared.web.transitory.query.Query;
+import io.divide.shared.transitory.query.Query;
 import retrofit.client.Response;
 import retrofit.http.*;
 import rx.Observable;
@@ -23,7 +23,7 @@ public interface DataWebService {
     public Response query(@Header("Authorization") String authToken, @Body Query query);
 
     @POST("/data/save")
-    public <B extends BackendObject> Observable<String> save(@Header("Authorization") String authToken, @Body Collection<B> objects);
+    public <B extends BackendObject> Observable<Void> save(@Header("Authorization") String authToken, @Body Collection<B> objects);
 
     @GET("/data/count/{objectType}")
     public Observable<Integer> count(@Header("Authorization") String authToken, @EncodedPath("objectType") String objectType);

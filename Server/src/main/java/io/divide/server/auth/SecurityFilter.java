@@ -43,11 +43,11 @@ import io.divide.server.dao.Session;
 import io.divide.dao.ServerDAO;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.OPERAND;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.QueryBuilder;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.OPERAND;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.QueryBuilder;
 import org.glassfish.jersey.server.ContainerRequest;
 
 import javax.security.sasl.AuthenticationException;

@@ -23,7 +23,7 @@ public class SecManager implements KeyManager {
     public SecManager(ServerDAO dao, String encryptionKey){
         this.dao = dao;
         this.encryptionKey = encryptionKey;
-    };
+    }
 
     private KeyPair cachedKeys = null;
     private synchronized KeyPair getKeys(){
@@ -56,6 +56,11 @@ public class SecManager implements KeyManager {
 
     public String getSymmetricKey(){
         return encryptionKey;
+    }
+
+    @Override
+    public String getPushKey() {
+        return null; // TODO replace this.
     }
 
     private List<String> safePaths = new ArrayList<String>(Arrays.asList(

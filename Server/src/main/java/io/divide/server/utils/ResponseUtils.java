@@ -1,7 +1,7 @@
 package io.divide.server.utils;
 
 import io.divide.dao.ServerDAO;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 import javax.ws.rs.core.Response;
 
@@ -29,9 +29,11 @@ public class ResponseUtils {
     public static Response ok(Credentials credentials){
         return Response
                 .ok()
-//                .header("CUSTOM",credentials.getAuthToken())
-//                .cookie(new NewCookie(ContainerRequest.AUTHORIZATION,"CUSTOM " + credentials.getAuthToken()))
                 .entity(credentials)
                 .build();
+    }
+
+    public static Response errorResponse(Throwable error){
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
     }
 }

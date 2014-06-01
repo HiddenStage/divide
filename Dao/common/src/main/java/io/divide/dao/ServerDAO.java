@@ -1,7 +1,7 @@
 package io.divide.dao;
 
 import io.divide.shared.server.DAO;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 
 import java.security.KeyPair;
 

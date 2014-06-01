@@ -1,7 +1,7 @@
 package io.divide.shared.server;
 
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.Query;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.Query;
 
 import java.util.Collection;
 import java.util.List;

@@ -2,7 +2,7 @@ package io.divide.dao.orientdb;
 
 import io.divide.dao.DAOTest;
 import io.divide.dao.Keyable;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.junit.After;

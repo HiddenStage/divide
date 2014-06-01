@@ -1,18 +1,23 @@
 package io.divide.client.auth;
 
+
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
 import io.divide.client.auth.credentials.ValidCredentials;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import retrofit.client.Response;
 import retrofit.http.*;
 import rx.Observable;
+
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
  * User: williamwebb
  * Date: 7/27/13
  * Time: 8:16 PM
+ *
+ * Interface defining relationship with server.
  */
 public interface AuthWebService {
 
@@ -43,6 +48,6 @@ public interface AuthWebService {
     public Observable<Void> sendUserData(@Header("Authorization") String authToken, @Body Credentials credentials);
 
     @GET("/auth/user/data")
-    public Observable<ValidCredentials> getUserData(@Header("Authorization") String authToken);
+    public Observable<Map<String,Object>> getUserData(@Header("Authorization") String authToken, String userId);
 
 }

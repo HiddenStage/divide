@@ -7,9 +7,8 @@ import io.divide.dao.ServerDAO;
 import io.divide.server.auth.SecManager;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.Session;
-import io.divide.shared.Constants;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.EncryptedEntity;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.EncryptedEntity;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.ws.rs.*;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import static io.divide.server.utils.DaoUtils.getUserByEmail;
 import static io.divide.server.utils.ResponseUtils.fromDAOExpection;
 import static io.divide.shared.server.DAO.DAOException;
 
@@ -91,21 +91,13 @@ public class PushEndpoint {
 
         Credentials user = getUserByEmail(dao,email);
 
-        Sender sender = new Sender(Constants.PUSH_KEY);
+        Sender sender = new Sender(keyManager.getPushKey());
         Message message = new Message.Builder().addData("body", input).build();
 
         MulticastResult result = sender.send(message, Arrays.asList(user.getPushMessagingKey()), 5);
 
         System.out.println("Result = " + result);
         return result.toString();
-    }
-
-    private Credentials getUserByEmail(ServerDAO serverDao, String email) throws ServerDAO.DAOException {
-        return AuthenticationEndpoint.getUserByEmail(serverDao,email);
-    }
-
-    private Credentials getUserById(ServerDAO serverDao, String userId) throws ServerDAO.DAOException {
-        return AuthenticationEndpoint.getUserById(serverDao,userId);
     }
 
 }

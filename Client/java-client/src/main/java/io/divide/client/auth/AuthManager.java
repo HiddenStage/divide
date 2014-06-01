@@ -7,14 +7,13 @@ import io.divide.client.auth.credentials.LocalCredentials;
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
 import io.divide.client.auth.credentials.ValidCredentials;
-import io.divide.client.data.GenericResponse;
 import io.divide.client.data.ServerResponse;
 import io.divide.client.http.Status;
 import io.divide.client.web.AbstractWebManager;
 import io.divide.shared.logging.Logger;
 import io.divide.shared.util.Crypto;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscriber;
@@ -26,6 +25,7 @@ import rx.subjects.PublishSubject;
 
 import java.security.PublicKey;
 import java.util.List;
+import java.util.Map;
 
 import static io.divide.client.auth.LoginState.*;
 
@@ -42,7 +42,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private BackendUser user;
     private AccountStorage accountStorage;
     private LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
-    PublishSubject<BackendUser> loginEventPublisher = PublishSubject.create();
+    private PublishSubject<BackendUser> loginEventPublisher = PublishSubject.create();
 
     @Inject
     public AuthManager(Config config, AccountStorage accountStorage) {
@@ -71,6 +71,10 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         else return Observable.empty();
     }
 
+    /**
+     * Return LocalCredentials representing logged in user credentials stored to disk.
+     * @return locally stored credentials. Representing account name and access token
+     */
     public LocalCredentials getStoredAccount(){
         return ObjectUtils.get1stOrNull(accountStorage.getAccounts());
     }
@@ -86,6 +90,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
+    /**
+     * Login using user authentication token
+     * @param authToken authentication user for user.
+     * @return Logged in user.
+     */
     public Observable<BackendUser> getUserFromAuthToken(final String authToken){
         return Observable.create(new Observable.OnSubscribe<BackendUser>() {
             @Override
@@ -105,6 +114,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         });
     }
 
+    /**
+     * Login using user recovery token
+     * @param recoveryToken recovery token for user.
+     * @return Logged in user.
+     */
     public Observable<BackendUser> getUserFromRecoveryToken(final String recoveryToken){
         return Observable.create(new Observable.OnSubscribe<BackendUser>() {
             @Override
@@ -124,12 +138,16 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         });
     }
 
+    /**
+     * Returns currently logged in user if one exists.
+     * @return Logged in user or null.
+     */
     public BackendUser getUser() {
         return user;
     }
 
-    /*
-     * basic stub
+    /**
+     * Log out current user if logged in.
      */
     public void logout(){
         List<LocalCredentials> accountList = accountStorage.getAccounts();
@@ -147,8 +165,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         user = BackendUser.from(returned);
         logger.debug("setUser: " + getUser());
 
-        if(returned!=null)
-            storeOrUpdateAccount(returned);
+        if(returned!=null) storeOrUpdateAccount(returned);
 
         fireLoginListeners();
         setLoginState(LOGGED_IN);
@@ -181,6 +198,10 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
     private static PublicKey serverPublicKey = null;
 
+    /**
+     * Returns server public key. Queries server or local copy.
+     * @return Server public key.
+     */
     public PublicKey getServerKey(){
         logger.debug("getServerKey()");
         try {
@@ -197,6 +218,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         return null;
     }
 
+    /**
+     * Syncronously attempt to create user account
+     * @param loginCreds Credentials used to create account.
+     * @return Response of the operation
+     */
     public SignUpResponse signUp(SignUpCredentials loginCreds){
         logger.debug("signUp(" + loginCreds + ")");
         try {
@@ -206,8 +232,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             loginCreds.encryptPassword(key);
 
             logger.debug("Login Creds: " + loginCreds);
-            GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class, getWebService().userSignUp(loginCreds));
-            ServerResponse<ValidCredentials> response = ServerResponse.from(g);
+            ServerResponse<ValidCredentials> response = ServerResponse.from(ValidCredentials.class, getWebService().userSignUp(loginCreds));
 
             BackendUser user;
             if (response.getStatus().isSuccess()) {
@@ -223,6 +248,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
+    /**
+     * Asyncronously attempt to create user account
+     * @param signInCreds Credentials used to create account.
+     * @return Response of the operation
+     */
     public Observable<BackendUser> signUpASync(final SignUpCredentials signInCreds){
         logger.debug("signUpASync("+signInCreds+")");
         try {
@@ -251,13 +281,18 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
                     return setUser(validCredentials);
                 }
             })
-              .subscribeOn(Schedulers.io()).observeOn(config.observerOn());
+              .subscribeOn(Schedulers.io()).observeOn(config.observeOn());
         } catch (Exception e) {
             logger.error("Failed to signUp(" + signInCreds.getEmailAddress() + ")", e);
             return Observable.error(e);
         }
     }
 
+    /**
+     * Syncronously attempt to log into user account
+     * @param loginCreds Credentials used to login.
+     * @return Response of the operation
+     */
     public SignInResponse login(final LoginCredentials loginCreds){
         logger.debug("login("+loginCreds+")");
         try{
@@ -269,8 +304,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             }
 
             logger.debug("Login Creds: " + loginCreds);
-            GenericResponse<ValidCredentials> g = new GenericResponse<ValidCredentials>(ValidCredentials.class,getWebService().login(loginCreds));
-            ServerResponse<ValidCredentials> response = ServerResponse.from(g);
+            ServerResponse<ValidCredentials> response = ServerResponse.from(ValidCredentials.class,getWebService().login(loginCreds));
 
             BackendUser user;
             if(response.getStatus().isSuccess()){
@@ -289,6 +323,11 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
+    /**
+     * Asyncronously attempt to log into user account
+     * @param loginCreds Credentials used to login.
+     * @return Response of the operation
+     */
     public Observable<BackendUser> loginASync(final LoginCredentials loginCreds){
         logger.debug("loginASync("+loginCreds+")");
         try{
@@ -318,7 +357,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
                     return setUser(validCredentials);
                 }
             })
-              .subscribeOn(Schedulers.io()).observeOn(config.observerOn());
+              .subscribeOn(Schedulers.io()).observeOn(config.observeOn());
 
         }catch (Exception e){
             logger.error("Failed to SignIn("+loginCreds.getEmailAddress()+")",e);
@@ -332,18 +371,22 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         CURRENT_STATE = state;
     }
 
-    public Observable<Void> sendUserData(@NotNull BackendUser user){
-        return getWebService().sendUserData(user.getAuthToken(),user)
-               .subscribeOn(Schedulers.io()).observeOn(config.observerOn());
+    /**
+     * Update remote server with new user data.
+     * @return status of update.
+     */
+    public Observable<Void> sendUserData(BackendUser backendUser){
+        return getWebService().sendUserData(getUser().getAuthToken(),backendUser)
+               .subscribeOn(config.subscribeOn()).observeOn(config.observeOn());
     }
 
-    public Observable<BackendUser> getUserData(){
-        return getWebService().getUserData(getUser().getAuthToken()).map(new Func1<ValidCredentials, BackendUser>() {
-            @Override
-            public BackendUser call(ValidCredentials validCredentials) {
-                return setUser(validCredentials);
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(config.observerOn());
+    /**
+     * Query server to return user data for the logged in user
+     * @return updated BackendUser.
+     */
+    public Observable<Map<String,Object>> getUserData(BackendUser backendUser){
+        return getWebService().getUserData(getUser().getAuthToken(), backendUser.getOwnerId() + "")
+                .subscribeOn(config.subscribeOn()).observeOn(config.observeOn());
     }
 
     @Override
@@ -351,6 +394,10 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         return AuthWebService.class;
     }
 
+    /**
+     * Add loginListener to listen to login events
+     * @param listener LoginListener to receive events.
+     */
     public void addLoginListener(LoginListener listener){
         Subscription subscription = loginEventPublisher
                 .subscribeOn(Schedulers.io())
@@ -361,6 +408,9 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
         }
     }
 
+    /**
+     * @hide
+     */
     private void fireLoginListeners(){
         loginEventPublisher.onNext(getUser());
     }

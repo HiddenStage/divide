@@ -1,7 +1,7 @@
 package io.divide.dao.orientdb;
 
 import io.divide.shared.util.ReflectionUtils;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexes;
 import com.orientechnologies.orient.core.metadata.schema.OClass;

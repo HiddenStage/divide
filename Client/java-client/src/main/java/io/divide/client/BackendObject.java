@@ -1,8 +1,8 @@
 package io.divide.client;
 
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.FilePermissions;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.FilePermissions;
+import io.divide.shared.transitory.TransientObject;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,7 +27,7 @@ public class BackendObject extends TransientObject {
         super(type);
 //        this.setUserId(Backend.get().getAuthManager().getUser().getUserId());
         FilePermissions fp = new FilePermissions();
-        fp.setWritable(true, FilePermissions.Level.OWNER, FilePermissions.Level.GROUP, FilePermissions.Level.WORLD);
+        fp.setWritable(true, FilePermissions.Level.GROUP, FilePermissions.Level.WORLD);
         setFilePermissions(fp);
     }
 
@@ -36,6 +36,10 @@ public class BackendObject extends TransientObject {
         return BackendUser.getUser();
     }
 
+    /**
+     * Sets the user id for this object. Once set this can not be changed.
+     * @param userId user id to be set.
+     */
     @Override
     public void setOwnerId(Integer userId){
         super.setOwnerId(userId);

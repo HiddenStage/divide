@@ -20,16 +20,26 @@ public class BackendServices {
 
     private BackendServices(){ }
 
+    /**
+     * @return @see RemoteStorage instance used to interface with the remote server.
+     */
     public static ObjectManager.RemoteStorage remote(){
         checkIsInitialized(objectManager);
         return objectManager.remote();
     }
 
+    /**
+     * @return LocalStorage instanced used to store and manage @see BackendObject locally.
+     */
     public static DAO<BackendObject,BackendObject> local(){
         checkIsInitialized(objectManager);
         return objectManager.local();
     }
 
+    /**
+     * Subscribe to login events.
+     * @param loginListener
+     */
     public static void addLoginListener(LoginListener loginListener){
         checkIsInitialized(authManager);
         authManager.addLoginListener(loginListener);

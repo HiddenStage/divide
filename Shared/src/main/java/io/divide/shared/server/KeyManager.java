@@ -11,5 +11,5 @@ public interface KeyManager {
     public PublicKey getPublicKey();
     public PrivateKey getPrivateKey();
     public String getSymmetricKey();
-
+    public String getPushKey();
 }

@@ -1,6 +1,6 @@
 package io.divide.dao.appengine;
 
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 
 import java.util.Map;
 

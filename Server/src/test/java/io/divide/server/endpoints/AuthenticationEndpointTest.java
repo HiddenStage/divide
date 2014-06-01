@@ -3,7 +3,7 @@ package io.divide.server.endpoints;
 import io.divide.server.ServerTest;
 import io.divide.server.TestUtils;
 import io.divide.shared.util.Crypto;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;

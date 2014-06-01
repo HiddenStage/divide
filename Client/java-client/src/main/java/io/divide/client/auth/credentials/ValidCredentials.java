@@ -1,6 +1,6 @@
 package io.divide.client.auth.credentials;
 
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 /**
  * Created by williamwebb on 10/26/13.

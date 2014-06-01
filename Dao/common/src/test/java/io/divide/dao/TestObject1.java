@@ -1,7 +1,7 @@
 package io.divide.dao;
 
-import io.divide.shared.web.transitory.FilePermissions;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.FilePermissions;
+import io.divide.shared.transitory.TransientObject;
 
 /**
  * Created by williamwebb on 11/16/13.

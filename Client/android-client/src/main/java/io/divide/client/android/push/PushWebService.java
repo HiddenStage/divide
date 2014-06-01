@@ -1,6 +1,6 @@
 package io.divide.client.android.push;
 
-import io.divide.shared.web.transitory.EncryptedEntity;
+import io.divide.shared.transitory.EncryptedEntity;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.DELETE;

@@ -21,10 +21,10 @@ import io.divide.client.android.AuthActivity;
 import io.divide.client.auth.LoginListener;
 import io.divide.shared.file.Storage;
 import io.divide.shared.file.XmlStorage;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.OPERAND;
-import io.divide.shared.web.transitory.query.Query;
-import io.divide.shared.web.transitory.query.QueryBuilder;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.OPERAND;
+import io.divide.shared.transitory.query.Query;
+import io.divide.shared.transitory.query.QueryBuilder;
 import rx.functions.Action1;
 
 import java.io.File;
@@ -128,19 +128,16 @@ public class MyActivity extends Activity {
 
     @OnClick(R.id.addObject)
     public void addObject(){
-
         if(user != null){
-
             BackendServices
                     .remote()
                     .save(new BackendObject())
-                    .subscribe(new Action1<String>() {
+                    .subscribe(new Action1<Void>() {
                         @Override
-                        public void call(String s) {
+                        public void call(Void s) {
                             getObjects();
                         }
                     });
-
         }
     }
 

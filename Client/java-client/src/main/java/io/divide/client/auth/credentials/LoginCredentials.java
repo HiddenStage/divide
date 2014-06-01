@@ -1,6 +1,6 @@
 package io.divide.client.auth.credentials;
 
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;

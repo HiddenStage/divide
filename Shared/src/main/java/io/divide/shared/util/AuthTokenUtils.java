@@ -1,6 +1,6 @@
 package io.divide.shared.util;
 
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;

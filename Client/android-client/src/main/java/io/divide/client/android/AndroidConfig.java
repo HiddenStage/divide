@@ -19,7 +19,7 @@ public class AndroidConfig extends Config<AndroidBackend>{
     public AndroidConfig(Application application, String url) {
         super(application.getFilesDir().getPath() + File.separator, url);
         this.app = application;
-        this.observerOn(AndroidSchedulers.mainThread());
+        this.observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

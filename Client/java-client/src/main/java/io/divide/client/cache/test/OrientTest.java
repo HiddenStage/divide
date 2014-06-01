@@ -18,7 +18,7 @@ public class OrientTest {
 //        db.getEntityManager().registerEntityClasses(Person.class.getPackage().getName());
 //
 //        Person person = new Person();
-//        person.setFirstname("Jörg");
+//        person.setFirstname("Que");
 //        person.setLastname("Bellmann");
 //
 //        Address address = new Address();

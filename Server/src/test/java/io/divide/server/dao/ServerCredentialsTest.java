@@ -1,6 +1,6 @@
 package io.divide.server.dao;
 
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import org.junit.Test;
 
 /**

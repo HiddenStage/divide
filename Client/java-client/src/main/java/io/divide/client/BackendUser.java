@@ -1,7 +1,6 @@
 package io.divide.client;
 
 import com.google.inject.Inject;
-import io.divide.shared.logging.Logger;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.auth.SignInResponse;
 import io.divide.client.auth.SignUpResponse;
@@ -9,8 +8,8 @@ import io.divide.client.auth.credentials.LocalCredentials;
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
 import io.divide.client.auth.credentials.ValidCredentials;
-import io.divide.client.data.Callback;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.logging.Logger;
+import io.divide.shared.transitory.Credentials;
 import rx.Observable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -36,15 +35,21 @@ public final class BackendUser extends Credentials {
         this.setPassword(password);
     }
 
+    /**
+     * Convience method to access the authManager
+     * @return authManager
+     */
+
     private static AuthManager getAM(){
         if(authManager==null) throw new RuntimeException("Backend not initialized!");
         return authManager;
     }
 
-//    private static Context getApp(){
-//        if(app==null) throw new RuntimeException("Backend not initialized!");
-//        return app;
-//    }
+    /**
+     * Convience method to initialize BackendUser from ValidCredentials
+     * @param credentials
+     * @return
+     */
 
     public static BackendUser from(ValidCredentials credentials){
         BackendUser beu = new BackendUser();
@@ -52,6 +57,9 @@ public final class BackendUser extends Credentials {
         return beu;
     }
 
+    /**
+     * @return Currently logged in user.
+     */
     public static BackendUser getUser(){
         return getAM().getUser();
     }
@@ -73,13 +81,17 @@ public final class BackendUser extends Credentials {
 //        return response;
 //    }
 
+    /**
+     * Used to access the stored credentials.
+     * @return Locally stored credentials for the logged in user.
+     */
     public static LocalCredentials getStoredAccount(){
         return authManager.getStoredAccount();
     }
 
-    protected final Credentials getLoggedInUser(){
-        return getUser();
-    }
+//    protected final Credentials getLoggedInUser(){
+//        return getUser();
+//    }
 
     @Override
     protected final boolean isSystemUser(){
@@ -96,30 +108,71 @@ public final class BackendUser extends Credentials {
         }
     }
 
+    /**
+     * Login using an authtoken
+     * @param token
+     * @return BackendUser for the sent token.
+     */
     public static BackendUser fromToken(String token){
         return getAM().getUserFromAuthToken(token).toBlockingObservable().first();
     }
 
+    /**
+     * Perform syncronously login attempt.
+     * @param loginCredentials credentials used for login attempt.
+     * @return login results.
+     */
     public static SignInResponse signIn(LoginCredentials loginCredentials){
         return getAM().login(loginCredentials);
     }
 
+    /**
+     * Perform syncronously login attempt.
+     * @param email user email address
+     * @param password user password
+     * @return login results.
+     */
     public static SignInResponse signIn(String email, String password){
         return signIn(new LoginCredentials(email,password));
     }
 
+    /**
+     * Perform syncronously sign up attempt.
+     * @param signUpCredentials credentials used for sign up attempt.
+     * @return signup results.
+     */
     public static SignUpResponse signUp(SignUpCredentials signUpCredentials){
         return getAM().signUp(signUpCredentials);
     }
 
+    /**
+     * Perform syncronously sign up attempt.
+     * @param username user name user will be identified by.
+     * @param email user email address
+     * @param password user password
+     * @return login results.
+     */
     public static SignUpResponse signUp(String username, String email, String password){
         return signUp(new SignUpCredentials(username,email,password));
     }
 
+    /**
+     * Perform asyncronously login attempt.
+     * @param email user email address
+     * @param password user password
+     * @return login results as observable.
+     */
     public static Observable<BackendUser> logInInBackground(String email, String password){
         return getAM().loginASync(new LoginCredentials(email, password));
     }
 
+    /**
+     * Perform asyncronously sign up attempt.
+     * @param username user name user will be identified by.
+     * @param email user email address
+     * @param password user password
+     * @return login results as observable.
+     */
     public static Observable<BackendUser> signUpInBackground(String username, String email, String password){
         return getAM().signUpASync(new SignUpCredentials(username, email, password));
     }
@@ -131,15 +184,14 @@ public final class BackendUser extends Credentials {
     public void	requestPasswordReset(String email){
         throw new NotImplementedException();
     }
-    public void	requestPasswordResetInBackground(String email, Callback<Boolean> callback){
+    public Observable<Boolean> requestPasswordResetInBackground(String email){
         throw new NotImplementedException();
     }
 
-    public Observable<BackendUser> signUpA(){
-        SignUpCredentials creds = new SignUpCredentials(getUsername(),getEmailAddress(),getPassword());
-        return getAM().signUpASync(creds);
-    }
-
+    /**
+     * Synchronously sign up using credentials provided via constructor or setters.
+     * @return boolean indicating sign up success
+     */
     public boolean signUp(){
         SignUpCredentials creds = new SignUpCredentials(getUsername(),getEmailAddress(),getPassword());
         SignUpResponse response = getAM().signUp(creds);
@@ -149,18 +201,31 @@ public final class BackendUser extends Credentials {
         } else return false;
     }
 
-    private void save(BackendUser object){
-        getAM().sendUserData(object).subscribe();
+    private void save(BackendUser user){
+        getAM().sendUserData(user).subscribe();
     }
 
     private Observable<Void> saveASync(BackendUser user){
         return getAM().sendUserData(user);
     }
 
+    /**
+     *  Asynchronously saves this user object. Saving any data added via the put() method.
+     *  put("1");
+     *  put(1);
+     *  etc.
+     */
     public void save(){
         save(this);
     }
 
+    /**
+     *  Asynchronously saves this user object return an Observable to monitor. Saving any data added via the put() method.
+     *  put("1");
+     *  put(1);
+     *  etc.
+     *  @return Obserable to monitor operation.
+     */
     public Observable<Void> saveASync(){
         return saveASync(this);
     }

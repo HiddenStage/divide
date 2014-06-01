@@ -4,7 +4,7 @@ package io.divide.server.auth;
  * Created by williamwebb on 2/13/14.
  */
 
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;

@@ -5,6 +5,8 @@ import retrofit.client.Response;
 
 /**
  * Created by williamwebb on 11/25/13.
+ *
+ * Callback to be provided when no actual callback is needed.
  */
 public class EmptyCallback<B> implements retrofit.Callback<B> {
     private static Logger logger = Logger.getLogger(EmptyCallback.class);

@@ -2,7 +2,7 @@ package io.divide.server.dao;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;

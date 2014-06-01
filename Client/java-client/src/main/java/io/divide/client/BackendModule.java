@@ -18,20 +18,28 @@ import java.io.File;
 /**
  * Created by williamwebb on 4/2/14.
  */
-class BackendModule<Type> extends AbstractModule {
+class BackendModule<BackendType extends Backend> extends AbstractModule {
 
     private Class<?> authManagerClass = AuthManager.class;
     private Class<?> dataManagerClass = DataManager.class;
     private Class<?> objectManagerClass = ObjectManager.class;
 
-    protected Config config;
+    protected Config<BackendType> config;
 
+    /**
+     * No args constructor, all implementations/extentions must provide a no args constructor
+     */
     protected BackendModule(){ }
 
-    public void init(Config config){ this.config = config; }
+    /**
+     * Sets @see config, must be set before module can be loaded.
+     * @param config
+     */
+    public void init(Config<BackendType> config){ this.config = config; }
 
     @Override
     protected final void configure() {
+        if(config == null) throw new IllegalStateException("Config can not be null");
         // ORDER MATTER
         bind(Config.class).toInstance(config);
         bind(Backend.class).in(Singleton.class);
@@ -64,11 +72,14 @@ class BackendModule<Type> extends AbstractModule {
         requestStaticInjection(BackendUser.class);
         requestStaticInjection(BackendServices.class);
 
-        additionalConfig();
+        additionalConfig(config);
     }
 
-    public void additionalConfig(){}
-
+    /**
+     * Override to provide additional module injection configuration. Runs after default configuration.
+     * @param config
+     */
+    public void additionalConfig(Config<BackendType> config){}
 
     public Class<AuthManager> getAuthManagerClass() {
         return (Class<AuthManager>) authManagerClass;

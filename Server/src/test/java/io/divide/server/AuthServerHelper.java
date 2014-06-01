@@ -1,7 +1,7 @@
 package io.divide.server;
 
 import io.divide.dao.ServerDAO;
-import io.divide.shared.web.transitory.Credentials;
+import io.divide.shared.transitory.Credentials;
 import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.test.spi.TestContainer;
 import retrofit.RestAdapter;

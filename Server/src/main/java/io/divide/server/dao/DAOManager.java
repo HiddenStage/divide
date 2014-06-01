@@ -4,8 +4,8 @@ import io.divide.dao.ServerDAO;
 import io.divide.shared.event.Event;
 import io.divide.shared.event.EventManager;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.Query;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.Query;
 
 import java.security.KeyPair;
 import java.util.Collection;

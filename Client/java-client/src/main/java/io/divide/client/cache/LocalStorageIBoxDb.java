@@ -7,9 +7,9 @@ import iBoxDB.LocalServer.E.CommitExpection;
 import iBoxDB.LocalServer.IFunction;
 import io.divide.client.Config;
 import io.divide.shared.server.DAO;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.Clause;
-import io.divide.shared.web.transitory.query.Query;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.Clause;
+import io.divide.shared.transitory.query.Query;
 
 import java.io.File;
 import java.util.*;

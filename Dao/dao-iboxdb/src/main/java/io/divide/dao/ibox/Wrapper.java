@@ -3,7 +3,7 @@ package io.divide.dao.ibox;
 import com.google.gson.*;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.util.ReflectionUtils;
-import io.divide.shared.web.transitory.TransientObject;
+import io.divide.shared.transitory.TransientObject;
 
 import java.lang.reflect.Type;
 import java.util.*;

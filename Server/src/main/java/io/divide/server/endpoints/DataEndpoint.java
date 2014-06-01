@@ -5,9 +5,9 @@ import io.divide.server.dao.Session;
 import io.divide.server.utils.ResponseUtils;
 import io.divide.dao.ServerDAO;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.web.transitory.Credentials;
-import io.divide.shared.web.transitory.TransientObject;
-import io.divide.shared.web.transitory.query.Query;
+import io.divide.shared.transitory.Credentials;
+import io.divide.shared.transitory.TransientObject;
+import io.divide.shared.transitory.query.Query;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.ws.rs.*;
