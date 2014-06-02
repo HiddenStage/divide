@@ -14,12 +14,10 @@ import java.util.Arrays;
  * Time: 9:10 PM
  */
 public class Crypto {
-    private static Crypto crypto;
     private KeyPair keyPair;
 
-    public static KeyPair get() throws NoSuchAlgorithmException {
-        if(crypto==null)crypto = new Crypto();
-        return crypto.keyPair;
+    public static KeyPair getNew() throws NoSuchAlgorithmException {
+        return new Crypto().keyPair;
     }
     private Crypto() throws NoSuchAlgorithmException {
 

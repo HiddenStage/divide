@@ -1,13 +1,13 @@
 package io.divide.shared.server;
 
-import io.divide.shared.util.AuthTokenUtils;
-import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.util.ReflectionUtils;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.TransientObject;
 import io.divide.shared.transitory.query.OPERAND;
 import io.divide.shared.transitory.query.Query;
 import io.divide.shared.transitory.query.QueryBuilder;
+import io.divide.shared.util.AuthTokenUtils;
+import io.divide.shared.util.ObjectUtils;
+import io.divide.shared.util.ReflectionUtils;
 import org.apache.http.HttpStatus;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static io.divide.shared.server.DAO.DAOException;
+import static io.divide.shared.util.DaoUtils.getUserByEmail;
+import static io.divide.shared.util.DaoUtils.getUserById;
 
 /**
  * Created by williamwebb on 4/11/14.
@@ -54,7 +56,7 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
 
             dao.save(toSave);
 
-            return null;
+            return toSave;
     }
 
     /**
@@ -134,7 +136,7 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
 
     public Credentials getUserFromAuthToken(String token) throws DAOException {
 
-        AuthTokenUtils.AuthToken authToken = null;
+        AuthTokenUtils.AuthToken authToken;
         try {
             authToken = new AuthTokenUtils.AuthToken(keyManager.getSymmetricKey(),token);
         } catch (AuthenticationException e) {
@@ -142,15 +144,14 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
         }
         if(authToken.isExpired()) throw new DAOException(HttpStatus.SC_UNAUTHORIZED,"Expired");
 
-            Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
+        Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
 
-            TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
-            if(to!=null){
-                ServerCredentials sc = new ServerCredentials(to);
-                return sc;
-            } else {
-                throw new DAOException(HttpStatus.SC_BAD_REQUEST,"invalid auth token");
-            }
+        TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
+        if(to!=null){
+            return new ServerCredentials(to);
+        } else {
+            throw new DAOException(HttpStatus.SC_BAD_REQUEST,"invalid auth token");
+        }
     }
 
     public Credentials getUserFromRecoveryToken(String token) throws DAOException {
@@ -166,6 +167,17 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
         } else {
             throw new DAOException(HttpStatus.SC_BAD_REQUEST,"invalid recovery token");
         }
+    }
+
+    public void recieveUserData(String userId, Map<String,?> data) throws DAOException {
+        Credentials user = getUserById(dao,userId);
+        user.removeAll();
+        user.putAll(data);
+        dao.save(user);
+    }
+
+    public Map<String,Object> sendUserData(String userId) {
+        return getUserById(dao,userId).getUserData();
     }
 
 ////    @POST
@@ -210,19 +222,6 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
 ////        }
 ////    }
 
-    public void recieveUserData(Credentials user, Map data) throws DAOException {
-        user.removeAll();
-        user.putAll(data);
-        dao.save(user);
-    }
-
-//    public Response sendUserData(@Context Session session) {
-//        try{
-//            return ok(session.getUser());
-//        }catch (Exception e) {
-//            return errorResponse(e);
-//        }
-//    }
 //
 //    private static Response errorResponse(Throwable error){
 //        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(error).build();
@@ -295,36 +294,6 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
 //            return email.matches("[A-Z0-9._%+-][A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{3}");
 //        }
 //    }
-
-    public Credentials getUserByEmail(DAO<TransientObject,DAOOut> serverDao, String email) throws DAOException {
-        Query query = new QueryBuilder()
-                .select()
-                .from(Credentials.class)
-                .where(Credentials.EMAIL_KEY,OPERAND.EQ,email)
-                .build();
-
-        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
-        if(to==null){
-            return null;
-        } else {
-            return new ServerCredentials(to);
-        }
-    }
-
-    public Credentials getUserById(DAO<TransientObject,DAOOut> serverDao, String userId) throws DAOException {
-        Query query = new QueryBuilder()
-                .select()
-                .from(Credentials.class)
-                .where(Credentials.OWNER_ID_KEY,OPERAND.EQ,userId)
-                .build();
-
-        TransientObject to = ObjectUtils.get1stOrNull(serverDao.query(query));
-        if(to==null){
-            return null;
-        } else {
-            return new ServerCredentials(to);
-        }
-    }
 
     private static class ServerCredentials extends Credentials {
 

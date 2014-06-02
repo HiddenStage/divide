@@ -17,8 +17,9 @@ import java.util.List;
  */
 public class SecManager implements KeyManager {
 
-    ServerDAO dao;
+    private ServerDAO dao;
     private String encryptionKey;
+    private String pushKey;
 
     public SecManager(ServerDAO dao, String encryptionKey){
         this.dao = dao;
@@ -31,15 +32,11 @@ public class SecManager implements KeyManager {
 
         cachedKeys = dao.keys(null);
         if(cachedKeys == null){
-            PrivateKey priKey = null;
-            PublicKey pubKey = null;
             try {
-                priKey = Crypto.get().getPrivate();
-                pubKey = Crypto.get().getPublic();
+                cachedKeys = Crypto.getNew();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-            cachedKeys = new KeyPair(pubKey,priKey);
             dao.keys(cachedKeys);
         }
 
@@ -60,7 +57,7 @@ public class SecManager implements KeyManager {
 
     @Override
     public String getPushKey() {
-        return null; // TODO replace this.
+        return pushKey;
     }
 
     private List<String> safePaths = new ArrayList<String>(Arrays.asList(

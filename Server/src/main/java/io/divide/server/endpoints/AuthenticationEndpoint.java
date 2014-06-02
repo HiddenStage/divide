@@ -4,31 +4,23 @@ import io.divide.dao.ServerDAO;
 import io.divide.server.auth.SecManager;
 import io.divide.server.auth.UserContext;
 import io.divide.server.dao.DAOManager;
-import io.divide.server.dao.ServerCredentials;
 import io.divide.server.dao.Session;
+import io.divide.shared.server.AuthServerLogic;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.TransientObject;
-import io.divide.shared.transitory.query.OPERAND;
-import io.divide.shared.transitory.query.Query;
-import io.divide.shared.transitory.query.QueryBuilder;
-import io.divide.shared.util.AuthTokenUtils;
-import io.divide.shared.util.ObjectUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mindrot.jbcrypt.BCrypt;
 
-import javax.security.sasl.AuthenticationException;
+import javax.annotation.PostConstruct;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.PublicKey;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import static io.divide.server.utils.DaoUtils.getUserByEmail;
-import static io.divide.server.utils.DaoUtils.getUserById;
 import static io.divide.server.utils.ResponseUtils.*;
 import static javax.ws.rs.core.Response.Status;
 
@@ -40,8 +32,12 @@ public final class AuthenticationEndpoint{
     @Context SecManager keyManager;
 
     private static Calendar c = Calendar.getInstance(TimeZone.getDefault());
+    AuthServerLogic<TransientObject> authServerLogic;
 
-//    AuthServerLogic<TransientObject> authServerLogic = new AuthServerLogic<TransientObject>(dao,keyManager);
+    @PostConstruct
+    public void init(){
+        authServerLogic = new AuthServerLogic<TransientObject>(dao,keyManager);
+    }
 
     /*
      * Saves user credentials
@@ -52,31 +48,9 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response userSignUp(@Context ContainerRequestContext context, Credentials credentials) {
         try{
-//            Credentials toSave = authServerLogic.userSignUp(credentials);
-            if (getUserByEmail(dao,credentials.getEmailAddress())!=null){
-                return Response
-                        .status(Status.CONFLICT)
-                        .build();
-            }
-            ServerCredentials toSave = new ServerCredentials(credentials);
-
-            String en = toSave.getPassword();
-            toSave.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
-            String de = toSave.getPassword();
-            String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
-            logger.info("PW\n" +
-                        "Encrypted: " + en + "\n" +
-                        "Decrypted: " + de + "\n" +
-                        "Hashed:    " + ha);
-            toSave.setPassword(ha); //hash the password for storage
-            toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
-            toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
-            toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
+            Credentials toSave = authServerLogic.userSignUp(credentials);
 
             context.setSecurityContext(new UserContext(context.getUriInfo(),toSave));
-            dao.save(toSave);
-
-            toSave.setPassword("");
 
             logger.info("SignUp Successful. Returning: " + toSave);
             return ok(toSave);
@@ -101,49 +75,12 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response userSignIn(@Context ContainerRequestContext context, Credentials credentials) {
         try{
-            Credentials dbCreds = getUserByEmail(dao,credentials.getEmailAddress());
-            if (dbCreds == null){
-                logger.warning("User not found(" + credentials.getEmailAddress() + ")");
-                return notAuthReponse("User not found("+credentials.getEmailAddress()+")");
-            }
-            else {
-                //check if we are resetting the password
-                if(dbCreds.getValidation()!=null && dbCreds.getValidation().equals(credentials.getValidation())){
-                    logger.info("Validated, setting new password");
-                    credentials.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
-                    dbCreds.setPassword(BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt(10))); //set the new password
-                }
-                //else check password
-                else {
-                    String en = credentials.getPassword();
-                    credentials.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
-                    String de = credentials.getPassword();
-                    String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
-                    logger.info("Comparing passwords.\n" +
-                            "Encrypted: " + en + "\n" +
-                            "Decrypted: " + de + "\n" +
-                            "Hashed:    " + ha + "\n" +
-                            "Stored:    " + dbCreds.getPassword());
+            Credentials dbCreds = authServerLogic.userSignIn(credentials);
 
-                    if (!BCrypt.checkpw(de, dbCreds.getPassword())){
-                        logger.warning("Password missmatch");
-                        return notAuthReponse("Password missmatch");
-                    }
-                }
+            context.setSecurityContext(new UserContext(context.getUriInfo(),dbCreds));
 
-                context.setSecurityContext(new UserContext(context.getUriInfo(),dbCreds));
-//                session.
-//                // check if token is expired, if so return/set new
-                AuthTokenUtils.AuthToken token = new AuthTokenUtils.AuthToken(keyManager.getSymmetricKey(),dbCreds.getAuthToken());
-                if (c.getTime().getTime() > token.expirationDate) {
-                    logger.info("Updating ExpireDate");
-                    dbCreds.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), dbCreds));
-                    dao.save(dbCreds);
-                }
-
-                logger.info("Login Successful. Returning: " + dbCreds);
-                return ok(dbCreds);
-            }
+            logger.info("Login Successful. Returning: " + dbCreds);
+            return ok(dbCreds);
         }catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
@@ -158,11 +95,9 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPublicKey()  {
         try{
-        PublicKey publicKey = keyManager.getPublicKey();
-
         return Response
                 .ok()
-                .entity(publicKey.getEncoded())
+                .entity(authServerLogic.getPublicKey())
                 .build();
         } catch (Exception e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
@@ -180,20 +115,11 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateAccount(@PathParam("token") String token) {
         try{
-            Query q = new QueryBuilder().select().from(Credentials.class).where("validation", OPERAND.EQ, token).build();
-
-            TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
-            if (to != null) {
-                ServerCredentials creds = new ServerCredentials(to);
-                creds.setValidation("1");
-                dao.save(creds);
-                return ok(creds);
+            if (authServerLogic.validateAccount(token)) {
+                return Response.ok().build();
             } else {
-                return Response
-                        .status(Status.NOT_FOUND)
-                        .build();
+                return Response.status(Status.NOT_FOUND).build();
             }
-
         }catch (ServerDAO.DAOException e) {
             return fromDAOExpection(e);
         }
@@ -205,26 +131,11 @@ public final class AuthenticationEndpoint{
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
             logger.fine("getUserFromToken");
-            AuthTokenUtils.AuthToken authToken = new AuthTokenUtils.AuthToken(keyManager.getSymmetricKey(),token);
-            if(authToken.isExpired()) return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
-
-            Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.AUTH_TOKEN_KEY,OPERAND.EQ,token).build();
-
-            TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
-            if(to!=null){
-                ServerCredentials sc = new ServerCredentials(to);
-                logger.info("Successfully gotUserFromToken: " + sc);
-                context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
-                return ok(sc);
-            } else {
-                return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
-            }
+            return Response.ok(authServerLogic.getUserFromAuthToken(token)).build();
         }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));
             return fromDAOExpection(e);
-        } catch (AuthenticationException e) {
-            return Response.status(Status.UNAUTHORIZED).entity("Expired").build();
         }
     }
 
@@ -233,20 +144,7 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response recoverFromOneTimeToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
-            Query q = new QueryBuilder().select().from(Credentials.class).where(Credentials.RECOVERY_TOKEN_KEY,OPERAND.EQ,token).build();
-
-            TransientObject to = ObjectUtils.get1stOrNull(dao.query(q));
-            if(to!=null){
-                ServerCredentials sc = new ServerCredentials(to);
-                logger.info("Successfully recoverFromOneTimeToken: " + sc);
-                sc.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), sc));
-                sc.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), sc));
-                context.setSecurityContext(new UserContext(context.getUriInfo(),sc));
-                dao.save(sc);
-                return Response.ok().header("1tk", sc.getRecoveryToken()).entity(sc).build();
-            } else {
-                return Response.status(Status.BAD_REQUEST).entity("whoopsie...").build();
-            }
+            return Response.ok(authServerLogic.getUserFromRecoveryToken(token)).build();
         }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));
@@ -297,15 +195,12 @@ public final class AuthenticationEndpoint{
 //    }
 
     @POST
-    @Path("/user/data")
+    @Path("/user/data/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response recieveUserData(@Context Session session, Credentials credentials) {
+    public Response recieveUserData(@Context Session session, @PathParam("userId") String userId, Map<String,?> data) {
         try{
-            Credentials user = session.getUser();
-            user.removeAll();
-            user.putAll(credentials.getUserData());
-            dao.save(user);
+            authServerLogic.recieveUserData(userId,data);
             return Response.ok().build();
         } catch (ServerDAO.DAOException e) {
             logger.severe(ExceptionUtils.getStackTrace(e));
@@ -314,11 +209,11 @@ public final class AuthenticationEndpoint{
     }
 
     @PUT
-    @Path("/user/data")
+    @Path("/user/data/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendUserData(@Context Session session, String userId) {
+    public Response sendUserData(@Context Session session, @PathParam("userId") String userId) {
         try{
-            return Response.ok(getUserById(dao,userId).getUserData()).build(); // ok(getUserById(dao,userId).getUserData());
+            return Response.ok(authServerLogic.sendUserData(userId)).build(); // ok(getUserById(dao,userId).getUserData());
         }catch (Exception e) {
             return errorResponse(e);
         }

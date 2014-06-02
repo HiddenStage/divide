@@ -2,6 +2,7 @@ package io.divide.client.data;
 
 import com.google.gson.Gson;
 import io.divide.client.http.Status;
+import io.divide.shared.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import retrofit.client.Response;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 public class ServerResponse<T> {
 
     private static Gson gson = new Gson();
+    private static Logger logger = Logger.getLogger(ServerResponse.class);
     protected T t;
     protected String error;
     protected Status status;
@@ -24,6 +26,7 @@ public class ServerResponse<T> {
      * @return ServerResponse containing object contained within retrofit response
      */
     public static <T> ServerResponse<T> from(Class<T> type,Response response){
+        logger.debug("from("+type.getName()+"): " + response.getStatus());
         ServerResponse<T> o = null;
         try {
             o = new ServerResponse<T>(convertBody(type,response),Status.valueOf(response.getStatus()),response.getReason());

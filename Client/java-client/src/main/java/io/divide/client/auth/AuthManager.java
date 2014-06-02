@@ -233,6 +233,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
 
             logger.debug("Login Creds: " + loginCreds);
             ServerResponse<ValidCredentials> response = ServerResponse.from(ValidCredentials.class, getWebService().userSignUp(loginCreds));
+            logger.debug("Response: " + response.getStatus());
 
             BackendUser user;
             if (response.getStatus().isSuccess()) {
@@ -376,7 +377,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
      * @return status of update.
      */
     public Observable<Void> sendUserData(BackendUser backendUser){
-        return getWebService().sendUserData(getUser().getAuthToken(),backendUser)
+        return getWebService().sendUserData(getUser().getAuthToken(),backendUser.getOwnerId()+"",backendUser.getUserData())
                .subscribeOn(config.subscribeOn()).observeOn(config.observeOn());
     }
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import static io.divide.server.utils.DaoUtils.getUserByEmail;
+import static io.divide.shared.util.DaoUtils.getUserByEmail;
 import static io.divide.server.utils.ResponseUtils.fromDAOExpection;
 import static io.divide.shared.server.DAO.DAOException;
 

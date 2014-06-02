@@ -4,7 +4,6 @@ package io.divide.client.auth;
 import io.divide.client.auth.credentials.LoginCredentials;
 import io.divide.client.auth.credentials.SignUpCredentials;
 import io.divide.client.auth.credentials.ValidCredentials;
-import io.divide.shared.transitory.Credentials;
 import retrofit.client.Response;
 import retrofit.http.*;
 import rx.Observable;
@@ -44,10 +43,10 @@ public interface AuthWebService {
     @GET("/auth/recover/{token}")
     public Observable<ValidCredentials> getUserFromRecoveryToken(@Path("token")String authToken);
 
-    @POST("/auth/user/data")
-    public Observable<Void> sendUserData(@Header("Authorization") String authToken, @Body Credentials credentials);
+    @POST("/auth/user/data/{userId}")
+    public Observable<Void> sendUserData(@Header("Authorization") String authToken, @Path("userId") String userId, @Body Map<String,?> map);
 
-    @GET("/auth/user/data")
-    public Observable<Map<String,Object>> getUserData(@Header("Authorization") String authToken, String userId);
+    @GET("/auth/user/data/{userId}")
+    public Observable<Map<String,Object>> getUserData(@Header("Authorization") String authToken, @Path("userId") String userId);
 
 }

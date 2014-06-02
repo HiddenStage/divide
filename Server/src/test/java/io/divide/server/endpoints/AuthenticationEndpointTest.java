@@ -87,7 +87,7 @@ public class AuthenticationEndpointTest extends ServerTest {
     public void testGetUserData() throws Exception {
         Credentials user = signUpUser(this);
 
-        int statusCode = target("/auth/user/data")
+        int statusCode = target("/auth/user/data/"+user.getOwnerId())
                 .request()
                 .header(ContainerRequest.AUTHORIZATION, "CUSTOM " + user.getAuthToken())
                 .put(TestUtils.toEntity(1)).getStatus();
