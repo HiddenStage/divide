@@ -81,3 +81,9 @@ BackendServices.remote()
            }
      });
 ```
+#License
+```
+Copyright 2014 HiddenStage
+
+Licensed under GPL v3.
+```
