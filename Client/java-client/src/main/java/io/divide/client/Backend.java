@@ -62,7 +62,7 @@ public class Backend {
     public static synchronized <BackendType extends Backend> BackendType init(Config<BackendType> config) {
         if(initialized) throw new RuntimeException("Backend already initialized!");
 
-        Guice.createInjector(config.getModule());
+         Guice.createInjector(config.getModule());
 
         return injector.getInstance(config.getType());
     }

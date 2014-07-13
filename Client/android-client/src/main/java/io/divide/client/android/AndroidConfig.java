@@ -17,7 +17,7 @@ public class AndroidConfig extends Config<AndroidBackend>{
     public Application app;
 
     public AndroidConfig(Application application, String url) {
-        super(application.getFilesDir().getPath() + File.separator, url);
+        super(application.getFilesDir().getPath() + File.separator, url, AndroidModule.class);
         this.app = application;
         this.observeOn(AndroidSchedulers.mainThread());
     }

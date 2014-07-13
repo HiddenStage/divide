@@ -21,7 +21,7 @@ public interface DAO<IN extends TransientObject, OUT extends TransientObject>  {
         int httpStatusCode = -1;
 
         public DAOException(int statusCode, String cause){
-            super(cause, null, true ,false);
+            super(cause);
             this.httpStatusCode = statusCode;
         }
 

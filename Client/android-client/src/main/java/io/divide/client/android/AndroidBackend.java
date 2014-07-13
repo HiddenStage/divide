@@ -2,7 +2,6 @@ package io.divide.client.android;
 
 import com.google.inject.Inject;
 import io.divide.client.Backend;
-import io.divide.client.BackendConfig;
 import io.divide.client.android.push.PushManager;
 
 /**
@@ -13,7 +12,8 @@ public class AndroidBackend extends Backend {
     @Inject
     PushManager pushManager;
 
-    private AndroidBackend(BackendConfig config){
+    @Inject
+    private AndroidBackend(AndroidConfig config){
         super();
 //        config.setBackendClass(AndroidBackend.class);
     }

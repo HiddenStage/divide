@@ -48,6 +48,7 @@ public class MyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        DivideDrawer.attach(this,R.layout.main);
         setContentView(R.layout.main);
         ButterKnife.inject(this);
         getActionBar().setHomeButtonEnabled(true);

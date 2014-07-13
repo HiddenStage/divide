@@ -65,15 +65,13 @@ public class AuthTokenUtils {
     private static String encrypt(String string, String key){
         StandardPBEStringEncryptor encryptor = getEncryptor(key);
         String encrypted = encryptor.encrypt(string);
-        String encoded = encode(encrypted);
-        return encoded;
+        return encode(encrypted);
     }
 
     private static String decrypt(String string, String key){
         StandardPBEStringEncryptor encryptor = getEncryptor(key);
         String decoded = decode(string);
-        String decrypted = encryptor.decrypt(decoded);
-        return decrypted;
+        return encryptor.decrypt(decoded);
     }
 
     private static String encode(String string){
@@ -83,7 +81,5 @@ public class AuthTokenUtils {
     private static String decode(String string){
         return new String(Base64.decodeBase64(string));
     }
-
-
 
 }

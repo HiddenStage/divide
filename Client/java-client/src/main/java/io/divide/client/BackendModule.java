@@ -18,7 +18,7 @@ import java.io.File;
 /**
  * Created by williamwebb on 4/2/14.
  */
-class BackendModule<BackendType extends Backend> extends AbstractModule {
+public class BackendModule<BackendType extends Backend> extends AbstractModule {
 
     private Class<?> authManagerClass = AuthManager.class;
     private Class<?> dataManagerClass = DataManager.class;
