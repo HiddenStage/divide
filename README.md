@@ -1,6 +1,8 @@
 Divide.io
 ===========
 
+**Currently in alpha. Not intended for production.**
+
 Divide.io is an open source BaaS. It provides tools to easily, securely, and efficiently communicate between your app and a server. It handles data storage, user registration & management, and push notifications.
 
 Deploy anywhere. Use any database you want. Never get locked into a platform.
