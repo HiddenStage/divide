@@ -29,15 +29,14 @@ public class PushManager extends AbstractWebManager<PushWebService> {
     private static PushManager pushManager;
     private static EventManager eventManager = EventManager.get();
     private String senderId;
-    private AndroidConfig config;
+    @Inject private AndroidConfig config;
     @Inject private AuthManager authManager;
 
 
     @Inject
     public PushManager(AndroidConfig config) {
         super(config);
-        this.config = config;
-        this.pushManager = this;
+        pushManager = this;
     }
 
     @Override

@@ -3,7 +3,7 @@ package io.divide.client.data;
 import com.google.gson.Gson;
 import io.divide.client.http.Status;
 import io.divide.shared.logging.Logger;
-import org.apache.commons.io.IOUtils;
+import io.divide.shared.util.IOUtils;
 import retrofit.client.Response;
 
 import java.io.IOException;

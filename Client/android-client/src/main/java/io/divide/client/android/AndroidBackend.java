@@ -9,21 +9,12 @@ import io.divide.client.android.push.PushManager;
  */
 public class AndroidBackend extends Backend {
 
-    @Inject
-    PushManager pushManager;
+    @Inject PushManager pushManager;
+    @Inject AndroidConfig config;
 
     @Inject
-    private AndroidBackend(AndroidConfig config){
+    private AndroidBackend(){
         super();
-//        config.setBackendClass(AndroidBackend.class);
     }
 
-//    @Override
-//    protected Injector getInjector(BackendModule module){
-//        RoboGuice.setBaseApplicationInjector(
-//                application,
-//                RoboGuice.DEFAULT_STAGE,
-//                RoboGuice.newDefaultRoboModule(context),
-//                new BackendModule(new BackendConfig(context, serverUrl, System.currentTimeMillis())));
-//    }
 }

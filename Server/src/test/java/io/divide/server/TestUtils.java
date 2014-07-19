@@ -3,6 +3,7 @@ package io.divide.server;
 import com.google.gson.Gson;
 import io.divide.dao.ServerDAO;
 import io.divide.dao.orientdb.OrientDBDao;
+import io.divide.server.dao.ServerCredentials;
 import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.FilePermissions;
@@ -58,13 +59,15 @@ public class TestUtils {
 
     public static Credentials getTestUser() {
         Credentials c = new Credentials("someUsername","someEmail","somePassword");
-        FilePermissions fp = c.getFilePermissions();
+        ServerCredentials sc = new ServerCredentials(c);
+        sc.setOwnerId(1);
+        FilePermissions fp = sc.getFilePermissions();
         fp.setReadable(true, FilePermissions.Level.WORLD);
         fp.setWritable(true, FilePermissions.Level.WORLD);
-        c.setFilePermissions(fp);
-        c.setAuthToken(AuthTokenUtils.getNewToken(KEY, c));
-        c.setRecoveryToken(AuthTokenUtils.getNewToken(KEY, c));
-        return c;
+        sc.setFilePermissions(fp);
+        sc.setAuthToken(AuthTokenUtils.getNewToken(KEY, sc));
+        sc.setRecoveryToken(AuthTokenUtils.getNewToken(KEY, sc));
+        return sc;
     }
 
     public static Entity<String> toEntity(Object o){

@@ -1,8 +1,6 @@
 package com.example.client_sample;
 
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
@@ -22,17 +20,6 @@ public class Settings extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.prefs);
 
-        EditTextPreference debugUrlPref = (EditTextPreference) findPreference(getString(R.string.debugUrlKey));
-        debugUrlPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue != null) {
-                    preference.setSummary(newValue.toString());
-                }
-                return true;
-            }
-        });
-        debugUrlPref.setSummary(debugUrlPref.getText());
     }
 
 }

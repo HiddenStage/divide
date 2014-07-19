@@ -1,6 +1,7 @@
 package io.divide.client.auth.credentials;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.divide.client.auth.AccountStorage;
 import io.divide.shared.file.Storage;
 import io.divide.shared.file.XmlStorage;
@@ -15,7 +16,7 @@ import java.util.Map;
  */
 public class XmlAccoutStorage implements AccountStorage {
 
-    Gson gson = new Gson();
+    Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
     XmlStorage storage;
 
     public XmlAccoutStorage(File file){

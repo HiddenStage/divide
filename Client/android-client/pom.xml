@@ -34,14 +34,8 @@
         <dependency>
             <groupId>com.netflix.rxjava</groupId>
             <artifactId>rxjava-android</artifactId>
-            <version>0.18.3</version>
+            <version>0.19.6</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.jug6ernaut.debugdrawer</groupId>-->
-            <!--<artifactId>debugdrawer-lib</artifactId>-->
-            <!--<version>0.5.1</version>-->
-            <!--<type>aar</type>-->
-        <!--</dependency>-->
     </dependencies>
 
     <repositories>
@@ -70,11 +64,25 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.8.2</version>
+                <version>3.9.0-rc.2</version>
                 <configuration>
                     <sdk>
                         <platform>${android.platform}</platform>
                     </sdk>
+                    <!--<dex>-->
+                        <!--<forceJumbo>true</forceJumbo>-->
+                        <!--<optimize>true</optimize>-->
+                        <!--<coreLibrary>false</coreLibrary>-->
+                    <!--</dex>-->
+                    <!--<proguard>-->
+                        <!--<skip>false</skip>-->
+                        <!--<config>proguard.cfg</config>-->
+                        <!--<proguardJarPath>/Users/williamwebb/Android/sdk/tools/proguard/lib/proguard.jar</proguardJarPath>-->
+                        <!--<jvmArguments>-->
+                            <!--<jvmArgument>-Xms256m</jvmArgument>-->
+                            <!--<jvmArgument>-Xmx512m</jvmArgument>-->
+                        <!--</jvmArguments>-->
+                    <!--</proguard>-->
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>

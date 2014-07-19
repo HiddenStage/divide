@@ -1,7 +1,7 @@
 package io.divide.shared.transitory;
 
+import io.divide.shared.util.Base64;
 import io.divide.shared.util.Crypto;
-import org.apache.commons.codec.binary.Base64;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -24,14 +24,14 @@ public class EncryptedEntity {
     private EncryptedEntity(){};
 
     private String decrypt(String string, PrivateKey privateKey){
-        byte[] decoded = Base64.decodeBase64(string.getBytes());
+        byte[] decoded = Base64.decode(string.getBytes());
         byte[] encrypted = Crypto.decrypt(decoded,privateKey);
         return new String(encrypted);
     }
 
     private String encrypt(String string, PublicKey publicKey){
         byte[] encrypted  = Crypto.encrypt(string.getBytes(),publicKey);
-        return new String(Base64.encodeBase64(encrypted));
+        return new String( Base64.encode(encrypted) );
     }
     protected void put(String key, String value){
         data.put(key,encrypt(value,publicKey));

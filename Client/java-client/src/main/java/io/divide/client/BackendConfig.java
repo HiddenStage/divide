@@ -11,7 +11,7 @@ public final class BackendConfig extends Config<Backend>{
      */
 
     @Override
-    public Class<Backend> getType() {
+    public Class<Backend> getModuleType() {
         return Backend.class;
     }
 
@@ -19,7 +19,7 @@ public final class BackendConfig extends Config<Backend>{
         this(fileSavePath, url, BackendModule.class);
     }
 
-    public <ModuleType extends BackendModule<Backend>> BackendConfig(String fileSavePath, String url, Class<ModuleType> moduleClass){
+    public <ModuleType extends BackendModule> BackendConfig(String fileSavePath, String url, Class<ModuleType> moduleClass){
         super(fileSavePath,url,moduleClass);
-    };
+    }
 }

@@ -23,6 +23,12 @@
 
         <dependency>
             <groupId>io.divide</groupId>
+            <artifactId>authenticator-dao-objectify</artifactId>
+            <version>${app.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.divide</groupId>
             <artifactId>authenticator-server</artifactId>
             <version>${app.version}</version>
         </dependency>

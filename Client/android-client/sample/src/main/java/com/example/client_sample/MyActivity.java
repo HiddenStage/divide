@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -18,6 +16,7 @@ import io.divide.client.BackendObject;
 import io.divide.client.BackendServices;
 import io.divide.client.BackendUser;
 import io.divide.client.android.AuthActivity;
+import io.divide.client.android.mock.DivideDrawer;
 import io.divide.client.auth.LoginListener;
 import io.divide.shared.file.Storage;
 import io.divide.shared.file.XmlStorage;
@@ -42,30 +41,27 @@ public class MyActivity extends Activity {
 
     @InjectView(R.id.cachedUserTV)         TextView savedUserTV;
     @InjectView(R.id.loggedInUserTV)       TextView loggedInUserTV;
-    @InjectView(R.id.urlTV)                TextView urlTV;
     @InjectView(R.id.usersLV)              ListView usersLV;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        DivideDrawer.attach(this,R.layout.main);
-        setContentView(R.layout.main);
+        DivideDrawer.attach(this, R.layout.main);
+//        setContentView(R.layout.main);
         ButterKnife.inject(this);
         getActionBar().setHomeButtonEnabled(true);
 
 //        au = AuthUtils.get(this, AuthManager.ACCOUNT_TYPE); TODO replace this
         app = (MyApplication) this.getApplication();
 
-        urlTV.setText("URL: " + app.getUrl(app.getSharedPreferences()));
-
         BackendServices.addLoginListener(new LoginListener(){
 
             @Override
             public void onNext(BackendUser user) {
-                if(user != null){
-                    logger.info("loginListener: setUser: " + user);
-                    setUser(user);
-                }
+            System.out.println("loginListener: setUser: " + user);
+            if(user != null){
+                setUser(user);
+            }
             }
         });
 
@@ -96,7 +92,10 @@ public class MyActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                getObjects();
+                if(BackendUser.getUser() != null)
+                    getObjects();
+                else
+                    logger.debug("Not signed in, not querying data.");
             }
         },1000);
 
@@ -175,22 +174,6 @@ public class MyActivity extends Activity {
 //            savedUserTV.setText("Cached User: " + getSavedUser(au)); TODO replace this
             loggedInUserTV.setText("User: " + user);
             this.user = user;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                Toast.makeText(this,"Reinitializing...",Toast.LENGTH_LONG).show();
-                app.reinitialize();
-                setUser(BackendUser.getUser());
-                return false;
-            }
-            default:{
-                return super.onOptionsItemSelected(item);
-            }
         }
     }
 

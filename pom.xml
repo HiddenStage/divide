@@ -19,7 +19,6 @@
             <id>client</id>
             <modules>
                 <module>Client</module>
-                <!--<module>Client/sample</module>-->
             </modules>
         </profile>
         <profile>
@@ -99,6 +98,19 @@
     </repositories>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>com.github.github</groupId>

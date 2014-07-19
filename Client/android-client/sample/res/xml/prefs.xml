@@ -2,12 +2,4 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Preferences" />
-    <CheckBoxPreference android:title="Use debug server"
-                        android:key="@string/isDebugKey"
-                        android:summary="Connecting to a debug server instead of prod server"/>
-    <EditTextPreference android:title="Debug URL"
-                        android:key="@string/debugUrlKey"
-                        android:dependency="@string/isDebugKey"
-                        android:defaultValue="@string/debugUrl"/>
-    <SwitchPreference android:title="Debug Logs" android:key="logsVerbose" android:summary="Show debug logs on LogCat"/>
 </PreferenceScreen>

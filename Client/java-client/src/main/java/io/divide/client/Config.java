@@ -12,9 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 public abstract class Config<BackendType extends Backend> {
 
     public String fileSavePath;
-    public final String serverUrl;
-    public long id = System.currentTimeMillis();
-    public OkHttpClient client;
+    public String serverUrl;
+    public final long id = System.currentTimeMillis();
+    public final OkHttpClient client = new OkHttpClient();
     private Scheduler subscribeOn = Schedulers.io();
     private Scheduler observeOn = Schedulers.io();
     private BackendModule backendModule;
@@ -23,7 +23,7 @@ public abstract class Config<BackendType extends Backend> {
      * Returns a concrete class type used to initialize the specific Backend class.
      * @return
      */
-    public abstract Class<BackendType> getType();
+    public abstract Class<BackendType> getModuleType();
 
     /**
      * @param fileSavePath base file storage location to be used by Divide.
@@ -39,17 +39,11 @@ public abstract class Config<BackendType extends Backend> {
      * @param url url used to connect to remote Divide server.
      * @param moduleClass module class type to be used by Divide.
      */
-    protected <ModuleType extends BackendModule<BackendType>> Config(String fileSavePath, String url, Class<ModuleType> moduleClass){
+    protected <ModuleType extends BackendModule> Config(String fileSavePath, String url, Class<ModuleType> moduleClass){
         this.fileSavePath = fileSavePath;
         this.serverUrl = url;
-        this.client = new OkHttpClient();
 
-        try {
-            this.backendModule = createInstance(moduleClass,this);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
+        setModule(moduleClass);
     }
 
     /**
@@ -79,13 +73,35 @@ public abstract class Config<BackendType extends Backend> {
         return subscribeOn;
     }
 
-    protected final BackendModule getModule(){
+    public final BackendModule getModule(){
         return backendModule;
+    }
+
+    public final <ModuleType extends BackendModule> void setModule(Class<ModuleType> moduleClass){
+        try {
+            this.backendModule = createInstance(moduleClass,this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private static <B extends BackendModule, C extends Backend> B createInstance(Class<B> type, Config<C> config) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         B b = type.newInstance();
         b.init(config);
         return b;
+    }
+
+    @Override
+    public String toString() {
+        return "Config{" +
+                "fileSavePath='" + fileSavePath + '\'' +
+                ", serverUrl='" + serverUrl + '\'' +
+                ", id=" + id +
+                ", client=" + client +
+                ", subscribeOn=" + subscribeOn +
+                ", observeOn=" + observeOn +
+                ", backendModule=" + backendModule +
+                '}';
     }
 }

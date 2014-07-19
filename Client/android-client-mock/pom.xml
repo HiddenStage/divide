@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>authenticator-client</artifactId>
+        <groupId>io.divide</groupId>
+        <version>0.5.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>aar</packaging>
+
+    <artifactId>authenticator-client-android-mock</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.divide</groupId>
+            <artifactId>authenticator-client-android</artifactId>
+            <version>${app.version}</version>
+            <type>aar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.divide</groupId>
+            <artifactId>authenticator-client-mock</artifactId>
+            <version>${app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>4.1.1.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jug6ernaut.debugdrawer</groupId>
+            <artifactId>debugdrawer-lib</artifactId>
+            <version>0.5.1</version>
+            <type>aar</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>3.9.0-rc.2</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <configuration>
+                    <sdk>
+                        <!-- platform or api level (api level 16 = platform 4.1)-->
+                        <platform>${android.platform}</platform>
+                    </sdk>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

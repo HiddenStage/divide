@@ -215,7 +215,7 @@ public final class XmlStorage implements Storage {
     private static class MemoryCommitResult {
         public boolean changesMade;  // any keys different?
         public List<String> keysModified;  // may be null
-        public Map<?, ?> mapToWriteToDisk;
+        public Map<String, ?> mapToWriteToDisk;
         public final CountDownLatch writtenToDiskLatch = new CountDownLatch(1);
         public volatile boolean writeToDiskResult = false;
 

@@ -1,8 +1,8 @@
 package io.divide.shared.transitory;
 
 
+import io.divide.shared.util.Base64;
 import io.divide.shared.util.Crypto;
-import org.apache.commons.codec.binary.Base64;
 
 import java.io.Serializable;
 import java.security.PrivateKey;
@@ -74,14 +74,14 @@ public class Credentials extends TransientObject implements Serializable {
     }
 
     public void decryptPassword(PrivateKey privateKey){
-        byte[] decoded = Base64.decodeBase64(getPassword().getBytes());
+        byte[] decoded = Base64.decode(getPassword().getBytes());
         byte[] encrypted = Crypto.decrypt(decoded,privateKey);
         setPassword(new String(encrypted));
     }
 
     public void encryptPassword(PublicKey publicKey){
         byte[] encrypted  = Crypto.encrypt(getPassword().getBytes(),publicKey);
-        String encoded = new String(Base64.encodeBase64(encrypted));
+        String encoded = new String( Base64.encode(encrypted) );
         setPassword(encoded);
     }
 

@@ -17,6 +17,8 @@
         <module>java-client</module>
         <module>android-client</module>
         <module>android-client/sample</module>
+        <module>mock-client</module>
+        <module>android-client-mock</module>
     </modules>
 
 </project>

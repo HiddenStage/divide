@@ -6,12 +6,13 @@ import io.divide.shared.transitory.query.OPERAND;
 import io.divide.shared.transitory.query.Query;
 import io.divide.shared.transitory.query.QueryBuilder;
 import io.divide.shared.util.AuthTokenUtils;
+import io.divide.shared.util.AuthTokenUtils.AuthenticationException;
+import io.divide.shared.util.DaoUtils;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.util.ReflectionUtils;
 import org.apache.http.HttpStatus;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.security.sasl.AuthenticationException;
 import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Map;
@@ -19,7 +20,6 @@ import java.util.TimeZone;
 
 import static io.divide.shared.server.DAO.DAOException;
 import static io.divide.shared.util.DaoUtils.getUserByEmail;
-import static io.divide.shared.util.DaoUtils.getUserById;
 
 /**
  * Created by williamwebb on 4/11/14.
@@ -40,23 +40,23 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
      */
 
     public Credentials userSignUp(Credentials credentials) throws DAOException{
-            if (getUserByEmail(dao,credentials.getEmailAddress())!=null){
-                throw new DAOException(HttpStatus.SC_CONFLICT,"User Already Exists");
-            }
-            ServerCredentials toSave = new ServerCredentials(credentials);
+        if (getUserByEmail(dao,credentials.getEmailAddress())!=null){
+            throw new DAOException(HttpStatus.SC_CONFLICT,"User Already Exists");
+        }
+        ServerCredentials toSave = new ServerCredentials(credentials);
 
-            toSave.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
-            String de = toSave.getPassword();
-            String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
+        toSave.decryptPassword(keyManager.getPrivateKey()); //decrypt the password
+        String de = toSave.getPassword();
+        String ha = BCrypt.hashpw(de, BCrypt.gensalt(10));
 
-            toSave.setPassword(ha); //hash the password for storage
-            toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
-            toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
-            toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
+        toSave.setOwnerId(dao.count(Credentials.class.getName()) + 1);
+        toSave.setPassword(ha); //hash the password for storage
+        toSave.setAuthToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
+        toSave.setRecoveryToken(AuthTokenUtils.getNewToken(keyManager.getSymmetricKey(), toSave));
 
-            dao.save(toSave);
+        dao.save(toSave);
 
-            return toSave;
+        return toSave;
     }
 
     /**
@@ -170,14 +170,18 @@ public class AuthServerLogic<DAOOut extends TransientObject> extends ServerLogic
     }
 
     public void recieveUserData(String userId, Map<String,?> data) throws DAOException {
-        Credentials user = getUserById(dao,userId);
+        Credentials user = getUserById(userId);
         user.removeAll();
         user.putAll(data);
         dao.save(user);
     }
 
     public Map<String,Object> sendUserData(String userId) {
-        return getUserById(dao,userId).getUserData();
+        return getUserById(userId).getUserData();
+    }
+
+    public Credentials getUserById(String id){
+        return DaoUtils.getUserById(dao, id);
     }
 
 ////    @POST

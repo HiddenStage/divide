@@ -144,8 +144,8 @@ public class QueryBuilder{
             return new OffsetConstraintBuilder(builder,offset);
         }
 
-        public RandomConstraintBuilder random(Boolean random, Integer limit){
-            return new RandomConstraintBuilder(builder,random,limit);
+        public RandomConstraintBuilder random( Integer limit){
+            return new RandomConstraintBuilder(builder,limit);
         }
 
         public Query build(){
@@ -189,8 +189,8 @@ public class QueryBuilder{
             return new OffsetConstraintBuilder(builder,offset);
         }
 
-        public RandomConstraintBuilder random(Boolean random, Integer limit){
-            return new RandomConstraintBuilder(builder,random,limit);
+        public RandomConstraintBuilder random(Integer limit){
+            return new RandomConstraintBuilder(builder,limit);
         }
 
         public Query build(){
@@ -232,9 +232,9 @@ public class QueryBuilder{
 
     public class RandomConstraintBuilder extends ConstraintBuilder{
 
-        private RandomConstraintBuilder(QueryBuilder builder, Boolean random, Integer limit) {
+        private RandomConstraintBuilder(QueryBuilder builder, Integer limit) {
             super(builder);
-            builder.setRandom(random);
+            builder.setRandom(true);
             builder.setLimit(limit);
         }
     }

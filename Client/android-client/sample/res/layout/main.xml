@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:text="Cached User:"
             android:id="@+id/cachedUserTV"
-            android:layout_below="@+id/urlTV"
+            android:layout_below="@id/linearLayout"
             android:layout_alignParentLeft="true"/>
 
     <TextView
@@ -45,14 +45,6 @@
             android:text="Get"
             android:id="@+id/getObjects"
             android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"/>
-
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="URL: "
-            android:id="@+id/urlTV"
-            android:layout_below="@+id/linearLayout"
             android:layout_alignParentLeft="true"/>
 
     <ListView

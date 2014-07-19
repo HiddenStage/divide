@@ -11,9 +11,9 @@ import io.divide.client.data.ServerResponse;
 import io.divide.client.http.Status;
 import io.divide.client.web.AbstractWebManager;
 import io.divide.shared.logging.Logger;
+import io.divide.shared.transitory.Credentials;
 import io.divide.shared.util.Crypto;
 import io.divide.shared.util.ObjectUtils;
-import io.divide.shared.transitory.Credentials;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscriber;
@@ -21,7 +21,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -42,7 +42,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private BackendUser user;
     private AccountStorage accountStorage;
     private LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
-    private PublishSubject<BackendUser> loginEventPublisher = PublishSubject.create();
+    private BehaviorSubject<BackendUser> loginEventPublisher = BehaviorSubject.create();
 
     @Inject
     public AuthManager(Config config, AccountStorage accountStorage) {
@@ -101,8 +101,9 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
             public void call(Subscriber<? super BackendUser> subscriber) {
                 try{
                     setLoginState(LOGGING_IN);
-
-                    ValidCredentials validCredentials = getWebService().getUserFromAuthToken(authToken).toBlockingObservable().first();
+                    logger.debug("getWebService(): " + getWebService());
+                    logger.debug("getuserFromAuthToken: " + authToken);
+                    ValidCredentials validCredentials = getWebService().getUserFromAuthToken(authToken).toBlocking().first();
                     if(validCredentials == null) throw new Exception("Null User Returned");
 
                     subscriber.onNext(setUser(validCredentials));
@@ -377,7 +378,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
      * @return status of update.
      */
     public Observable<Void> sendUserData(BackendUser backendUser){
-        return getWebService().sendUserData(getUser().getAuthToken(),backendUser.getOwnerId()+"",backendUser.getUserData())
+        return getWebService().sendUserData(isLoggedIn(),backendUser.getOwnerId()+"",backendUser.getUserData())
                .subscribeOn(config.subscribeOn()).observeOn(config.observeOn());
     }
 
@@ -386,7 +387,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
      * @return updated BackendUser.
      */
     public Observable<Map<String,Object>> getUserData(BackendUser backendUser){
-        return getWebService().getUserData(getUser().getAuthToken(), backendUser.getOwnerId() + "")
+        return getWebService().getUserData(isLoggedIn(), backendUser.getOwnerId() + "")
                 .subscribeOn(config.subscribeOn()).observeOn(config.observeOn());
     }
 
@@ -400,20 +401,33 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
      * @param listener LoginListener to receive events.
      */
     public void addLoginListener(LoginListener listener){
+        logger.debug("addLoginListener");
         Subscription subscription = loginEventPublisher
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(config.subscribeOn())
+                .observeOn(config.observeOn())
                 .subscribe(listener);
         listener.setSubscription(subscription);
-        if(getUser()!=null){
-            listener.onNext(getUser());
-        }
     }
 
     /**
      * @hide
      */
     private void fireLoginListeners(){
+        logger.debug("fireLoginListeners: " + getUser());
         loginEventPublisher.onNext(getUser());
+    }
+
+    /**
+     * Used to determine if a user is logged in localy, if not remote operations can not be performed.
+     * @return authentication token for logged in user.
+     * @throws RuntimeException Execption thrown if if remote operaton is requested but no user is logged in.
+     */
+    private String isLoggedIn() throws RuntimeException {
+        if(this.getUser() != null && this.getUser().getAuthToken() != null){
+            return "CUSTOM " + this.getUser().getAuthToken();
+        } else {
+            throw new RuntimeException("User state error.");
+        }
     }
 
 }

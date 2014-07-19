@@ -130,8 +130,10 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserFromToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
-            logger.fine("getUserFromToken");
-            return Response.ok(authServerLogic.getUserFromAuthToken(token)).build();
+            logger.warning("getUserFromToken");
+            Credentials user = authServerLogic.getUserFromAuthToken(token);
+            context.setSecurityContext(new UserContext(context.getUriInfo(),user));
+            return Response.ok(user).build();
         }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));
@@ -144,7 +146,9 @@ public final class AuthenticationEndpoint{
     @Produces(MediaType.APPLICATION_JSON)
     public Response recoverFromOneTimeToken(@Context ContainerRequestContext context, @PathParam("token") String token) {
         try{
-            return Response.ok(authServerLogic.getUserFromRecoveryToken(token)).build();
+            Credentials user = authServerLogic.getUserFromRecoveryToken(token);
+            context.setSecurityContext(new UserContext(context.getUriInfo(),user));
+            return Response.ok(user).build();
         }catch (ServerDAO.DAOException e) {
             e.printStackTrace();
             logger.severe(ExceptionUtils.getStackTrace(e));

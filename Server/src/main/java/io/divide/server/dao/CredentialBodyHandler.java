@@ -84,15 +84,12 @@ public class CredentialBodyHandler<T extends Credentials> implements MessageBody
     }
 
     private static final boolean match(Credentials credentials, SecurityContext context){
-        if(credentials == null ||
-           credentials.getEmailAddress() == null ||
-           context == null ||
-           context.getUserPrincipal() == null ||
-           context.getUserPrincipal().getName() == null)
-        {
-            logger.info("something null");
-            return false;
-        }
+        if(credentials == null){ logger.warning("credentials null"); return false; }
+        if(credentials.getEmailAddress() == null){ logger.warning("credentials.getEmailAddress() null"); return false; }
+        if(context == null){ logger.warning("context null"); return false; }
+        if(context.getUserPrincipal() == null){ logger.warning("context.getUserPrincipal() null"); return false; }
+        if(context.getUserPrincipal().getName() == null){ logger.warning("context.getUserPrincipal().getName() null"); return false; }
+
         logger.info("Logged In: " + credentials.getEmailAddress() + "\n" +
                     "Returning: " + context.getUserPrincipal().getName());
 

@@ -37,20 +37,19 @@
 
 package io.divide.server.auth;
 
+import io.divide.dao.ServerDAO;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
 import io.divide.server.dao.Session;
-import io.divide.dao.ServerDAO;
-import io.divide.shared.util.AuthTokenUtils;
-import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.TransientObject;
 import io.divide.shared.transitory.query.OPERAND;
 import io.divide.shared.transitory.query.Query;
 import io.divide.shared.transitory.query.QueryBuilder;
+import io.divide.shared.util.AuthTokenUtils;
+import io.divide.shared.util.ObjectUtils;
 import org.glassfish.jersey.server.ContainerRequest;
 
-import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
@@ -75,7 +74,7 @@ public class SecurityFilter implements ContainerRequestFilter {
         log.info("Filter(): " + request.getUriInfo().getPath());
 
         String path = request.getUriInfo().getPath();
-        if(!path.equals("/auth/user/data") && !path.equals("/auth/user/data/"))
+        if(!path.startsWith("/auth/user/data") && !path.startsWith("/auth/user/data/"))
         if (
            path.startsWith("auth")
         || path.startsWith("/auth")
@@ -99,15 +98,16 @@ public class SecurityFilter implements ContainerRequestFilter {
 
         // Extract authentication credentials
         String authentication = request.getHeaderString(ContainerRequest.AUTHORIZATION);
+        System.out.println("HeaderCount: " + request.getHeaders().keySet().size());
+        System.out.println(request.getHeaders().keySet());
+        System.out.println(request.getPropertyNames());
+        System.out.println(request.getCookies().keySet());
+
         if (authentication == null) {
-            System.out.println("HeaderCount: " + request.getHeaders().keySet().size());
-            System.out.println(request.getHeaders().keySet());
-            System.out.println(request.getPropertyNames());
-            System.out.println(request.getCookies().keySet());
             return abort(request, "Authentication credentials are required");
         }
         if (!authentication.startsWith("CUSTOM ")) {
-            return abort(request, "Only CUSTOM authentication is supported");
+            return abort(request, "Only CUSTOM authentication is supported: " + authentication);
         }
         authentication = authentication.substring("CUSTOM ".length());
         String token = authentication;
@@ -122,7 +122,7 @@ public class SecurityFilter implements ContainerRequestFilter {
             if(authToken.isExpired()){
                 return abort(request,"Auth Token Expired: " + System.currentTimeMillis() + " : " + authToken.expirationDate);
             }
-        } catch (AuthenticationException e) {
+        } catch (AuthTokenUtils.AuthenticationException e) {
             return abort(request,"Auth Token Expired: " + e.getMessage());
         }
 

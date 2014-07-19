@@ -47,7 +47,7 @@ public class CredentialView extends RelativeLayout {
         int padding = convertDpToPixel(10, context);
         emailField.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         emailField.setPadding(padding, padding, padding, padding);
-        emailField.setHint("Email&#8230;");
+        emailField.setHint("Email");
         LayoutParams lp1 = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp1.addRule(ABOVE, passwordField.getId());
         lp1.addRule(ALIGN_PARENT_RIGHT);
@@ -56,7 +56,7 @@ public class CredentialView extends RelativeLayout {
         // password setup
         passwordField.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         passwordField.setPadding(padding, padding, padding, padding);
-        passwordField.setHint("Password&#8230;");
+        passwordField.setHint("Password");
         LayoutParams lp2 = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp2.addRule(CENTER_VERTICAL);
         lp2.addRule(ALIGN_PARENT_RIGHT);
@@ -84,7 +84,7 @@ public class CredentialView extends RelativeLayout {
         // password setup
         userNameField.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         userNameField.setPadding(padding, padding, padding, padding);
-        userNameField.setHint("Username&#8230;");
+        userNameField.setHint("Username");
         userNameField.setVisibility(View.INVISIBLE);
         LayoutParams lp5 = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp5.addRule(ABOVE,emailField.getId());

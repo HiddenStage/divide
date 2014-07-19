@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import io.divide.client.auth.AuthManager;
 import io.divide.client.data.DataManager;
+import io.divide.shared.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,13 +15,14 @@ import io.divide.client.data.DataManager;
  */
 public class Backend {
 
+    private static Logger logger = Logger.getLogger(Backend.class);
     private static boolean initialized = false;
     @Inject static private Injector injector;
     @Inject private Config config;
     @Inject private AuthManager authManager;
     @Inject private DataManager dataManager;
 
-    @Inject protected Backend() {}
+    @Inject protected Backend() {initialized = true;}
 
     /**
      * Returns the AuthManager
@@ -60,11 +62,11 @@ public class Backend {
      */
 
     public static synchronized <BackendType extends Backend> BackendType init(Config<BackendType> config) {
-        if(initialized) throw new RuntimeException("Backend already initialized!");
+//        if(initialized) throw new RuntimeException("Backend already initialized!");
+        logger.debug("Initializing... " + config);
+        Guice.createInjector(config.getModule());
 
-         Guice.createInjector(config.getModule());
-
-        return injector.getInstance(config.getType());
+        return injector.getInstance(config.getModuleType());
     }
 
     protected Injector getInjector(BackendModule module){

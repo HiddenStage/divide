@@ -1,11 +1,9 @@
 package io.divide.shared.util;
 
 import io.divide.shared.transitory.Credentials;
-import org.apache.commons.codec.binary.Base64;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 
-import javax.security.sasl.AuthenticationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,10 +17,17 @@ public class AuthTokenUtils {
     static long expirateIn = (1000 * 60 * 60 * 24);
 
     public static String getNewToken(String key, Credentials credentials){
-        String token = UUID.randomUUID().toString() +
+
+        String uuid = UUID.randomUUID().toString();
+        Integer ownerId = credentials.getOwnerId();
+        Long expireIn = (System.currentTimeMillis() + expirateIn );
+
+        if(ownerId == null) throw new InternalError("ownerId returned null for receating auth token");
+
+        String token = uuid +
 //                "|" + someImportantProjectToken +
-                "|" + credentials.getOwnerId() +
-                "|" + (System.currentTimeMillis() + expirateIn ); // TODO grab this from credentials?
+                "|" + ownerId +
+                "|" + expireIn; // TODO grab this from credentials?
         return encrypt(token,key);
     }
 
@@ -65,21 +70,24 @@ public class AuthTokenUtils {
     private static String encrypt(String string, String key){
         StandardPBEStringEncryptor encryptor = getEncryptor(key);
         String encrypted = encryptor.encrypt(string);
-        return encode(encrypted);
+        return Base64.encode(encrypted);
     }
 
     private static String decrypt(String string, String key){
         StandardPBEStringEncryptor encryptor = getEncryptor(key);
-        String decoded = decode(string);
+        String decoded = Base64.decode(string);
         return encryptor.decrypt(decoded);
     }
 
-    private static String encode(String string){
-        return Base64.encodeBase64URLSafeString(string.getBytes());
+    public static class AuthenticationException extends Exception{
+        public AuthenticationException(String message, Exception e){
+            super(message,e);
+        }
     }
 
-    private static String decode(String string){
-        return new String(Base64.decodeBase64(string));
+    private static boolean isNorE(String s){
+        if(s == null) return false;
+        if(s.length() == 0) return false;
+        return true;
     }
-
 }
