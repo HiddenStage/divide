@@ -20,6 +20,10 @@ public interface DAO<IN extends TransientObject, OUT extends TransientObject>  {
     public static class DAOException extends RuntimeException{
         int httpStatusCode = -1;
 
+        public DAOException(Throwable throwable){
+            this(500,throwable);
+        }
+
         public DAOException(int statusCode, String cause){
             super(cause);
             this.httpStatusCode = statusCode;

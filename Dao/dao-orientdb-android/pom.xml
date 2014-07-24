@@ -2,16 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.divide</groupId>
         <artifactId>authenticator-dao</artifactId>
+        <groupId>io.divide</groupId>
         <version>0.5.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>authenticator-dao-orientdb</artifactId>
-    <version>${app.version}</version>
+    <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>authenticator-dao-orientdb-android</artifactId>
 
     <dependencies>
         <dependency>
@@ -36,14 +35,14 @@
             <version>1.6.4</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.orientechnologies</groupId>-->
-            <!--<artifactId>orientdb-client</artifactId>-->
-            <!--<version>1.6.4</version>-->
+        <!--<groupId>com.orientechnologies</groupId>-->
+        <!--<artifactId>orientdb-client</artifactId>-->
+        <!--<version>1.6.4</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>com.orientechnologies</groupId>-->
-            <!--<artifactId>orientdb-server</artifactId>-->
-            <!--<version>1.6.4</version>-->
+        <!--<groupId>com.orientechnologies</groupId>-->
+        <!--<artifactId>orientdb-server</artifactId>-->
+        <!--<version>1.6.4</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.orientechnologies</groupId>
@@ -54,13 +53,6 @@
             <groupId>com.orientechnologies</groupId>
             <artifactId>orientdb-graphdb</artifactId>
             <version>1.6.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

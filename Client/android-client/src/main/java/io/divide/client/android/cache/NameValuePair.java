@@ -1,4 +1,4 @@
-package io.divide.client.cache;
+package io.divide.client.android.cache;
 
 /**
  * Created by williamwebb on 10/29/13.

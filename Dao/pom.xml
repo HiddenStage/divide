@@ -13,7 +13,7 @@
 
     <modules>
         <module>common</module>
-        <module>dao-objectify</module>
+        <!--<module>dao-objectify</module>-->
         <module>dao-orientdb</module>
         <!--<module>dao-iboxdb</module>-->
     </modules>

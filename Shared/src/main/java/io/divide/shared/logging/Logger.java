@@ -16,10 +16,10 @@ public class Logger {
     private Logger(){};
 
     public static Logger getLogger(String name) {
-        return new DLogger();
+        return new DLogger(name);
     }
 
-    public static Logger getLogger(Class clazz) { return new DLogger(); }
+    public static Logger getLogger(Class clazz) { return new DLogger(clazz.getName()); }
 
     public void trace(Object message) {    }
     public void trace(Object message, Throwable t) {    }
@@ -35,34 +35,41 @@ public class Logger {
     public void fatal(Object message, Throwable t) {    }
 
     private static class DLogger extends Logger{
-        public void trace(Object message) { System.out.println(message); }
+        private String name;
+        public DLogger(String name) {
+            this.name = name;
+        }
+
+        private String format(Object text){ return name + ":" + String.valueOf(text); }
+
+        public void trace(Object message) { System.out.println(format(message)); }
         public void trace(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
-        public void debug(Object message) { System.out.println(message); }
+        public void debug(Object message) { System.out.println(format(message)); }
         public void debug(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
-        public void info(Object message) { System.out.println(message); }
+        public void info(Object message) { System.out.println(format(message)); }
         public void info(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
-        public void warn(Object message) { System.err.println(message); }
+        public void warn(Object message) { System.err.println(format(message)); }
         public void warn(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
-        public void error(Object message) { System.err.println(message); }
+        public void error(Object message) { System.err.println(format(message)); }
         public void error(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
-        public void fatal(Object message) { System.err.println(message); }
+        public void fatal(Object message) { System.err.println(format(message)); }
         public void fatal(Object message, Throwable t) {
-            System.err.println(message);
+            System.err.println(format(message));
             System.err.println(getStackTrace(t));
         }
     }

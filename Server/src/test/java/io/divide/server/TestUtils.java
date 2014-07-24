@@ -1,17 +1,17 @@
 package io.divide.server;
 
 import com.google.gson.Gson;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import io.divide.dao.ServerDAO;
 import io.divide.dao.orientdb.OrientDBDao;
 import io.divide.server.dao.ServerCredentials;
-import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.FilePermissions;
 import io.divide.shared.transitory.TransientObject;
 import io.divide.shared.transitory.query.QueryBuilder;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import io.divide.shared.util.AuthTokenUtils;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;

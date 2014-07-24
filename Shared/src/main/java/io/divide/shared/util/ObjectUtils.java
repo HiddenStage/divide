@@ -3,9 +3,7 @@ package io.divide.shared.util;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -51,6 +49,18 @@ public class ObjectUtils {
 //        Class<?> persistentClass = (Class<?>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
         return persistentClass;
     }
+
+    public static <T> T[] toArray(Class<T> t, Iterable<T> elements)
+    {
+        final ArrayList<T> arrayElements = new ArrayList<T>();
+        for (T element : elements)
+        {
+            arrayElements.add(element);
+        }
+        final T[] ta = (T[]) Array.newInstance(t, arrayElements.size());
+        return arrayElements.toArray(ta);
+    }
+
 
     public static boolean isCollection(Object o){
         return isCollection(o.getClass());

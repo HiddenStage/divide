@@ -21,7 +21,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -42,7 +42,7 @@ public class AuthManager extends AbstractWebManager<AuthWebService> {
     private BackendUser user;
     private AccountStorage accountStorage;
     private LoginState CURRENT_STATE = LoginState.LOGGED_OUT;
-    private BehaviorSubject<BackendUser> loginEventPublisher = BehaviorSubject.create();
+    private PublishSubject<BackendUser> loginEventPublisher = PublishSubject.create();
 
     @Inject
     public AuthManager(Config config, AccountStorage accountStorage) {

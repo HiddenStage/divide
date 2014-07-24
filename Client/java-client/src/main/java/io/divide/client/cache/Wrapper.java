@@ -1,6 +1,7 @@
 package io.divide.client.cache;
 
 import com.google.gson.*;
+import io.divide.shared.transitory.query.Query;
 import io.divide.shared.util.ObjectUtils;
 import io.divide.shared.util.ReflectionUtils;
 import io.divide.shared.transitory.TransientObject;
@@ -23,10 +24,13 @@ public class Wrapper extends HashMap<String, Object> {
 
     public <B extends TransientObject> Wrapper(B b){
         Key(b.getObjectKey());
-        Table(b.getObjectType());
-        recursiveSave("user_data","", b.getUserData());
-        recursiveSave("meta_data","", b.getMetaData());
-        System.out.println(this);
+        Table(Query.safeTable(b.getObjectType()));
+
+        recursiveSave("user_data", "", b.getUserData());
+        recursiveSave("meta_data", "", b.getMetaData());
+
+        if(DEBUG) System.out.println("Table: " + b.getObjectType());
+        if(DEBUG) System.out.println("Key: " + b.getObjectKey());
     }
 
     public String Key() {
@@ -108,7 +112,8 @@ public class Wrapper extends HashMap<String, Object> {
                     if(DEBUG) System.out.println("Loadc["+currentPath+"."+path+"]");
                     Class type = file.clazz;
                     Object[] raw = (Object[]) get(currentPath+"."+path);
-                    Object o = type.cast( v2c(raw) );
+//                    Object o = type.cast( v2c(raw) );
+                    Object o = v2c(raw);
                     map.put(path,o);
                 }break;
                 case 'n' : {

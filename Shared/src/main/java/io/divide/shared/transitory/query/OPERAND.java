@@ -32,6 +32,8 @@ public enum OPERAND{
             return LESS_THAN_EQ;
         } else if(EQ.symbol.equals(symbol)){
             return EQ;
+        } else if(CONTAINS.symbol.equals(symbol)){
+            return CONTAINS;
         }else {
             return null;
         }

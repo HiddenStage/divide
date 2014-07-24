@@ -113,7 +113,19 @@ public class Query {
     }
 
     public static <T extends TransientObject> String safeTable(Class<T> type){
-        return type.getName().replace(".","_");
+        return safeTable(type.getName());
+    }
+
+    public static String safeTable(String type){
+        return type.replace(".","_");
+    }
+
+    public static <T extends TransientObject> String reverseTable(Class<T> type){
+        return reverseTable(type.getName());
+    }
+
+    public static String reverseTable(String type){
+        return type.replace("_",".");
     }
 
     @Override

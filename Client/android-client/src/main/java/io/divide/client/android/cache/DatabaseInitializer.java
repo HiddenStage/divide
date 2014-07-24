@@ -1,4 +1,4 @@
-//package io.divide.client.cache;
+//package io.divide.client.android.cache;
 //
 //import android.content.Context;
 //import android.database.sqlite.SQLiteDatabase;

@@ -1,6 +1,10 @@
 package io.divide.client.android.mock;
 
-import android.app.Activity;
+import android.app.*;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import com.google.inject.Inject;
@@ -9,12 +13,13 @@ import com.jug6ernaut.debugdrawer.views.DebugGroup;
 import com.jug6ernaut.debugdrawer.views.SpinnerElement;
 import com.jug6ernaut.debugdrawer.views.TextElement;
 import io.divide.client.android.AndroidBackend;
+import io.divide.client.android.mock.AndroidDebugConfig.ModuleType;
 import io.divide.shared.logging.Logger;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.divide.client.android.mock.AndroidDebugConfig.ModuleType;
 import static io.divide.client.android.mock.AndroidDebugConfig.ModuleType.*;
 
 /**
@@ -62,10 +67,7 @@ public class DivideDrawer {
                 public void onAction(String s) {
                     logger.debug("Changing endpoint: " + s);
 
-                    config.setModuleType(ModuleType.valueOf(s));
-                    AndroidBackend.init(config);
-
-                    url.setValue(urlList.get(getIndex()));
+                    showAlert(activity,s);
                 }
             };
             endpoints.addElement(url);
@@ -87,6 +89,98 @@ public class DivideDrawer {
             return endpointList.indexOf(config.getCurrentModuleType());
         }
 
+        public void showAlert(final Activity activity,final String endpoint){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("WARNING");
+            builder.setMessage("Data will be cleared and application restarted. Continue?");
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    deleteCache(activity);
+                    deleteData(activity);
+                    deletePrefs(activity);
+
+                    config.setModuleType(ModuleType.valueOf(endpoint));
+//                    AndroidBackend.init(config);
+
+//                    url.setValue(urlList.get(getIndex()));
+
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    activity.startActivity(intent);
+
+                    activity.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+
+                        @Override public void onActivityCreated(Activity activity, Bundle bundle) { }
+                        @Override public void onActivityStarted(Activity activity) { }
+                        @Override public void onActivityResumed(Activity activity) { }
+                        @Override public void onActivityPaused(Activity activity) { }
+                        @Override public void onActivityStopped(Activity activity) { }
+                        @Override public void onActivitySaveInstanceState(Activity activity, Bundle bundle) { }
+
+                        @Override
+                        public void onActivityDestroyed(Activity activity) {
+                            Intent intent = new Intent(activity, activity.getClass());
+                            PendingIntent pi = PendingIntent.getActivity(activity, 0, intent, 0);
+                            AlarmManager am=(AlarmManager)activity.getSystemService(Context.ALARM_SERVICE);
+                            am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + ( 500 ), pi); // Millisec * Second * Minute
+
+                            System.exit(0);
+                        }
+                    });
+                    activity.finish();
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.show();
+        }
+
+    }
+
+    public static void deletePrefs(Context context){
+        try {
+            File parent = context.getFilesDir().getParentFile();
+            File dir = new File( parent.getPath() + File.separatorChar + "shared_prefs" );
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public static void deleteData(Context context) {
+        try {
+            File dir = context.getFilesDir();
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public static void deleteCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (String aChildren : children) {
+                boolean success = deleteDir(new File(dir, aChildren));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        System.out.println("Deleting: " + dir.getPath());
+        return dir.delete();
     }
 
 }

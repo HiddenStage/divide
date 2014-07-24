@@ -70,8 +70,8 @@ public class AndroidDebugConfig extends AndroidConfig {
         switch (endpoint){
             case Prod: return prodUrl;
             case Dev:  return devUrl;
-            case Mock: return "";
-            default: return "";
+            case Mock: return "Mock";
+            default: return "default";
         }
     }
 

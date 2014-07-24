@@ -1,4 +1,4 @@
-//package io.divide.client.cache;
+//package io.divide.client.android.cache;
 //
 //import android.content.ContentValues;
 //import android.content.Context;
@@ -8,26 +8,25 @@
 //import android.database.sqlite.SQLiteOpenHelper;
 //import com.google.gson.Gson;
 //import com.google.gson.GsonBuilder;
-//import com.jug6ernaut.android.logging.Logger;
 //import io.divide.client.BackendObject;
+//import io.divide.shared.logging.Logger;
 //import io.divide.shared.server.DAO;
+//import io.divide.shared.transitory.TransientObject;
+//import io.divide.shared.transitory.query.Clause;
 //import io.divide.shared.util.ReflectionUtils;
-//import io.divide.shared.web.transitory.TransientObject;
-//import io.divide.shared.web.transitory.query.Clause;
-//import io.divide.shared.web.transitory.query.Query;
 //
 //import java.io.IOException;
 //import java.util.*;
 //
 ///**
-// * Created with IntelliJ IDEA.
-// * User: williamwebb
-// * Date: 10/2/13
-// * Time: 5:56 PM
-// *
-// * Class takes a transient object, makes a new table for each object type, creating columns for each field, for now
-// * all string type, maybe except for known fields.
-// */
+//* Created with IntelliJ IDEA.
+//* User: williamwebb
+//* Date: 10/2/13
+//* Time: 5:56 PM
+//*
+//* Class takes a transient object, makes a new table for each object type, creating columns for each field, for now
+//* all string type, maybe except for known fields.
+//*/
 //
 //public class LocalStorageSQLite implements DAO{
 //

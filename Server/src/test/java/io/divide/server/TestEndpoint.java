@@ -1,12 +1,12 @@
 package io.divide.server;
 
+import io.divide.dao.ServerDAO;
 import io.divide.server.auth.SecManager;
 import io.divide.server.dao.DAOManager;
 import io.divide.server.dao.ServerCredentials;
-import io.divide.dao.ServerDAO;
-import io.divide.shared.util.AuthTokenUtils;
 import io.divide.shared.transitory.Credentials;
 import io.divide.shared.transitory.query.QueryBuilder;
+import io.divide.shared.util.AuthTokenUtils;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.PostConstruct;

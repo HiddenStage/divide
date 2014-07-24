@@ -1,7 +1,8 @@
 package io.divide.client;
 
-import io.divide.shared.logging.Logger;
+import iBoxDB.LocalServer.BoxSystem;
 import io.divide.client.auth.AuthManager;
+import io.divide.shared.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,9 +46,12 @@ public abstract class ClientTest {
 //        accountManager = null;
         backend = null;
         authManager = null;
-//        folder.delete();
-//        FileUtils.deleteDirectory(folder.getRoot());
-//        FileUtils.forceDelete(folder.getRoot());
+
+        if (!BoxSystem.DBDebug.DeleteDBFiles(1, 10, 20, -10)) {
+            System.out.println("delete=false,system locks");
+        }
+
+        folder.delete();
     }
 
     public String url(){

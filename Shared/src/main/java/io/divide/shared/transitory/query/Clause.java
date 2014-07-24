@@ -7,7 +7,7 @@ package io.divide.shared.transitory.query;
  * Time: 9:43 PM
  */
 public class Clause {
-    private String preOperator;
+    private String preOperator = "";
     private String before;
     private String operand;
     private String after;

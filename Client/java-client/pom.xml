@@ -49,6 +49,18 @@
             <version>4.0-beta</version>
             <classifier>no_aop</classifier>
         </dependency>
+        <dependency>
+            <groupId>io.divide</groupId>
+            <artifactId>authenticator-dao-common</artifactId>
+            <version>${app.version}</version>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>

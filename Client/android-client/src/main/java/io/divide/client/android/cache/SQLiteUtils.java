@@ -1,15 +1,15 @@
-//package io.divide.client.cache;
+//package io.divide.client.android.cache;
 //
 //import android.database.Cursor;
 //import android.database.sqlite.SQLiteDatabase;
 //import android.text.TextUtils;
-//import com.jug6ernaut.android.logging.Logger;
+//import io.divide.shared.logging.Logger;
 //
 //import java.util.*;
 //
 ///**
-// * Created by williamwebb on 10/29/13.
-// */
+//* Created by williamwebb on 10/29/13.
+//*/
 //public class SQLiteUtils {
 //
 //    private static final String NAME_COLUMN = "name";
