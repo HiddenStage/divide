@@ -1,7 +1,9 @@
 Divide.io
 ===========
 
-Divide.io is an open source BaaS. It provides tools to easily, securely, and efficiently communicate between your app and a server. It handles data storage, user registration & management, and push notifications.
+**Currently in alpha. Not intended for production use at this time.**
+
+Divide.io is an open source Backend-as-a-Service (BaaS). It provides tools to easily, securely, and efficiently communicate between your app and a server. It handles data storage, user registration & management, and push notifications.
 
 Deploy anywhere. Use any database you want. Never get locked into a platform.
 
@@ -80,4 +82,10 @@ BackendServices.remote()
  	     		// do something with objects
            }
      });
+```
+#License
+```
+Copyright 2014 HiddenStage
+
+Licensed under GPL v3.
 ```

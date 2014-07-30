@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="email">Email address</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="new_user">New user?</string>
+    <string name="name">Name</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_member">Already a member?</string>
+</resources>

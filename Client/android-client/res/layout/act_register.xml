@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:hint="Name"
+            android:hint="@string/name"
             android:inputType="text"
             android:padding="10dp"
             />
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Email address"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             />
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:inputType="textPassword"
-            android:hint="Password"
+            android:hint="@string/password"
             android:padding="10dp"
             />
 
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Create Account"
+            android:text="@string/create_account"
             android:padding="10dp"/>
 
     <TextView android:id="@+id/alreadyMember"
@@ -52,6 +52,6 @@
               android:layout_marginTop="10dp"
               android:padding="5dp"
               android:gravity="center"
-              android:text="Already a member?"/>
+              android:text="@string/already_member"/>
 </LinearLayout>
 
