@@ -5,31 +5,30 @@
     <parent>
         <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>war</packaging>
-    <artifactId>authenticator-server-sample</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>server-sample</artifactId>
 
     <dependencies>
         <!-- Compile/runtime dependencies -->
 
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-orientdb</artifactId>
+            <artifactId>dao-orientdb</artifactId>
             <version>${app.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-objectify</artifactId>
+            <artifactId>dao-objectify</artifactId>
             <version>${app.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-server</artifactId>
+            <artifactId>server</artifactId>
             <version>${app.version}</version>
         </dependency>
 

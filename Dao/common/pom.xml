@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.divide</groupId>
-        <artifactId>authenticator-dao</artifactId>
-        <version>0.5.1</version>
+        <artifactId>dao</artifactId>
+        <version>0.5.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>authenticator-dao-common</artifactId>
+    <artifactId>dao-common</artifactId>
 
     <dependencies>
         <dependency>

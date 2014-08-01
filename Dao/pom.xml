@@ -6,9 +6,9 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>io.divide</groupId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
     </parent>
-    <artifactId>authenticator-dao</artifactId>
+    <artifactId>dao</artifactId>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-shared</artifactId>
+            <artifactId>shared</artifactId>
             <version>${app.version}</version>
         </dependency>
     </dependencies>

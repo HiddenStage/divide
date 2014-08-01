@@ -5,22 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.divide</groupId>
-        <artifactId>authenticator-dao</artifactId>
-        <version>0.5.1</version>
+        <artifactId>dao</artifactId>
+        <version>0.5.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>authenticator-dao-objectify</artifactId>
+    <artifactId>dao-objectify</artifactId>
     <version>${app.version}</version>
 
     <dependencies>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-common</artifactId>
+            <artifactId>dao-common</artifactId>
             <version>${app.version}</version>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-common</artifactId>
+            <artifactId>dao-common</artifactId>
             <version>${app.version}</version>
             <type>test-jar</type>
         </dependency>

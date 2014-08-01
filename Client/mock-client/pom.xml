@@ -3,19 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>authenticator-client</artifactId>
+        <artifactId>client</artifactId>
         <groupId>io.divide</groupId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>authenticator-client-mock</artifactId>
+    <artifactId>client-mock</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-client-java</artifactId>
+            <artifactId>client-java</artifactId>
             <version>${app.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -33,26 +33,26 @@
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-server</artifactId>
-            <version>0.5.1</version>
+            <artifactId>server</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-server</artifactId>
-            <version>0.5.1</version>
+            <artifactId>server</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-orientdb</artifactId>
+            <artifactId>dao-orientdb</artifactId>
             <version>${app.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-common</artifactId>
+            <artifactId>dao-common</artifactId>
             <version>${app.version}</version>
             <scope>test</scope>
         </dependency>

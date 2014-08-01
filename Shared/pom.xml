@@ -7,11 +7,10 @@
     <parent>
         <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>authenticator-shared</artifactId>
-    <version>0.5.1</version>
+    <artifactId>shared</artifactId>
 
     <dependencies>
         <dependency>

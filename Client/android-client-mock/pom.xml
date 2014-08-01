@@ -3,27 +3,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>authenticator-client</artifactId>
+        <artifactId>client</artifactId>
         <groupId>io.divide</groupId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>aar</packaging>
 
-    <artifactId>authenticator-client-android-mock</artifactId>
+    <artifactId>client-android-mock</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-client-android</artifactId>
+            <artifactId>client-android</artifactId>
             <version>${app.version}</version>
             <type>aar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-client-mock</artifactId>
+            <artifactId>client-mock</artifactId>
             <version>${app.version}</version>
         </dependency>
         <dependency>

@@ -6,16 +6,15 @@
     <parent>
         <groupId>io.divide</groupId>
         <artifactId>parent</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>authenticator-client-java</artifactId>
-    <version>0.5.1</version>
+    <artifactId>client-java</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-shared</artifactId>
+            <artifactId>shared</artifactId>
             <version>${app.version}</version>
         </dependency>
         <dependency>
@@ -51,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>authenticator-dao-common</artifactId>
+            <artifactId>dao-common</artifactId>
             <version>${app.version}</version>
             <type>test-jar</type>
         </dependency>
