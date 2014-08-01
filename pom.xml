@@ -55,6 +55,9 @@
         </profile>
         <profile>
             <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>Shared</module>
                 <module>Dao</module>
@@ -68,9 +71,6 @@
 
         <profile>
             <id>release</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>Shared</module>
                 <module>Dao</module>
