@@ -1,3 +1,6 @@
 .idea/*
 .idea
 *.iml
+target/
+gen-external-apklibs/
+*.DS_Store
