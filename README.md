@@ -9,7 +9,6 @@ Deploy anywhere. Use any database you want. Never get locked into a platform.
 
 #### Server
 Built on Jersey, it can be deployed to any J2EE server that supports javax.ws.rs.core.Application. DAO implementations are independant and can be written/plugged in for the situation.
-
 ```java
 public class SomeApplication extends AuthApplication<OrientDBDao> {
 
@@ -26,9 +25,7 @@ public class SomeApplication extends AuthApplication<OrientDBDao> {
     }
 }
 ```
-
 #### Client (Android)
-
 ```java
 public class MyApplication extends Application {
 
@@ -38,9 +35,7 @@ public class MyApplication extends Application {
     }
 }
 ```
-
 #### Create and Save an Object
-
 ```java
 BackendObject object = new BackendObject();
 
@@ -48,7 +43,7 @@ BackendObject object = new BackendObject();
 object.put("somePrimative1",1);          // int
 object.put("somePrimative2",1L);         // long
 object.put("somePrimative3","Some string"); // String
-object.put("someObject",new Object());   // Some POJO...ect
+object.put("someObject",new Object());   // Some POJO...etc.
 
 // store remotely async
 BackendServices
@@ -62,10 +57,7 @@ BackendServices
 	.save(object)
 	.subscribe();
 ```
-
-
 #### Perform Query
-
 ```java
 // create Query
 Query query = new QueryBuilder()
