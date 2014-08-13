@@ -1,6 +1,6 @@
 package io.divide.server.sample;
 
-import io.divide.dao.appengine.ObjectifyDAO;
+import io.divide.dao.orientdb.OrientDBDao;
 import io.divide.server.AuthApplication;
 
 /**
@@ -9,10 +9,10 @@ import io.divide.server.AuthApplication;
  * Date: 8/19/13
  * Time: 5:57 PM
  */
-public class SomeApplication extends AuthApplication<ObjectifyDAO> {
+public class SomeApplication extends AuthApplication<OrientDBDao> {
 
     public SomeApplication() {
-        super(ObjectifyDAO.class, "saywhatwhat");
+        super(OrientDBDao.class, "saywhatwhat");
     }
 
 }

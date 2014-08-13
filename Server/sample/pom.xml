@@ -22,12 +22,6 @@
 
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>dao-objectify</artifactId>
-            <version>${app.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.divide</groupId>
             <artifactId>server</artifactId>
             <version>${app.version}</version>
         </dependency>
