@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2014 Divide.io
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.example.client_sample;
 
 import android.app.Application;
@@ -11,12 +28,6 @@ import io.divide.client.android.mock.AndroidDebugConfig;
 import io.divide.client.android.push.PushEvent;
 import io.divide.client.android.push.PushListener;
 
-/**
- * Created with IntelliJ IDEA.
- * User: williamwebb
- * Date: 8/30/13
- * Time: 9:43 PM
- */
 public class MyApplication extends Application {
 
     private static Logger logger;

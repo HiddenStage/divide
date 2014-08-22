@@ -1,4 +1,4 @@
-package io.divide.client.android.security;/*
+/*
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will Google be held liable for any damages
 * arising from the use of this software.
@@ -7,6 +7,8 @@ package io.divide.client.android.security;/*
 * including commercial applications, and to alter it and redistribute it
 * freely, as long as the origin is not misrepresented.
 */
+
+package io.divide.client.android.security;
 
 import android.os.Build;
 import android.os.Process;

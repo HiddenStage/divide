@@ -1,8 +1,3 @@
-package io.divide.client.http;
-
-/**
- * Created by williamwebb on 12/21/13.
- */
 /*
  * Copyright 2005-2007 Noelios Consulting.
  *
@@ -20,6 +15,8 @@ package io.divide.client.http;
  * enclosed by brackets "[]" replaced with your own identifying information:
  * Portions Copyright [yyyy] [name of copyright owner]
  */
+
+package io.divide.client.http;
 
 /**
  * Status to return after handling a call.
