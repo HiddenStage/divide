@@ -1,5 +1,8 @@
 Building Divide.io
 ===========
+##Prerequisites
+You must have git, Maven, and JDK (version 6 or above) installed.
+
 ##Step 1
 Clone the repo:
 
