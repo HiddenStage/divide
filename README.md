@@ -16,16 +16,13 @@ Divide.io provides easy to use APIs to connect your mobile app to a backend. Get
 
 ####Getting Started Guides
 **Servers:**
-
-[App Engine](http://www.divide.io/get_started/app_engine)
-
-AWS (Coming soon)
+* [App Engine](http://www.divide.io/get_started/app_engine)
+* AWS (Coming soon)
 
 **Clients:**
 
-[Android](http://www.divide.io/get_started/android)
-
-iOS (Coming soon)
+* [Android](http://www.divide.io/get_started/android)
+* iOS (Coming soon)
 
 ####Documentation
 Extensive documentation is coming soon. For now, see our [javadocs](http://hiddenstage.github.io/divide-docs/javadocs/)
