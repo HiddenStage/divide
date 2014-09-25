@@ -28,7 +28,7 @@ cd dependency_setup
 setup.bat
 ```
 
-*If you run into ‘cmd’ is not recognized as an internal or external command. make sure you have “C:\Windows\System32” in your Path variable.*
+*If you run into ‘cmd’ is not recognized as an internal or external command, make sure you have “C:\Windows\System32” in your Path variable.*
 
 ##Step 3
 Go the the root directory then clean and build the project. (This may take awhile as libraries will download and tests will be run)
