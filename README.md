@@ -30,7 +30,7 @@ iOS (Coming soon)
 ####Documentation
 Extensive documentation is coming soon. For now, see our [javadocs](http://hiddenstage.github.io/divide-docs/javadocs/)
 
-#License
+####License
 ```
 Copyright (C) 2014 Divide.io
 
