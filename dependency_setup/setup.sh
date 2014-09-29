@@ -23,4 +23,8 @@ cd ../gcm/gcm-server
 
 mvn clean install
 
+cd ../../../../iboxdb
+
+mvn clean install
+
 cd $pwd
