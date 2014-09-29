@@ -37,7 +37,7 @@
         <profile>
             <id>setup</id>
             <modules>
-                <module>dependacy_setup</module>
+                <module>dependency_setup</module>
             </modules>
         </profile>
         <profile>
