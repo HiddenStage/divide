@@ -10,9 +10,13 @@ Visit [our website](http://www.divide.io/) for more information.
 ####How does it work?
 Divide.io provides easy to use APIs to connect your mobile app to a backend. Getting up and running is simple.
 
-1. Choose your backend provider. Our backend library can be deployed to any server that runs Java.
-2. Download our client libraries in your app.
-3. That's it! You can now use our APIs to communicate back and forth to your backend. Saving data, querying, logging in, etc. are now just a few lines of code away!
+1. Choose your backend provider. Any server that runs Java should suffice.
+2. Download and initialize our backend library.
+3. Download and initialize our client library in your app.
+4. That's it!
+
+You can now use our APIs to communicate back and forth to your backend. Saving data, querying, registering and logging in users, etc. are now just a few lines of code away!
+
 
 ####Getting Started Guides
 **Servers:**
