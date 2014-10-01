@@ -10,6 +10,7 @@
 
     <modules>
         <module>iboxdb</module>
+        <module>objectify</module>
     </modules>
 
 </project>

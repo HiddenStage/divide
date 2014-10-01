@@ -6,9 +6,9 @@
 
     <parent>
         <groupId>io.divide</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.5.2</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <artifactId>client</artifactId>
+        <version>0.5.3</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>client-sample</artifactId>
     <packaging>apk</packaging>
@@ -17,13 +17,13 @@
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>client-android</artifactId>
-            <version>${app.version}</version>
+            <version>${project.parent.version}</version>
             <type>aar</type>
         </dependency>
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>client-android-mock</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
             <type>aar</type>
         </dependency>
         <dependency>

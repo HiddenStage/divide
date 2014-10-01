@@ -27,4 +27,8 @@ cd ../../../../iboxdb
 
 mvn clean install
 
+cd ../objectify/
+
+mvn clean install
+
 cd $pwd

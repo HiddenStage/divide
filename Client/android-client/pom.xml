@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.divide</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.5.2</version>
-        <relativePath>../../pom.xml</relativePath>
+        <artifactId>client</artifactId>
+        <version>0.5.3</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>client-android</artifactId>
     <packaging>aar</packaging>
@@ -16,11 +16,15 @@
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>client-java</artifactId>
-            <version>${app.version}</version>
+            <version>${project.parent.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>xmlpull</groupId>
                     <artifactId>xmlpull</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>iboxdb</groupId>
+                    <artifactId>iboxdb</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.divide</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.5.2</version>
-        <relativePath>../../pom.xml</relativePath>
+        <artifactId>client</artifactId>
+        <version>0.5.3</version>
+        <relativePath>/../pom.xml</relativePath>
     </parent>
     <artifactId>client-java</artifactId>
 
@@ -97,7 +97,28 @@
                 </configuration>
                 <extensions>true</extensions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>
+                                        iboxdb:iboxdb
+                                    </include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

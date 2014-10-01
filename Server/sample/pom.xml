@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>io.divide</groupId>
-            <artifactId>dao-orientdb</artifactId>
+            <artifactId>dao-objectify</artifactId>
             <version>${app.version}</version>
         </dependency>
 

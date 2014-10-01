@@ -11,6 +11,7 @@
     </parent>
     <artifactId>client</artifactId>
     <packaging>pom</packaging>
+    <version>0.5.3</version>
 
     <modules>
         <module>java-client</module>

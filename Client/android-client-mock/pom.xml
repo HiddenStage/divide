@@ -3,9 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>client</artifactId>
         <groupId>io.divide</groupId>
-        <version>0.5.2</version>
+        <artifactId>client</artifactId>
+        <version>0.5.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>io.divide</groupId>
             <artifactId>client-android</artifactId>
-            <version>${app.version}</version>
+            <version>${project.parent.version}</version>
             <type>aar</type>
             <scope>provided</scope>
         </dependency>

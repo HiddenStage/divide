@@ -30,4 +30,8 @@ cd ../../../../iboxdb
 
 call mvn clean install
 
+cd ../objectify
+
+call maven clean install
+
 cd /d %CURRENTDIR%

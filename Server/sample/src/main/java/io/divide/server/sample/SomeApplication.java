@@ -17,13 +17,13 @@
 
 package io.divide.server.sample;
 
-import io.divide.dao.orientdb.OrientDBDao;
+import io.divide.dao.appengine.ObjectifyDAO;
 import io.divide.server.AuthApplication;
 
-public class SomeApplication extends AuthApplication<OrientDBDao> {
+public class SomeApplication extends AuthApplication<ObjectifyDAO> {
 
     public SomeApplication() {
-        super(OrientDBDao.class, "saywhatwhat");
+        super(ObjectifyDAO.class, "saywhatwhat");
     }
 
 }
