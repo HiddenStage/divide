@@ -32,7 +32,7 @@ public class UserUtils {
     public static Observable<BackendUser> getAnonymousUser(Context context){
         final String id = UserUtils.getDeviceIdUnique(context);
 
-        return BackendUser.logInInBackground(id,id).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends BackendUser>>() {
+        return BackendUser.signInInBackground(id,id).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends BackendUser>>() {
             @Override
             public Observable<? extends BackendUser> call(OnErrorThrowable onErrorThrowable) {
                 return BackendUser.signUpInBackground(id,id,id);

@@ -28,13 +28,14 @@ import java.util.logging.Logger;
 
 public class AuthTokenUtils {
     static Logger logger = Logger.getLogger(AuthTokenUtils.class.getName());
-    static long expirateIn = (1000 * 60 * 60 * 24);
+    static long expirateIn = (1000 * 60 * 60 * 24); // 1 day
 
     public static String getNewToken(String key, Credentials credentials){
 
         String uuid = UUID.randomUUID().toString();
         Integer ownerId = credentials.getOwnerId();
-        Long expireIn = (System.currentTimeMillis() + expirateIn );
+//        Long expireIn = (System.currentTimeMillis() + expirateIn );
+        Long expireIn = Long.MAX_VALUE; // 106,751,991,167 days
 
         if(ownerId == null) throw new InternalError("ownerId returned null for receating auth token");
 

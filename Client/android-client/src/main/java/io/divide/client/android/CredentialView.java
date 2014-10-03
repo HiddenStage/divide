@@ -44,7 +44,7 @@ public class CredentialView extends RelativeLayout {
     TextView titleView;
     EditText userNameField;
 
-    public CredentialView(Context context, String title) {
+    public CredentialView(Context context, final String title) {
         super(context);
 
         this.context = context;
@@ -88,14 +88,14 @@ public class CredentialView extends RelativeLayout {
         // sign up button setup
         toggleButton.setPadding(padding,padding,padding,padding);
         toggleButton.setGravity(Gravity.CENTER);
-        toggleButton.setText("Have an Account?");
+        toggleButton.setText("Need to create an account?");
         toggleButton.setBackgroundColor(Color.TRANSPARENT);
         LayoutParams lp4 = new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp4.addRule(ALIGN_PARENT_BOTTOM);
         lp4.addRule(CENTER_HORIZONTAL);
         toggleButton.setLayoutParams(lp4);
 
-        // password setup
+        // username setup
         userNameField.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         userNameField.setPadding(padding, padding, padding, padding);
         userNameField.setHint("Username");
@@ -106,7 +106,7 @@ public class CredentialView extends RelativeLayout {
         userNameField.setLayoutParams(lp5);
 
         titleView.setTextAppearance(context, android.R.attr.textAppearanceLarge);
-        titleView.setText(title);
+        titleView.setText("Login to " + title);
         LayoutParams lp6 = new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp6.addRule(ABOVE,emailField.getId());
         lp6.addRule(CENTER_HORIZONTAL);
@@ -141,12 +141,16 @@ public class CredentialView extends RelativeLayout {
                 if(userNameField.getVisibility() == View.INVISIBLE){
                     userNameField.setVisibility(View.VISIBLE);
                     userNameField.requestFocus();
-                    toggleButton.setText("Create Account");
+                    toggleButton.setText("Already have an account?");
                     createAccount = true;
+
+                    titleView.setText("Register to " + title);
                 } else {
                     userNameField.setVisibility(View.INVISIBLE);
-                    toggleButton.setText("Have an Account?");
+                    toggleButton.setText("Need to create an account?");
                     createAccount = false;
+
+                    titleView.setText("Login to " + title);
                 }
             }
         });

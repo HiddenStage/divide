@@ -173,7 +173,7 @@ public final class BackendUser extends Credentials {
      * @param password user password
      * @return login results as observable.
      */
-    public static Observable<BackendUser> logInInBackground(String email, String password){
+    public static Observable<BackendUser> signInInBackground(String email, String password){
         return getAM().loginASync(new LoginCredentials(email, password));
     }
 
