@@ -4,3 +4,4 @@
 target/
 gen-external-apklibs/
 *.DS_Store
+dependency-reduced-pom.xml
