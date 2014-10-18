@@ -51,7 +51,13 @@ public class TransientObject {
     private transient boolean isNewObject = false;
 
     @SuppressWarnings("unused")
-    private TransientObject(){}
+    protected TransientObject(){
+        isNewObject = true;
+        meta_put(PERMISSIONS_KEY, new FilePermissions());
+        setObjectType(Query.safeTable(getClass()));
+        setObjectKey(UUID.randomUUID().toString());
+        updateCreateDate();
+    }
 
     protected <T extends TransientObject> TransientObject(Class<T> objectType){
         isNewObject = true;

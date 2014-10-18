@@ -38,10 +38,6 @@ public class BackendToOfy{
 
     private static class TempObject extends TransientObject{
 
-        protected <T extends TransientObject> TempObject() {
-            super(TempObject.class); // doesnt matter
-        }
-
         public void setMaps(Map<String,Object> userData, Map<String,String> metaData){
             this.user_data = userData;
             this.meta_data = metaData;

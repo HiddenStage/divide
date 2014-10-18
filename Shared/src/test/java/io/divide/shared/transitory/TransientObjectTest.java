@@ -59,10 +59,5 @@ public class TransientObjectTest extends TestCase {
 
     }
 
-    private static class AObject extends TransientObject{
-
-        protected <T extends TransientObject> AObject() {
-            super(AObject.class);
-        }
-    }
+    private static class AObject extends TransientObject { }
 }

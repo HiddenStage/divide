@@ -90,6 +90,7 @@ public class AuthManagerTest extends ClientTest {
 
         BackendUser user = authManager.login(new LoginCredentials(signInUser.getEmailAddress(),unEncryptedPW)).get();
 
+        assertNotNull(user);
         assertEquals(signInUser.getUsername(), user.getUsername());
     }
 

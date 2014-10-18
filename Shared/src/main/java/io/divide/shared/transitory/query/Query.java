@@ -131,10 +131,6 @@ public class Query {
         return type.replace(".","_");
     }
 
-    public static <T extends TransientObject> String reverseTable(Class<T> type){
-        return reverseTable(type.getName());
-    }
-
     public static String reverseTable(String type){
         return type.replace("_",".");
     }

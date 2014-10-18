@@ -21,10 +21,6 @@ import io.divide.client.BackendObject;
 
 public class CountObject extends BackendObject {
 
-    public CountObject(){
-        super(CountObject.class);
-    }
-
     public int getCount(){
         return get(Integer.class,"count");
     }

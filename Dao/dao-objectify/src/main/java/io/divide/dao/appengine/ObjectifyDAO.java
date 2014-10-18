@@ -209,7 +209,6 @@ public class ObjectifyDAO implements ServerDAO {
     private static class EmptyTO extends TransientObject{
 
         protected EmptyTO() {
-            super(TransientObject.class);
             this.meta_data.clear();
             this.user_data.clear();
         }

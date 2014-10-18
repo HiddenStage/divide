@@ -21,7 +21,6 @@ import io.divide.shared.transitory.TransientObject;
 
 public class Count extends TransientObject {
     public Count(int count, String from) {
-        super(Count.class);
         setCount(count);
         setFrom(from);
     }

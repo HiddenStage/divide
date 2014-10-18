@@ -31,12 +31,6 @@ public class BackendObject extends TransientObject {
     private static final MetaKey USER_ID_KEY = TransientObject.OWNER_ID_KEY;
 
     public BackendObject() {
-        this(BackendObject.class);
-    }
-
-    protected <B extends BackendObject> BackendObject(Class<B> type) {
-        super(type);
-//        this.setUserId(Backend.get().getAuthManager().getUser().getUserId());
         FilePermissions fp = new FilePermissions();
         fp.setWritable(true, FilePermissions.Level.GROUP, FilePermissions.Level.WORLD);
         setFilePermissions(fp);

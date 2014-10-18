@@ -26,10 +26,6 @@ public class ServerObject extends TransientObject {
 
     private static Credentials user = new SystemUser();
 
-    public ServerObject() {
-        super(ServerObject.class);
-    }
-
     @Override
     protected final Credentials getLoggedInUser(){
         return user;
