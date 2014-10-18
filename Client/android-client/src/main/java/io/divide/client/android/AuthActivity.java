@@ -23,20 +23,19 @@ import android.os.Bundle;
 import io.divide.client.BackendServices;
 import io.divide.client.BackendUser;
 import io.divide.client.auth.LoginListener;
-import io.divide.shared.logging.Logger;
 
 /**
  * The AuthUtils activity.
  *
- * Called by the AuthUtils and in charge of identifing the user.
+ * Called by the AuthUtils and in charge of identifying the user.
  *
  * It sends back to the AuthUtils the result.
  */
 
 public class AuthActivity extends Activity {
-    Logger logger = Logger.getLogger(AuthActivity.class);
 
-    public static final String TITLE_EXTRA = "title_extra_key";
+    public static final String EXTRA_TITLE = "title_extra_key";
+    public static final String EXTRA_ENABLE_ANONYMOUS_LOGIN = "enable_anonymous_login_key";
 
     /**
      * Called when the activity is first created.
@@ -44,9 +43,13 @@ public class AuthActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String title = this.getIntent().getStringExtra(TITLE_EXTRA);
+        String title = this.getIntent().getStringExtra(EXTRA_TITLE);
         if(title == null) title = getApplicationName(this);
-        setContentView(new CredentialView(this,title));
+        boolean enableAnonymous = this.getIntent().getBooleanExtra(EXTRA_ENABLE_ANONYMOUS_LOGIN,false);
+        CredentialView credentialView = new CredentialView(this,title);
+        if(enableAnonymous)credentialView.enableAnonymousLogin();
+
+        setContentView(credentialView);
         BackendServices.addLoginListener(new LoginListener() {
             @Override
             public void onNext(BackendUser backendUser) {

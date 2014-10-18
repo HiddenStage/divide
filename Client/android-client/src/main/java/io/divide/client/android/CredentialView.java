@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import io.divide.client.BackendUser;
+import io.divide.client.android.security.UserUtils;
 import io.divide.client.auth.SignInResponse;
 import io.divide.client.auth.SignUpResponse;
 
@@ -40,11 +41,12 @@ public class CredentialView extends RelativeLayout {
     EditText emailField;
     EditText passwordField;
     Button submitButton;
+    Button anonymousButton;
     Button toggleButton;
     TextView titleView;
     EditText userNameField;
 
-    public CredentialView(Context context, final String title) {
+    public CredentialView(final Context context, final String title) {
         super(context);
 
         this.context = context;
@@ -56,6 +58,7 @@ public class CredentialView extends RelativeLayout {
         toggleButton = new Button(context);    toggleButton.setId(4);
         titleView = new TextView(context);     titleView.setId(5);
         userNameField = new EditText(context); userNameField.setId(6);
+        anonymousButton = new Button(context); anonymousButton.setId(7);
 
         // email setup
         int padding = convertDpToPixel(10, context);
@@ -78,12 +81,22 @@ public class CredentialView extends RelativeLayout {
 
         // login button setup
         submitButton.setPadding(padding,padding,padding,padding);
-        submitButton.setText("Submit");
+        submitButton.setText("Login");
         LayoutParams lp3 = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp3.addRule(RIGHT_OF, passwordField.getId());
         lp3.addRule(BELOW,passwordField.getId());
         lp3.addRule(ALIGN_PARENT_LEFT);
         submitButton.setLayoutParams(lp3);
+
+        // anonymous button setup
+        anonymousButton.setPadding(padding, padding, padding, padding);
+        anonymousButton.setText("Anonymous");
+        anonymousButton.setVisibility(View.INVISIBLE);
+        LayoutParams lp7 = new LayoutParams(LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp7.addRule(RIGHT_OF, passwordField.getId());
+        lp7.addRule(BELOW,submitButton.getId());
+        lp7.addRule(ALIGN_PARENT_LEFT);
+        anonymousButton.setLayoutParams(lp7);
 
         // sign up button setup
         toggleButton.setPadding(padding,padding,padding,padding);
@@ -117,6 +130,7 @@ public class CredentialView extends RelativeLayout {
         addView( passwordField );
         addView( submitButton );
         addView( toggleButton );
+        addView( anonymousButton );
         addView( titleView );
         addView( userNameField );
 
@@ -138,10 +152,11 @@ public class CredentialView extends RelativeLayout {
         toggleButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(userNameField.getVisibility() == View.INVISIBLE){
+                if (userNameField.getVisibility() == View.INVISIBLE) {
                     userNameField.setVisibility(View.VISIBLE);
                     userNameField.requestFocus();
                     toggleButton.setText("Already have an account?");
+                    submitButton.setText("Sign Up");
                     createAccount = true;
 
                     titleView.setText("Register to " + title);
@@ -151,9 +166,20 @@ public class CredentialView extends RelativeLayout {
                     createAccount = false;
 
                     titleView.setText("Login to " + title);
+                    submitButton.setText("Login");
                 }
             }
         });
+        anonymousButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                UserUtils.getAnonymousUser(context).subscribe();
+            }
+        });
+    }
+
+    public void enableAnonymousLogin(){
+        anonymousButton.setVisibility(View.VISIBLE);
     }
 
     private void handleLoginAccount(final String email, final String password){
@@ -161,7 +187,6 @@ public class CredentialView extends RelativeLayout {
 
             @Override
             protected SignInResponse doInBackground(String... params) {
-
                 return BackendUser.signIn(email, password);
             }
 
@@ -181,7 +206,6 @@ public class CredentialView extends RelativeLayout {
 
             @Override
             protected SignUpResponse doInBackground(String... params) {
-
                 return BackendUser.signUp(username,email,password);
             }
 
@@ -189,7 +213,6 @@ public class CredentialView extends RelativeLayout {
             protected void onPostExecute(SignUpResponse response) {
                 if(response.getStatus().isSuccess()){
                     Toast.makeText(context,"Sign Up Success",Toast.LENGTH_LONG).show();
-
                 } else {
                     Toast.makeText(context,"Sign Up Failed: " + response.getError(),Toast.LENGTH_LONG).show();
                 }
