@@ -74,6 +74,13 @@ public final class BackendUser extends Credentials {
         return getAM().getUser();
     }
 
+    /**
+     * @return True if user is logged in, false if not
+     */
+    public static boolean isLoggedIn(){
+        return getAM().getUser() != null;
+    }
+
 //    public static ServerResponse<BackendUser> getAnonymousUser(){
 //        String id = UserUtils.getDeviceIdUnique(Backend.get().app);
 //        ServerResponse<BackendUser> response;

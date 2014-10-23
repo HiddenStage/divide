@@ -109,7 +109,7 @@ public class MyActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(BackendUser.getUser() != null)
+                if(BackendUser.isLoggedIn())
                     getObjects();
                 else
                     logger.debug("Not signed in, not querying data.");
