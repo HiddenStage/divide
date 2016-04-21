@@ -1,5 +1,7 @@
-Divide.io (Beta)
+Divide.io
 ===========
+
+## Note: Development is currently halted for this project from the main developers. We will continue to maintain the project, so if you're interesting in helping with development please see [contributing](https://github.com/HiddenStage/divide/blob/master/CONTRIBUTING.md).
 
 Divide.io is an open source Backend-as-a-Service (BaaS). It provides tools to easily, securely, and efficiently communicate between your app and a server. It handles data storage, user registration & management, and push notifications.
 
@@ -21,12 +23,10 @@ You can now use our APIs to communicate back and forth to your backend. Saving d
 ####Getting Started Guides
 **Servers:**
 * [App Engine](http://www.divide.io/get_started/app_engine)
-* AWS and others (Coming soon)
 
 **Clients:**
 
 * [Android](http://www.divide.io/get_started/android)
-* iOS (Coming soon)
 
 ####Documentation
 
@@ -36,7 +36,7 @@ You can now use our APIs to communicate back and forth to your backend. Saving d
 
 ####License
 ```
-Copyright (C) 2014 Divide.io
+Copyright (C) 2016 Divide.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
