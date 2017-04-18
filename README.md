@@ -9,7 +9,7 @@ Deploy anywhere. Use any database you want. Never get locked into a platform.
 
 Visit [our website](http://www.divide.io/) for more information.
 
-####How does it work?
+#### How does it work?
 Divide.io provides easy to use APIs to connect your mobile app to a backend. Getting up and running is simple.
 
 1. Choose your server provider. Any server that runs Java should suffice.
@@ -20,7 +20,7 @@ Divide.io provides easy to use APIs to connect your mobile app to a backend. Get
 You can now use our APIs to communicate back and forth to your backend. Saving data, querying, registering and logging in users, etc. are now just a few lines of code away!
 
 
-####Getting Started Guides
+#### Getting Started Guides
 **Servers:**
 * [App Engine](http://www.divide.io/get_started/app_engine)
 
@@ -28,13 +28,13 @@ You can now use our APIs to communicate back and forth to your backend. Saving d
 
 * [Android](http://www.divide.io/get_started/android)
 
-####Documentation
+#### Documentation
 
 * [Server docs](http://www.divide.io/docs/server)
 * [Android docs](http://www.divide.io/docs/android)
 * [Javadocs](http://hiddenstage.github.io/divide-docs/javadocs/)
 
-####License
+#### License
 ```
 Copyright (C) 2016 Divide.io
 

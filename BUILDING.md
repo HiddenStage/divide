@@ -1,15 +1,15 @@
 Building Divide.io
 ===========
-##Prerequisites
+## Prerequisites
 You must have git, Maven, and JDK (version 6 or above) installed.
 
-##Step 1
+## Step 1
 Clone the repo:
 
 ```
 git clone https://github.com/HiddenStage/divide.git
 ```
-##Step 2
+## Step 2
 **For OS X:**
 
 Go to the `dependency_setup` directory and run `setup.sh`
@@ -30,7 +30,7 @@ setup.bat
 
 *If you run into ‘cmd’ is not recognized as an internal or external command, make sure you have “C:\Windows\System32” in your Path variable.*
 
-##Step 3
+## Step 3
 Go the the root directory then clean and build the project. (This may take awhile as libraries will download and tests will be run)
 
 ```
