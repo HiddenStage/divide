@@ -1,0 +1,8 @@
+public void divide(int a,int b)
+{ 
+if(b=0)
+c=0;
+else
+int c= a/b;
+System.out.println(" Divide = " +c);
+}
